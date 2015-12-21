@@ -1,0 +1,29 @@
+table {
+	height: 100%;
+	width: 100%;
+	border: none;
+}
+
+#tableArea {
+	height: 100%;
+}
+
+#blocklyArea {
+	height: 100%;
+
+}
+
+#codeArea {
+	font-family: "Lucida Console", Monaco, monospace;
+	background-color: #e2e2e2;
+}
+
+#responseArea {
+	font-family: "Lucida Console", Monaco, monospace;
+	background-color: rgba(255, 255, 255, 0.75);
+}
+
+#videoBackground {
+	background-size: cover;
+	width: 400px;
+}

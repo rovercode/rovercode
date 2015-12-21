@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>RoverCode</title>
+	<link rel="stylesheet" href="css/foundation.css" />
+	<link rel="stylesheet" href="css/mission-control.css"/>
+  	<script src="blockly/blockly_compressed.js"></script>
+  	<script src="blockly/blocks_compressed.js"></script>
+  	<script src="blockly/msg/js/en.js"></script>
+	<script src="js/vendor/jquery.js"></script>
+	<script src="js/vendor/modernizr.js"></script>
+	<script src="js/foundation/foundation.js"></script>
+	<script src="js/foundation/foundation.topbar.js"></script>
+	<script src="js/foundation/foundation.reveal.js"></script>
+	<script src="js/foundation/foundation.accordion.js"></script> 
+	<script src="blockly/blockly_compressed.js"></script>
+	<script src="blockly/blocks_compressed.js"></script>
+	<script src="blockly/appengine/storage.js"></script>
+	<script src="blockly/msg/js/en.js"></script>
+	<script src="/blockly/javascript_compressed.js"></script>
+	<script src="/blockly/generators/javascript/motors.js"></script>
+	<script src="/blockly/blocks/motors.js"></script>
+	<script src="JS-Interpreter/acorn_interpreter.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+    <link href="http://fonts.googleapis.com/css?family=Just+Another+Hand:400,300,700" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+	<div class="fixed">
+		<nav class="top-bar" data-topbar role="navigation">
+		  <ul class="title-area">
+			<li class="name">
+			  <h1><a href="#">RoverCode</a></h1>
+			</li>
+		  </ul>
+
+		  <section class="top-bar-section">
+			<!-- Left Nav Section -->
+			<ul class="left">
+			  <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
+			  <li><a href="#">>> Design is Saved</a></li>
+			</ul>
+			<!-- Right Nav Section -->
+			<ul class="right">
+			  <li class="active"><a href="#" onclick="return blocklyInterpret()">Execute Code</a></li>
+			  <li class="divider"></li>
+			  <li><a href="video-stream.html">Open Video Feed</a></li>
+			  <li class="has-dropdown">
+				<a href="#">Load or Copy</a>
+				<ul class="dropdown">
+				  <li><a href="#" onclick="return chooseDesign()">Load Previous Design</a></li>
+				  <li><a href="#" onclick="$('#nameModal').foundation('reveal', 'open')">Copy This Design</a></li>
+				  <li><a href="#" id="downloadLink">Download This Design</a></li>
+				</ul>
+			  </li>
+			  <li><a href="#" id="sidebarButton" style="background-color:#000000" onclick="return toggleSidebar()">Sidebar</a></li>
+			</ul>
+
+		  </section>
+		</nav>
+	</div>
+
+	<div id="tableArea">
+	<table id="theTable">
+
+		<tr>
+			<td rowspan="2" id="blocklyArea"> </td>
+			<td id="codeArea"> <p id=codeText> Drag blocks into the white area. Your code will appear here.</p></td>
+		</tr>
+		</tr>
+			<td id="videoBackground">
+				<div id="responseArea"></div>
+			</td>
+		</tr>
+	</table>
+	<div>
+		
+
+	<div id="blocklyDiv" style="position: absolute"></div>
+
+	<div id="nameModal" class="reveal-modal tiny" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+        <div class= "large-12 columns about-content">
+           	<h2>Name your design:</h2>
+			<p id='nameErrorArea'></p>
+			<form action="javascript:acceptName();">
+				<input type="text" name="designName">
+				<input type="submit" value="OK" class="button alert">
+			</form>
+			<h2>Or, load a saved design:</h2> 
+			<a href="#" onclick="return chooseDesign()" class = "button">Go</a>
+        </div>
+	</div>
+
+      <div id="loadModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+        <div class= "large-12 columns about-content">
+           <h2>Here are the designs saved on this rover:</h2>
+			<div class='panel' id='savedDesignsArea'></div>
+			<dl class="accordion" data-accordion>
+				<dd class="accordion-navigation">
+					<a href="#uploadPanel">Or, upload a design from your computer.</a>
+					<div id="uploadPanel" class="content">
+						<div class='panel'>
+							<div id="loadErrorArea"></div>
+							<form enctype="multipart/form-data" id="uploadForm">
+								<div style="position: relative">
+									<input id="fileToUpload" name="fileToUpload" type="file" id="uploadFile" accept="text/xml"/>
+								</div>
+								<input class="button alert" name="button" type="button" value="Upload" />
+							</form>
+							<div id="loadStatusArea"></div>
+						</div>
+					</div>
+				</dd>
+			</dl>
+        </div>
+        <a class="close-reveal-modal">&#215;</a>
+      </div>
+
+	<xml id="toolbox" style="display: none">
+		<block type="controls_if"></block>
+		<block type="logic_compare"></block>
+		<block type="controls_repeat_ext"></block>
+		<block type="math_number"></block>
+		<block type="math_arithmetic"></block>
+		<block type="text"></block>
+		<block type="text_print"></block>
+		<block type="set_motor"></block>
+	</xml>
+
+	<script>
+		var sidebarVisible = true;
+		designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
+		$('a#designNameArea').text(designName);
+		var blocklyArea = document.getElementById('blocklyArea');
+		var blocklyDiv = document.getElementById('blocklyDiv');
+	  	var workspace = Blockly.inject(blocklyDiv,
+			{toolbox: document.getElementById('toolbox')});
+		workspace.addChangeListener(updateCode);
+		workspace.addChangeListener(saveDesign);
+	  	var onresize = function(e) {
+			var element = blocklyArea;
+			var x = 0;
+			var y = 0;
+			do {
+		  		x += element.offsetLeft;
+		  		y += element.offsetTop;
+		  		element = element.offsetParent;
+			} while (element);
+			blocklyDiv.style.left = x + 'px';
+			blocklyDiv.style.top = y + 'px';
+			blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+			blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+
+	  	};
+	  	window.addEventListener('resize', onresize, false);
+	  	onresize();
+
+		$('#videoBackground').css('background-image','url(' + 'http://' + window.location.hostname + ':8082/?action=stream' + ')');
+
+
+		$('#uploadForm #uploadFile').change(function(){
+			var file = this.files[0];
+			var type = file.type;
+			if(type == "text/xml")
+				$('#loadErrorArea').empty();
+			else
+				$('#loadErrorArea').text("Please select a .xml file");
+		});
+
+		$('#uploadForm input[name=button]').click(function(){
+
+			var formData = new FormData();
+			formData.append("fileToUpload", $('#fileToUpload').get(0).files[0]);
+
+			$.ajax({
+				url: 'upload.php',  //Server script to process data
+				type: 'POST',
+				xhr: function() {  // Custom XMLHttpRequest
+					var myXhr = $.ajaxSettings.xhr();
+					return myXhr;
+				},
+				success: function (data) {
+					refreshSavedBds();
+					$("#loadStatusArea").text(data + " Look for it above.");
+
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					$("#loadStatusArea").text("There was an error uploading your design. " + thrownError);
+				},
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false
+			});
+		});
+
+		function initApi(interpreter, scope) {
+			// Add an API function for the alert() block.
+			var wrapper = function(text) {
+				text = text ? text.toString() : '';
+				return interpreter.createPrimitive(alert(text));
+			};
+			interpreter.setProperty(scope, 'alert',
+				interpreter.createNativeFunction(wrapper));
+
+			// Add test API function for AJAX
+			var wrapper = function(text) {
+				$.ajax({
+					url:'process.php',
+					complete: function (response) {
+						$('#responseArea').html(response.responseText);
+					},
+					error: function () {
+						$('#responseArea').html('Bummer: there was an error!');
+					}
+				});
+				return false;
+			};
+			interpreter.setProperty(scope, 'callMyPHP',
+				interpreter.createNativeFunction(wrapper));
+		}
+
+		function updateCode() {
+			var code = Blockly.JavaScript.workspaceToCode(workspace);
+			document.getElementById('codeText').innerHTML = code;
+			myInterpreter = new Interpreter(code, initApi);
+		}
+
+		function blocklyInterpret() {
+			myInterpreter.step();
+		}
+
+		function saveDesign() {
+			xml = Blockly.Xml.workspaceToDom(workspace);
+			xmlString = Blockly.Xml.domToText(xml);
+			$.post('save-bd.php', {bdString: xmlString, designName: designName}, function(response){
+			}).error(function(){
+  				alert("There was an error saving your design to the rover");
+			});
+		}
+
+		function chooseDesign() {
+			$('#loadModal').foundation('reveal', 'open');
+			refreshSavedBds();
+		}
+
+		function refreshSavedBds() {
+			$.get('get-saved-bd-list.php', function(response){
+				json = JSON.parse(response);
+				if (!json.length){
+					$('#savedDesignsArea').text("There are no designs saved on this rover");
+				} else {
+					$('#savedDesignsArea').empty();
+					json.forEach(function(entry) {
+						$('#savedDesignsArea').append("<a href='#' class='button' style='margin:10px;' onclick='return loadDesign(\""+entry+"\")'>"+entry+"</a>");
+					});
+				}
+
+			}
+			);
+		}
+
+		function loadDesign(name) {
+			$('#loadModal').foundation('reveal', 'close');
+			$.get('get-bd.php', { designName:name }, function(response){
+				workspace.clear();
+				xmlDom = Blockly.Xml.textToDom(response);
+				Blockly.Xml.domToWorkspace(workspace, xmlDom);
+				designName = name;	
+				$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
+				$('a#downloadLink').attr("download", designName+".xml");
+				$('a#designNameArea').text(designName);
+			}).error(function(){
+  				alert("There was an error loading your design from the rover");
+			});
+		}
+			
+
+		function toggleSidebar() {
+			var widthDelta = 400;
+			if ($("#codeArea").is(":visible")){
+				var currentWidth = $('#blocklyArea').outerWidth();
+				$("#blocklyArea").css("min-width", currentWidth+widthDelta);
+				$("#sidebarButton").css("background-color", "#333333");
+			} else {
+				$("#blocklyArea").css("min-width", 'auto');
+				$("#sidebarButton").css("background-color", "#000000");
+			}
+			$("#codeArea").fadeToggle(500);	
+			$("#responseArea").fadeToggle(500);	
+			$("#videoBackground").fadeToggle(500);
+			onresize();
+			Blockly.fireUiEvent(window, 'resize')
+		}
+
+		function acceptName() {
+			designName = $('input[name=designName]').val();
+
+			$.get('get-saved-bd-list.php', function(response){
+				json = JSON.parse(response);
+				var duplicate = false;
+				json.forEach(function(entry) {
+					if (entry == designName)
+						duplicate = true;
+				});
+
+				if (designName == ''){
+					$('#nameErrorArea').text('Please enter a name for your design in the box');
+				} else if (duplicate) {
+					$('#nameErrorArea').text('This name has already been chosen. Please pick another one.');
+				} else {
+					saveDesign();
+					$('#nameErrorArea').empty();
+					$('a#designNameArea').text(designName);
+					$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
+					$('a#downloadLink').attr("download", designName+".xml");
+					$('#nameModal').foundation('reveal', 'close');
+				}
+			});
+
+
+
+		}
+
+	$('#nameModal').foundation('reveal', 'open');
+
+	</script>
+
+
+	<script type="text/javascript"> 
+	   $(document).foundation();
+	</script>
+
+</body>
+
+
+</html>
