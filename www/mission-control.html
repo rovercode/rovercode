@@ -30,7 +30,7 @@
 
 <body>
 	<div class="fixed">
-		<nav class="top-bar" data-topbar role="navigation">
+		<nav class="top-bar" data-topbar>
 		  <ul class="title-area">
 			<li class="name">
 			  <h1><a href="#">RoverCode</a></h1>
@@ -45,7 +45,7 @@
 			</ul>
 			<!-- Right Nav Section -->
 			<ul class="right">
-			  <li class="active"><a href="#" onclick="return blocklyInterpret()">Execute Code</a></li>
+			  <li class="active"><a href="#" onclick="return stepCode()">Execute Code</a></li>
 			  <li class="divider"></li>
 			  <li><a href="video-stream.html">Open Video Feed</a></li>
 			  <li class="has-dropdown">
@@ -65,23 +65,21 @@
 
 	<div id="tableArea">
 	<table id="theTable">
-
 		<tr>
 			<td rowspan="2" id="blocklyArea"> </td>
 			<td id="codeArea"> <p id=codeText> Drag blocks into the white area. Your code will appear here.</p></td>
 		</tr>
-		</tr>
+        <tr>
 			<td id="videoBackground">
 				<div id="responseArea"></div>
 			</td>
 		</tr>
 	</table>
-	<div>
-		
+	</div>
 
 	<div id="blocklyDiv" style="position: absolute"></div>
 
-	<div id="nameModal" class="reveal-modal tiny" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+	<div id="nameModal" class="reveal-modal tiny" data-reveal aria-labelledby="nameModal" aria-hidden="true" role="dialog">
         <div class= "large-12 columns about-content">
            	<h2>Name your design:</h2>
 			<p id='nameErrorArea'></p>
@@ -94,7 +92,7 @@
         </div>
 	</div>
 
-      <div id="loadModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+      <div id="loadModal" class="reveal-modal" data-reveal aria-labelledby="loadModal" aria-hidden="true" role="dialog">
         <div class= "large-12 columns about-content">
            <h2>Here are the designs saved on this rover:</h2>
 			<div class='panel' id='savedDesignsArea'></div>
@@ -106,7 +104,7 @@
 							<div id="loadErrorArea"></div>
 							<form enctype="multipart/form-data" id="uploadForm">
 								<div style="position: relative">
-									<input id="fileToUpload" name="fileToUpload" type="file" id="uploadFile" accept="text/xml"/>
+									<input id="fileToUpload" name="fileToUpload" type="file" accept="text/xml"/>
 								</div>
 								<input class="button alert" name="button" type="button" value="Upload" />
 							</form>
@@ -134,6 +132,7 @@
 		var sidebarVisible = true;
 		designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
 		$('a#designNameArea').text(designName);
+        var highlightPause = false;
 		var blocklyArea = document.getElementById('blocklyArea');
 		var blocklyDiv = document.getElementById('blocklyDiv');
 	  	var workspace = Blockly.inject(blocklyDiv,
@@ -161,7 +160,7 @@
 		$('#videoBackground').css('background-image','url(' + 'http://' + window.location.hostname + ':8082/?action=stream' + ')');
 
 
-		$('#uploadForm #uploadFile').change(function(){
+		$('#uploadForm #fileToUpload').change(function(){
 			var file = this.files[0];
 			var type = file.type;
 			if(type == "text/xml")
@@ -206,8 +205,16 @@
 			interpreter.setProperty(scope, 'alert',
 				interpreter.createNativeFunction(wrapper));
 
+			// Add an API function for highlighting blocks.
+			wrapper = function(id) {
+				id = id ? id.toString() : '';
+				return interpreter.createPrimitive(highlightBlock(id));
+			};
+			interpreter.setProperty(scope, 'highlightBlock',
+				interpreter.createNativeFunction(wrapper));
+
 			// Add test API function for AJAX
-			var wrapper = function(text) {
+			wrapper = function(text) {
 				$.ajax({
 					url:'process.php',
 					complete: function (response) {
@@ -226,11 +233,35 @@
 		function updateCode() {
 			var code = Blockly.JavaScript.workspaceToCode(workspace);
 			document.getElementById('codeText').innerHTML = code;
+			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+      		Blockly.JavaScript.addReservedWords('highlightBlock');
 			myInterpreter = new Interpreter(code, initApi);
+            highlightPause = false;
+            workspace.traceOn(true);
+            workspace.highlightBlock(null);
 		}
 
-		function blocklyInterpret() {
-			myInterpreter.step();
+        function highlightBlock(id) {
+            workspace.highlightBlock(id);
+            highlightPause = true;
+        }    
+            
+		function stepCode() {
+            try {
+                var ok = myInterpreter.step();
+            } finally {
+                if (!ok) {
+                // Program complete, no more code to execute.
+                return;
+                }
+            }
+            if (highlightPause) {
+                // A block has been highlighted.  Pause execution here.
+                highlightPause = false;
+            } else {
+                // Keep executing until a highlight statement is reached.
+                stepCode();
+            }
 		}
 
 		function saveDesign() {
@@ -293,7 +324,7 @@
 			$("#responseArea").fadeToggle(500);	
 			$("#videoBackground").fadeToggle(500);
 			onresize();
-			Blockly.fireUiEvent(window, 'resize')
+			Blockly.fireUiEvent(window, 'resize');
 		}
 
 		function acceptName() {
@@ -307,7 +338,7 @@
 						duplicate = true;
 				});
 
-				if (designName == ''){
+				if (designName === ''){
 					$('#nameErrorArea').text('Please enter a name for your design in the box');
 				} else if (duplicate) {
 					$('#nameErrorArea').text('This name has already been chosen. Please pick another one.');
