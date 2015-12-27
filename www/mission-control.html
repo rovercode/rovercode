@@ -5,6 +5,7 @@
 	<title>RoverCode</title>
 	<link rel="stylesheet" href="css/foundation.css" />
 	<link rel="stylesheet" href="css/mission-control.css"/>
+	<link rel="stylesheet" href="css/blockly.css"/>
   	<script src="blockly/blockly_compressed.js"></script>
   	<script src="blockly/blocks_compressed.js"></script>
   	<script src="blockly/msg/js/en.js"></script>
@@ -25,6 +26,7 @@
 	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
     <link href="http://fonts.googleapis.com/css?family=Just+Another+Hand:400,300,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="foundation-icons/foundation-icons.css">
 
 </head>
 
@@ -33,29 +35,31 @@
 		<nav class="top-bar" data-topbar>
 		  <ul class="title-area">
 			<li class="name">
-			  <h1><a href="#">RoverCode</a></h1>
+                <a href="#">RoverCode</a>
 			</li>
 		  </ul>
 
 		  <section class="top-bar-section">
 			<!-- Left Nav Section -->
 			<ul class="left">
-			  <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
-			  <li><a href="#">>> Design is Saved</a></li>
+			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
+                <li class="has-dropdown">
+				    <a href="#">File</a>
+				    <ul class="dropdown">
+				        <li><a href="#" onclick="return chooseDesign()">Load Previous Design</a></li>
+				        <li><a href="#" onclick="$('#nameModal').foundation('reveal', 'open')">Copy This Design</a></li>
+				        <li><a href="#" id="downloadLink">Download This Design</a></li>
+				    </ul>
+                </li>
+			    <li><a href="#">>> Design is Saved</a></li>
 			</ul>
 			<!-- Right Nav Section -->
 			<ul class="right">
-			  <li class="active"><a href="#" onclick="return stepCode()">Execute Code</a></li>
+                <li><a style="background-color:#F04124; font-size:400%; box-shadow: 2px 2px 2px #7A7A7A; position:relative; z-index:999" href="#" onclick="return runCode()"><i class='fi-play'></i></a></li>
+                <li><a style="background-color:#008CBA; font-size:350%" href="#" onclick="return stepCode()"><i class='fi-arrow-right'></i></a></li>
+                <li><a style="background-color:#4DAECF; font-size:350%" href="#" onclick="return updateCode()"><i class='fi-refresh'></i></a></li>
 			  <li class="divider"></li>
 			  <li><a href="video-stream.html">Open Video Feed</a></li>
-			  <li class="has-dropdown">
-				<a href="#">Load or Copy</a>
-				<ul class="dropdown">
-				  <li><a href="#" onclick="return chooseDesign()">Load Previous Design</a></li>
-				  <li><a href="#" onclick="$('#nameModal').foundation('reveal', 'open')">Copy This Design</a></li>
-				  <li><a href="#" id="downloadLink">Download This Design</a></li>
-				</ul>
-			  </li>
 			  <li><a href="#" id="sidebarButton" style="background-color:#000000" onclick="return toggleSidebar()">Sidebar</a></li>
 			</ul>
 
@@ -81,13 +85,13 @@
 
 	<div id="nameModal" class="reveal-modal tiny" data-reveal aria-labelledby="nameModal" aria-hidden="true" role="dialog">
         <div class= "large-12 columns about-content">
-           	<h2>Name your design:</h2>
+           	<h2>Name your design</h2>
 			<p id='nameErrorArea'></p>
 			<form action="javascript:acceptName();">
 				<input type="text" name="designName">
 				<input type="submit" value="OK" class="button alert">
 			</form>
-			<h2>Or, load a saved design:</h2> 
+			<h2>Or, load a saved design</h2> 
 			<a href="#" onclick="return chooseDesign()" class = "button">Go</a>
         </div>
 	</div>
@@ -136,7 +140,7 @@
 		var blocklyArea = document.getElementById('blocklyArea');
 		var blocklyDiv = document.getElementById('blocklyDiv');
 	  	var workspace = Blockly.inject(blocklyDiv,
-			{toolbox: document.getElementById('toolbox')});
+			{toolbox: document.getElementById('toolbox'), css: false});
 		workspace.addChangeListener(updateCode);
 		workspace.addChangeListener(saveDesign);
 	  	var onresize = function(e) {
@@ -244,24 +248,34 @@
         function highlightBlock(id) {
             workspace.highlightBlock(id);
             highlightPause = true;
-        }    
+        } 
+
+        var stepCount = 0;
+
+        function runCode() {
+            if (stepCode()) {
+                console.log(stepCount++);
+                window.setTimeout(runCode, 50);
+            }
+        }
             
 		function stepCode() {
-            try {
-                var ok = myInterpreter.step();
-            } finally {
-                if (!ok) {
+            var ok = myInterpreter.step();
+            if (!ok) {
                 // Program complete, no more code to execute.
-                return;
-                }
+                workspace.highlightBlock(null);
+                console.log("code finished");
+                return false;
             }
             if (highlightPause) {
                 // A block has been highlighted.  Pause execution here.
+                console.log("code paused");
                 highlightPause = false;
             } else {
                 // Keep executing until a highlight statement is reached.
                 stepCode();
             }
+            return true;
 		}
 
 		function saveDesign() {
@@ -307,6 +321,7 @@
 			}).error(function(){
   				alert("There was an error loading your design from the rover");
 			});
+            updateCode();
 		}
 			
 

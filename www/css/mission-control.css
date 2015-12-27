@@ -4,13 +4,31 @@ table {
 	border: none;
 }
 
+.top-bar li a {
+    font-family: "Open Sans";
+    font-weight: lighter;
+    font-size: 100%;
+}
+
+.title-area li a {
+    font-family: "Just Another Hand";
+    color: #fff;
+    font-size: 200%;
+    margin-left: 5px;
+    margin-right: 20px;
+}
+
 #tableArea {
+    margin-top: 45px;
+    position:absolute;
+    top:0;
+    left:0;
 	height: 100%;
+    width: 100%;
 }
 
 #blocklyArea {
 	height: 100%;
-
 }
 
 #codeArea {
@@ -25,5 +43,5 @@ table {
 
 #videoBackground {
 	background-size: cover;
-	width: 400px;
+	width: 300px;
 }
