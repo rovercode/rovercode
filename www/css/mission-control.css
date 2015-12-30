@@ -31,14 +31,9 @@ table {
 	height: 100%;
 }
 
-#codeArea {
+#consoleArea {
 	font-family: "Lucida Console", Monaco, monospace;
 	background-color: #e2e2e2;
-}
-
-#responseArea {
-	font-family: "Lucida Console", Monaco, monospace;
-	background-color: rgba(255, 255, 255, 0.75);
 }
 
 #videoBackground {

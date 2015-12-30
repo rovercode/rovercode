@@ -80,11 +80,10 @@
 	<table id="theTable">
 		<tr>
 			<td rowspan="2" id="blocklyArea"> </td>
-			<td id="codeArea"> <p id=codeText> Drag blocks into the white area. Your code will appear here.</p></td>
+			<td id="consoleArea"> This is your console.</td>
 		</tr>
         <tr>
 			<td id="videoBackground">
-				<div id="responseArea"></div>
 			</td>
 		</tr>
 	</table>
@@ -160,25 +159,21 @@
             //Ctrl-Shift-7 to run code
             if (evtobj.keyCode == 55 && evtobj.ctrlKey && evtobj.shiftKey)
             {
-                console.log("Running code");
                 runCode();
             }
             //Ctrl-Shift-8 to stop code
             if (evtobj.keyCode == 56 && evtobj.ctrlKey && evtobj.shiftKey)
             {
-                console.log("Stopping code");
                 runningEnabled = false;
             }
             //Ctrl-Shift-9 to step code
             if (evtobj.keyCode == 57 && evtobj.ctrlKey && evtobj.shiftKey)
             {
-                console.log("Stepping code");
                 stepCode();
             }
             //Ctrl-Shift-0 to reset code
             if (evtobj.keyCode == 48 && evtobj.ctrlKey && evtobj.shiftKey)
             {
-                console.log("Resetting code");
                 updateCode();
             }
         }
@@ -261,10 +256,10 @@
 				$.ajax({
 					url:'process.php',
 					complete: function (response) {
-						$('#responseArea').html(response.responseText);
+                        writeToConsole(response.responseText);
 					},
 					error: function () {
-						$('#responseArea').html('Bummer: there was an error!');
+						$('#consoleArea').append('Bummer: there was an error!');
 					}
 				});
 				return false;
@@ -273,9 +268,13 @@
 				interpreter.createNativeFunction(wrapper));
 		}
 
+        function writeToConsole(entry) {
+            $('#consoleArea').append("</br>>> ");
+            $('#consoleArea').append(entry);
+        }
+
 		function updateCode() {
 			var code = Blockly.JavaScript.workspaceToCode(workspace);
-			document.getElementById('codeText').innerHTML = code;
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
       		Blockly.JavaScript.addReservedWords('highlightBlock');
 			myInterpreter = new Interpreter(code, initApi);
@@ -294,7 +293,6 @@
 
         function runCode() {
             if (stepCode() && runningEnabled) {
-                console.log(stepCount++);
                 window.setTimeout(runCode, 50);
             }
         }
@@ -323,7 +321,7 @@
 			xmlString = Blockly.Xml.domToText(xml);
 			$.post('save-bd.php', {bdString: xmlString, designName: designName}, function(response){
 			}).error(function(){
-  				alert("There was an error saving your design to the rover");
+  				writeToConsole("There was an error saving your design to the rover");
 			});
 		}
 
@@ -375,8 +373,7 @@
 				$("#blocklyArea").css("min-width", 'auto');
 				$("#sidebarButton").css("background-color", "#000000");
 			}
-			$("#codeArea").fadeToggle(500);	
-			$("#responseArea").fadeToggle(500);	
+			$("#consoleArea").fadeToggle(500);	
 			$("#videoBackground").fadeToggle(500);
 			onresize();
 			Blockly.fireUiEvent(window, 'resize');
