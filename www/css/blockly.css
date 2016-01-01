@@ -5,7 +5,7 @@
 
 .blocklyDraggable {}
 .blocklySvg {
-  background-color: #fff;
+  background-color: #E2E2E2;
   outline: none;
   overflow: hidden;
 }
@@ -74,9 +74,10 @@
 }
 .blocklyText {
   cursor: default;
-  fill: #fff;
+  fill: #EEE;
   font-family: "Open Sans";
   font-size: 11pt;
+  font-weight: 600;
 }
 .blocklyNonEditableText>text {
   pointer-events: none;
@@ -147,8 +148,8 @@
   stroke-width: 1;
 }
 .blocklyFlyoutBackground {
-  fill: #ddd;
-  fill-opacity: .8;
+  fill: #FFF;
+  fill-opacity: 1.0;
 }
 .blocklyScrollbarBackground {
   opacity: 0;
@@ -199,7 +200,7 @@
   stroke-linecap: round;
 }
 .blocklyContextMenu {
-  border-radius: 4px;
+  border-radius: 0px;
 }
 .blocklyDropdownMenu {
   padding: 0 !important;

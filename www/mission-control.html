@@ -24,7 +24,7 @@
 	<script src="blockly/blocks/motors.js"></script>
 	<script src="JS-Interpreter/acorn_interpreter.js"></script>
 	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
     <link href="http://fonts.googleapis.com/css?family=Just+Another+Hand:400,300,700" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="foundation-icons/foundation-icons.css">
 
@@ -43,6 +43,7 @@
 			<!-- Left Nav Section -->
 			<ul class="left">
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
+                <li><a href="#"><i class='fi-check'></i>Saved</a></li>
                 <li class="has-dropdown">
 				    <a href="#">File</a>
 				    <ul class="dropdown">
@@ -51,12 +52,11 @@
 				        <li><a href="#" id="downloadLink">Download This Design</a></li>
 				    </ul>
                 </li>
-                <li><a href="#"><i class='fi-check'></i> Design is Saved</a></li>
 			</ul>
 			<!-- Right Nav Section -->
 			<ul class="right">
-                <li><a style="background-color:#F04124; font-size:400%; box-shadow: 1px 1px 1px #333333;
-                        position:relative; z-index:999" href="#" onclick="return runCode()">
+                <li><a id="runButton" style="background-color:#F04124; font-size:400%; box-shadow: 1px 1px 1px #333333;
+                        position:relative; z-index:999" href="#" onclick="return goToRunningState()">
                         <i class='fi-play'></i></a></li>
                 <li><a style="background-color:#43AC6A; font-size:350%; box-shadow: 1px 1px 1px #333333;
                         position:relative; z-index:998" href="#" onclick="return stepCode()">
@@ -80,7 +80,7 @@
 	<table id="theTable">
 		<tr>
 			<td rowspan="2" id="blocklyArea"> </td>
-			<td id="consoleArea"> This is your console.</td>
+            <td id="consoleArea"></td>
 		</tr>
         <tr>
 			<td id="videoBackground">
@@ -91,7 +91,7 @@
 
 	<div id="blocklyDiv" style="position: absolute"></div>
 
-	<div id="nameModal" class="reveal-modal tiny" data-reveal aria-labelledby="nameModal" aria-hidden="true" role="dialog">
+	<div id="nameModal" class="reveal-modal small" data-reveal aria-labelledby="nameModal" aria-hidden="true" role="dialog">
         <div class= "large-12 columns about-content">
            	<h2>Name your design</h2>
 			<p id='nameErrorArea'></p>
@@ -148,10 +148,29 @@
         var highlightPause = false;
 		var blocklyArea = document.getElementById('blocklyArea');
 		var blocklyDiv = document.getElementById('blocklyDiv');
-	  	var workspace = Blockly.inject(blocklyDiv,
-			{toolbox: document.getElementById('toolbox'), css: false});
+        Blockly.HSV_SATURATION = 0.85;
+		Blockly.HSV_VALUE = 0.9; 
+        //Blockly.Bubble.ANCHOR_RADIUS = 1;
+        //Blockly.BlockSvg.CORNER_RADIUS = 1;
+        Blockly.Flyout.prototype.CORNER_RADIUS = 0;
+
+        var workspace = Blockly.inject(blocklyDiv,
+			{toolbox: document.getElementById('toolbox'),
+            css: false,
+            zoom:
+                {controls: true,
+                wheel: false,
+                startScale: 1.0,
+                maxScale: 3,
+                minScale: 0.3,
+                scaleSpeed: 1.2},
+            trashcan: true,
+            }
+        );
 		workspace.addChangeListener(updateCode);
 		workspace.addChangeListener(saveDesign);
+
+        writeToConsole("Started the RoverCode console");
 
         document.onkeydown = keyEvent;
         function keyEvent(e) {
@@ -159,12 +178,12 @@
             //Ctrl-Shift-7 to run code
             if (evtobj.keyCode == 55 && evtobj.ctrlKey && evtobj.shiftKey)
             {
-                runCode();
+                goToRunningState();
             }
             //Ctrl-Shift-8 to stop code
             if (evtobj.keyCode == 56 && evtobj.ctrlKey && evtobj.shiftKey)
             {
-                runningEnabled = false;
+                goToStopState();
             }
             //Ctrl-Shift-9 to step code
             if (evtobj.keyCode == 57 && evtobj.ctrlKey && evtobj.shiftKey)
@@ -303,6 +322,7 @@
                 // Program complete, no more code to execute.
                 workspace.highlightBlock(null);
                 console.log("code finished");
+                goToStopState();
                 return false;
             }
             if (highlightPause) {
@@ -315,6 +335,18 @@
             }
             return true;
 		}
+
+        function goToRunningState() {
+            $('#runButton').css('color', '#FFCC33'); 
+            updateCode();
+            runCode();
+        }
+
+        function goToStopState() {
+            runningEnabled = false;
+            $('#runButton').css('color', '#FFFFFF');
+        }
+        
 
 		function saveDesign() {
 			xml = Blockly.Xml.workspaceToDom(workspace);
