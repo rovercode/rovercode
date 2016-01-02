@@ -210,7 +210,7 @@
   background: url(https://blockly-demo.appspot.com/static/media/sprites.png) no-repeat -48px -16px !important;
 }
 .blocklyToolboxDiv {
-  background-color: #ddd;
+  background-color: #FFF;
   overflow-x: visible;
   overflow-y: auto;
   position: absolute;
@@ -235,7 +235,7 @@
   background-color: #e4e4e4;
 }
 .blocklyTreeSeparator {
-  border-bottom: solid #e5e5e5 1px;
+  border-bottom: solid #F0F0F0 1px;
   height: 0px;
   margin: 5px 0;
 }

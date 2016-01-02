@@ -80,7 +80,7 @@
 	<table id="theTable">
 		<tr>
 			<td rowspan="2" id="blocklyArea"> </td>
-            <td id="consoleArea"></td>
+            <td><div id="consoleArea"></div></td>
 		</tr>
         <tr>
 			<td id="videoBackground">
@@ -130,14 +130,30 @@
       </div>
 
 	<xml id="toolbox" style="display: none">
-		<block type="controls_if"></block>
-		<block type="logic_compare"></block>
-		<block type="controls_repeat_ext"></block>
-		<block type="math_number"></block>
-		<block type="math_arithmetic"></block>
-		<block type="text"></block>
-		<block type="text_print"></block>
-		<block type="set_motor"></block>
+        <category name="flow control" colour="26">
+            <block type="controls_if"></block>
+            <block type="controls_whileUntil"></block>
+            <block type="controls_repeat_ext"></block>
+        </category>
+        <category name="logic" colour="270">
+            <block type="logic_compare"></block>
+            <block type="math_number"></block>
+            <block type="math_arithmetic"></block>
+        </category>
+        <category name="debug" colour="100">
+            <block type="text"></block>
+            <block type="text_print"></block>
+        </category>
+        <category name="output" colour="42">
+            <block type="set_motor"></block>
+        </category>
+        <category name="input" colour="120">
+        </category>
+        <sep></sep>
+        <category name="variables" colour="20" custom="VARIABLE">
+        </category>
+        <category name="functions" colour="80" custom="PROCEDURE">
+        </category>
 	</xml>
 
 	<script>
@@ -150,8 +166,6 @@
 		var blocklyDiv = document.getElementById('blocklyDiv');
         Blockly.HSV_SATURATION = 0.85;
 		Blockly.HSV_VALUE = 0.9; 
-        //Blockly.Bubble.ANCHOR_RADIUS = 1;
-        //Blockly.BlockSvg.CORNER_RADIUS = 1;
         Blockly.Flyout.prototype.CORNER_RADIUS = 0;
 
         var workspace = Blockly.inject(blocklyDiv,
@@ -209,7 +223,7 @@
 			blocklyDiv.style.left = x + 'px';
 			blocklyDiv.style.top = y + 'px';
 			blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-			blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+			blocklyDiv.style.height = blocklyArea.offsetHeight-45 + 'px';
 	  	};
 	  	window.addEventListener('resize', onresize, false);
 	  	onresize();
@@ -288,8 +302,10 @@
 		}
 
         function writeToConsole(entry) {
-            $('#consoleArea').append("</br>>> ");
-            $('#consoleArea').append(entry);
+            consoleDiv = $('#consoleArea');
+            consoleDiv.append("</br>>> ");
+            consoleDiv.append(entry);
+            consoleDiv[0].scrollTop = consoleDiv[0].scrollHeight;
         }
 
 		function updateCode() {
