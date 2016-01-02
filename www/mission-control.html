@@ -80,7 +80,7 @@
 	<table id="theTable">
 		<tr>
 			<td rowspan="2" id="blocklyArea"> </td>
-            <td><div id="consoleArea"></div></td>
+            <td style="padding: 0 0 0 0;"><div id="consoleArea"></div></td>
 		</tr>
         <tr>
 			<td id="videoBackground">
@@ -184,7 +184,7 @@
 		workspace.addChangeListener(updateCode);
 		workspace.addChangeListener(saveDesign);
 
-        writeToConsole("Started the RoverCode console");
+        writeToConsole("RoverCode console started");
 
         document.onkeydown = keyEvent;
         function keyEvent(e) {
@@ -303,8 +303,8 @@
 
         function writeToConsole(entry) {
             consoleDiv = $('#consoleArea');
-            consoleDiv.append("</br>>> ");
-            consoleDiv.append(entry);
+            consoleDiv.append("<p>>> "+entry+"</p>");
+            //consoleDiv.append(entry);
             consoleDiv[0].scrollTop = consoleDiv[0].scrollHeight;
         }
 

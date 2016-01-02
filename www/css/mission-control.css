@@ -32,15 +32,40 @@ table {
 }
 
 #consoleArea {
-    display: inline-block;
+    display: fixed;
+    margin-top: -20px;
 	font-family: "Lucida Console", Monaco, monospace;
 	background-color: #FFF;
     width: 100%;
     max-height: 100%;
     overflow: auto;
+    padding: 0 0 0 0;
+}
+
+#consoleArea p:nth-child(odd) {
+    background: #edd2f9;
+}
+
+#consoleArea p {
+    margin: 0 0 0 0;
+    font-size: 90%;
 }
 
 #videoBackground {
 	background-size: cover;
 	width: 320px;
+}
+
+::-webkit-scrollbar {
+    width: 0.7em;
+    height: 0.7em
+}
+::-webkit-scrollbar-button {
+    height: 0;
+}
+::-webkit-scrollbar-track-piece {
+    background: #FFF;
+}
+::-webkit-scrollbar-thumb {
+    background: #CCC;
 }
