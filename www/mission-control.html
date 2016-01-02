@@ -65,7 +65,7 @@
                         position:relative; z-index:998" href="#" onclick="runningEnabled=false">
                         <i class='fi-pause'></i></a></li>
                 <li><a style="background-color:#4DAECF; font-size:350%; box-shadow: 1px 1px 1px #333333;
-                        position:relative; z-index:998" href="#" onclick="return updateCode()">
+                        position:relative; z-index:998" href="#" onclick="return resetCode()">
                         <i class='fi-refresh'></i></a></li>
 			  <li class="divider"></li>
 			  <li><a href="video-stream.html">Open Video Feed</a></li>
@@ -207,7 +207,7 @@
             //Ctrl-Shift-0 to reset code
             if (evtobj.keyCode == 48 && evtobj.ctrlKey && evtobj.shiftKey)
             {
-                updateCode();
+                resetCode();
             }
         }
 
@@ -351,6 +351,11 @@
             }
             return true;
 		}
+
+        function resetCode() {
+            goToStopState();
+            updateCode();
+        }
 
         function goToRunningState() {
             $('#runButton').css('color', '#FFCC33'); 
