@@ -77,7 +77,7 @@
 	</div>
 
 	<div id="tableArea">
-	<table id="theTable">
+	<table id="theTable" style="margin: 0 0 0 0">
 		<tr>
 			<td rowspan="2" id="blocklyArea"> </td>
             <td style="padding: 0 0 0 0;"><div id="consoleArea"></div></td>
@@ -223,7 +223,7 @@
 			blocklyDiv.style.left = x + 'px';
 			blocklyDiv.style.top = y + 'px';
 			blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-			blocklyDiv.style.height = blocklyArea.offsetHeight-45 + 'px';
+			blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
 	  	};
 	  	window.addEventListener('resize', onresize, false);
 	  	onresize();

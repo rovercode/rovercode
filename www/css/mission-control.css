@@ -23,7 +23,7 @@ table {
     position:absolute;
     top:0;
     left:0;
-	height: 100%;
+    height: calc(99% - 45px);
     width: 100%;
 }
 
@@ -68,4 +68,5 @@ table {
 }
 ::-webkit-scrollbar-thumb {
     background: #CCC;
+    border-radius: 10px;
 }
