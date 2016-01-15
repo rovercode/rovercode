@@ -228,7 +228,13 @@
 	  	window.addEventListener('resize', onresize, false);
 	  	onresize();
 
-		$('#videoBackground').css('background-image','url(' + 'http://' + window.location.hostname + ':8082/?action=stream' + ')');
+        videoSource = 'http://' + window.location.hostname + ':8082/?action=stream'; 
+        $('#videoBackground').append('<img src=' + videoSource + ' />');
+        $('#videoBackground').find('img').on("error", function() {
+            $('#videoBackground').empty();
+            $('#videoBackground').append("[no Rover webcam detected]");
+        });
+		//$('#videoBackground').css('background-image','url(' + 'http://' + window.location.hostname + ':8082/?action=stream' + ')');
 
 
 		$('#uploadForm #fileToUpload').change(function(){

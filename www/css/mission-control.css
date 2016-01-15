@@ -19,7 +19,7 @@ table {
 }
 
 #tableArea {
-    margin-top: 45px;
+    margin-top: 43px;
     position:absolute;
     top:0;
     left:0;
@@ -43,7 +43,7 @@ table {
 }
 
 #consoleArea p:nth-child(odd) {
-    background: #edd2f9;
+    background: #fce9fc;
 }
 
 #consoleArea p {
@@ -52,8 +52,10 @@ table {
 }
 
 #videoBackground {
-	background-size: cover;
-	width: 320px;
+    background-color: #f6e9fc;
+    text-align: center;
+    color: #888;
+    width: 320px;
 }
 
 ::-webkit-scrollbar {

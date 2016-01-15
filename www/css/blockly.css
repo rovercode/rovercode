@@ -5,7 +5,7 @@
 
 .blocklyDraggable {}
 .blocklySvg {
-  background-color: #E2E2E2;
+  background-color: #CCC;
   outline: none;
   overflow: hidden;
 }
@@ -216,6 +216,7 @@
   position: absolute;
 }
 .blocklyTreeRoot {
+  margin-top: 5px;
   padding: 4px 0;
 }
 .blocklyTreeRoot:focus {
@@ -235,7 +236,7 @@
   background-color: #e4e4e4;
 }
 .blocklyTreeSeparator {
-  border-bottom: solid #edd2f9 5px;
+  border-bottom: solid #f6e9fc 5px;
   height: 0px;
   margin: 5px 0;
 }
