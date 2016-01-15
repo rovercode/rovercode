@@ -168,7 +168,19 @@
 		Blockly.HSV_VALUE = 0.9; 
         Blockly.Flyout.prototype.CORNER_RADIUS = 0;
 
-        var workspace = Blockly.inject(blocklyDiv,
+		if(!!window.EventSource) {
+			var source = new EventSource("event-sending-test.php");
+			source.addEventListener('message', function(event) {
+				writeToConsole(event.data + "<br>");
+			}, false);
+			source.addEventListener('open', function(event) {
+				console.log('sse open' + "<br>");
+			}, false);
+			source.addEventListener('error', function(event) {
+				console.log('sse error' + "<br>");
+			}, false);
+		}
+		        var workspace = Blockly.inject(blocklyDiv,
 			{toolbox: document.getElementById('toolbox'),
             css: false,
             zoom:
