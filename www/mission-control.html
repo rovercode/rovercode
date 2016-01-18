@@ -21,7 +21,9 @@
 	<script src="blockly/msg/js/en.js"></script>
 	<script src="blockly/javascript_compressed.js"></script>
 	<script src="blockly/generators/javascript/motors.js"></script>
+	<script src="blockly/generators/javascript/events.js"></script>
 	<script src="blockly/blocks/motors.js"></script>
+	<script src="blockly/blocks/events.js"></script>
 	<script src="JS-Interpreter/acorn_interpreter.js"></script>
 	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
@@ -44,6 +46,7 @@
 			<ul class="left">
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
                 <li><a href="#"><i class='fi-check'></i>Saved</a></li>
+                <li><a href="#" onclick='showCode()'>Show Code</a></li>
                 <li class="has-dropdown">
 				    <a href="#">File</a>
 				    <ul class="dropdown">
@@ -139,6 +142,9 @@
             <block type="logic_compare"></block>
             <block type="math_number"></block>
             <block type="math_arithmetic"></block>
+        </category>
+        <category name="events" colour="320">
+            <block type="get_something"></block>
         </category>
         <category name="debug" colour="100">
             <block type="text"></block>
@@ -285,6 +291,8 @@
 			});
 		});
 
+		testString = "more stuff";
+
 		function initApi(interpreter, scope) {
 			// Add an API function for the alert() block.
 			var wrapper = function(text) {
@@ -317,6 +325,14 @@
 			};
 			interpreter.setProperty(scope, 'callMyPHP',
 				interpreter.createNativeFunction(wrapper));
+
+			// Add test API function for getting a sting
+			wrapper = function(text) {
+				return "A string from outside plus "+testString;
+			};
+			interpreter.setProperty(scope, 'getSomeString',
+				interpreter.createNativeFunction(wrapper));
+
 		}
 
         function writeToConsole(entry) {
@@ -327,7 +343,7 @@
         }
 
 		function updateCode() {
-			var code = Blockly.JavaScript.workspaceToCode(workspace);
+			code = Blockly.JavaScript.workspaceToCode(workspace);
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
       		Blockly.JavaScript.addReservedWords('highlightBlock');
 			myInterpreter = new Interpreter(code, initApi);
@@ -335,6 +351,13 @@
             workspace.traceOn(true);
             workspace.highlightBlock(null);
             runningEnabled = true;
+		}
+
+		function showCode() {
+			updateCode();
+            consoleDiv = $('#consoleArea');
+			consoleDiv.append("<p>"+code+"</p>");
+			testString = testString + " and mrrr";
 		}
 
         function highlightBlock(id) {
