@@ -144,7 +144,7 @@
             <block type="math_arithmetic"></block>
         </category>
         <category name="events" colour="320">
-            <block type="get_something"></block>
+            <block type="pop_event_queue"></block>
         </category>
         <category name="debug" colour="100">
             <block type="text"></block>
@@ -297,7 +297,7 @@
 			// Add an API function for the alert() block.
 			var wrapper = function(text) {
 				text = text ? text.toString() : '';
-				return interpreter.createPrimitive(alert(text));
+				return interpreter.createPrimitive(writeToConsole(text));
 			};
 			interpreter.setProperty(scope, 'alert',
 				interpreter.createNativeFunction(wrapper));
@@ -328,11 +328,10 @@
 
 			// Add test API function for getting a sting
 			wrapper = function(text) {
-				return "A string from outside plus "+testString;
+				return interpreter.createPrimitive('myEvent');
 			};
-			interpreter.setProperty(scope, 'getSomeString',
+			interpreter.setProperty(scope, 'popEventQueue',
 				interpreter.createNativeFunction(wrapper));
-
 		}
 
         function writeToConsole(entry) {
