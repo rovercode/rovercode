@@ -47,11 +47,11 @@
 .blocklyPathLight {
   fill: none;
   stroke-linecap: round;
-  stroke-width: 1;
+  stroke-width: 0;
 }
 .blocklySelected>.blocklyPath {
   stroke: #fc3;
-  stroke-width: 3px;
+  stroke-width: 4px;
 }
 .blocklySelected>.blocklyPathLight {
   display: none;
