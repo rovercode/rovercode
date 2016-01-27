@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="css/foundation.css" />
 	<link rel="stylesheet" href="css/mission-control.css"/>
 	<link rel="stylesheet" href="css/blockly.css"/>
-  	<script src="blockly/blockly_compressed.js"></script>
+  	<script src="blockly/blockly_uncompressed.js"></script>
   	<script src="blockly/blocks_compressed.js"></script>
   	<script src="blockly/msg/js/en.js"></script>
 	<script src="js/vendor/jquery.js"></script>
@@ -15,10 +15,7 @@
 	<script src="js/foundation/foundation.topbar.js"></script>
 	<script src="js/foundation/foundation.reveal.js"></script>
 	<script src="js/foundation/foundation.accordion.js"></script> 
-	<script src="blockly/blockly_compressed.js"></script>
-	<script src="blockly/blocks_compressed.js"></script>
 	<script src="blockly/appengine/storage.js"></script>
-	<script src="blockly/msg/js/en.js"></script>
 	<script src="blockly/javascript_compressed.js"></script>
 	<script src="blockly/generators/javascript/motors.js"></script>
 	<script src="blockly/generators/javascript/events.js"></script>
@@ -46,7 +43,8 @@
 			<ul class="left">
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
                 <li><a href="#"><i class='fi-check'></i>Saved</a></li>
-                <li><a href="#" onclick='showCode()'>Show Code</a></li>
+                <li><a href="#" onclick="showCode()">Show Code</a></li>
+                <li><a href="#" onclick="hideBlock()">Toggle a block</a></li>
                 <li class="has-dropdown">
 				    <a href="#">File</a>
 				    <ul class="dropdown">
@@ -186,7 +184,7 @@
 				console.log('sse error' + "<br>");
 			}, false);
 		}
-		        var workspace = Blockly.inject(blocklyDiv,
+		var workspace = Blockly.inject(blocklyDiv,
 			{toolbox: document.getElementById('toolbox'),
             css: false,
             zoom:
@@ -201,6 +199,7 @@
         );
 		workspace.addChangeListener(updateCode);
 		workspace.addChangeListener(saveDesign);
+		loadDesign('event_handler_hidden');
 
         writeToConsole("RoverCode console started");
 
@@ -354,9 +353,16 @@
 
 		function showCode() {
 			updateCode();
-            consoleDiv = $('#consoleArea');
-			consoleDiv.append("<p>"+code+"</p>");
-			testString = testString + " and mrrr";
+            //consoleDiv = $('#consoleArea');
+			//consoleDiv.append("<p>"+code+"</p>");
+			//testString = testString + " and mrrr";
+
+		}
+
+		function hideBlock() {
+			blocks = workspace.getTopBlocks(true);
+			id = blocks[0].id;
+			workspace.toggleBlock(id);
 		}
 
         function highlightBlock(id) {
