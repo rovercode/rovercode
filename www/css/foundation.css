@@ -56,7 +56,6 @@ html {
 html,
 body {
   font-size: 100%; }
-
 body {
   background: #fff;
   color: #222;
@@ -66,9 +65,7 @@ body {
   font-weight: normal;
   line-height: 1.5;
   margin: 0;
-  padding: 0;
-  position: relative; }
-
+  padding: 0; }
 a:hover {
   cursor: pointer; }
 
@@ -1541,6 +1538,7 @@ input[type="submit"] {
   -moz-appearance: none;
   border-radius: 0; }
 
+
 /* Respect enforced amount of rows for textarea */
 textarea[rows] {
   height: auto; }
@@ -1653,7 +1651,7 @@ span.error, small.error {
   color: #FFFFFF; }
 
 .error input,
-.error textarea,
+/*.error textarea,*/
 .error select {
   margin-bottom: 0; }
 .error input[type="checkbox"],
@@ -1685,7 +1683,7 @@ span.error, small.error {
   display: block; }
 
 input.error,
-textarea.error,
+/*textarea.error, */
 select.error {
   margin-bottom: 0; }
 

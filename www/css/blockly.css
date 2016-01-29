@@ -115,18 +115,21 @@
 }
 .blocklyIconGroup:not(:hover),
 .blocklyIconGroupReadonly {
-  opacity: .6;
+  opacity: 1;
 }
 .blocklyMinimalBody {
   margin: 0;
   padding: 0;
 }
 .blocklyCommentTextarea {
-  background-color: #f0c;
+  opacity: 1;
+  background-color: #fff;
   border: 0;
   margin: 0;
-  padding: 2px;
+  padding: 0;
   resize: none;
+  height: 100%;
+  width: 100%;
 }
 .blocklyHtmlInput {
   border: none;

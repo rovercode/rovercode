@@ -203,6 +203,11 @@
 
         writeToConsole("RoverCode console started");
 
+		/* Prevent default right-click menu from getting in the way of ours */
+		document.addEventListener("contextmenu", function(e){
+			e.preventDefault();
+		}, false);
+
         document.onkeydown = keyEvent;
         function keyEvent(e) {
             var evtobj = window.event ? event : e;
