@@ -43,8 +43,15 @@
 			<ul class="left">
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
                 <li><a href="#"><i class='fi-check'></i>Saved</a></li>
-                <li><a href="#" onclick="showCode()">Show Code</a></li>
-                <li><a href="#" onclick="hideBlock()">Toggle a block</a></li>
+                <li class="has-dropdown">
+                    <a href="#">Show</a>
+                    <ul class="dropdown">
+                        <li><a href="#" onclick="toggleFunction('initially')">initially</a></li>
+                        <li><a href="#" onclick="toggleFunction('always')">always</a></li>
+                        <li><a href="#" onclick="toggleFunction('handleMyEvent')">handleMyEvent</a></li>
+                        <li><a href="#" onclick="toggleFunction('handleMyOtherEvent')">handleMyOtherEvent</a></li>
+                    </ul>
+                </li>
                 <li class="has-dropdown">
 				    <a href="#">File</a>
 				    <ul class="dropdown">
@@ -358,16 +365,27 @@
 
 		function showCode() {
 			updateCode();
-            //consoleDiv = $('#consoleArea');
-			//consoleDiv.append("<p>"+code+"</p>");
-			//testString = testString + " and mrrr";
-
+            consoleDiv = $('#consoleArea');
+			consoleDiv.append("<p>"+code+"</p>");
 		}
 
-		function hideBlock() {
+		function toggleFunction(functionName) {
 			blocks = workspace.getTopBlocks(true);
-			id = blocks[0].id;
-			workspace.toggleBlock(id);
+            for(var i=0; i<blocks.length; i++) {
+                try {
+                    console.log(blocks[i].inputList[0].fieldRow[1].text_);
+                    if (blocks[i].inputList[0].fieldRow[1].text_ == functionName) {
+                        errorResult = workspace.toggleBlock(blocks[i].id);
+                        if (errorResult) {
+                            alert("Please empty the function before hiding it.");
+                        }
+                        console.log(result);
+                    }
+                }
+                catch(err) {
+                    console.log('Not a function.');
+                }
+            }
 		}
 
         function highlightBlock(id) {
