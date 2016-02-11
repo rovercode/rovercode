@@ -46,10 +46,10 @@
                 <li class="has-dropdown">
                     <a href="#">Show</a>
                     <ul class="dropdown">
-                        <li><a href="#" onclick="toggleFunction('initially')">initially</a></li>
-                        <li><a href="#" onclick="toggleFunction('always')">always</a></li>
-                        <li><a href="#" onclick="toggleFunction('handleMyEvent')">handleMyEvent</a></li>
-                        <li><a href="#" onclick="toggleFunction('handleMyOtherEvent')">handleMyOtherEvent</a></li>
+                        <li><a href="#" onclick="toggleBlock('initially')">initially</a></li>
+                        <li><a href="#" onclick="toggleBlock('always')">always</a></li>
+                        <li><a href="#" onclick="toggleBlock('onMyEvent')">onMyEvent</a></li>
+                        <li><a href="#" onclick="toggleBlock('onMyOtherEvent')">onMyOtherEvent</a></li>
                     </ul>
                 </li>
                 <li class="has-dropdown">
@@ -170,6 +170,8 @@
 	<script>
 		var sidebarVisible = true;
         var runningEnabled = false;
+		var blocksToHide = ["initially","onMyEvent", "onMyOtherEvent"];
+		var hiddenBlocks = [];
 		designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
 		$('a#designNameArea').text(designName);
         var highlightPause = false;
@@ -369,19 +371,67 @@
 			consoleDiv.append("<p>"+code+"</p>");
 		}
 
-		function toggleFunction(functionName) {
+		function toggleBlock(blockName) {
+			loc = hiddenBlocks.indexOf(blockName); 
+			if (loc> -1)
+			{
+				showBlock(blockName);
+			}
+			else
+			{
+				hideBlock(blockName);
+			}
+		}
+
+		function showBlock(blockName) {
+			loc = hiddenBlocks.indexOf(blockName); 
 			blocks = workspace.getTopBlocks(true);
             for(var i=0; i<blocks.length; i++) {
                 try {
-                    if (blocks[i].inputList[0].fieldRow[1].text_ == functionName) {
+                    if (blocks[i].inputList[0].fieldRow[1].text_ == blockName) {
+						blocks[i].setShadow(false);
+						blocks[i].setCollapsed(false);
+						blocks[i].svgGroup_.style.display = "inline";
+						hiddenBlocks.splice(loc,1);
+                    }
+                }
+                catch(err) {
+                }
+            }
+		}
+
+
+		function hideBlock(blockName) {
+			blocks = workspace.getTopBlocks(true);
+            for(var i=0; i<blocks.length; i++) {
+                try {
+                    if (blocks[i].inputList[0].fieldRow[1].text_ == blockName) {
 						if(blocks[i].childBlocks_.length == 0)
 						{
-                        	workspace.toggleBlock(blocks[i].id);
+							blocks[i].setShadow(true);
+							blocks[i].setCollapsed(true);
+							blocks[i].svgGroup_.style.display = "none";
+							hiddenBlocks.push(blockName);
 						}
 						else
 						{
-                        	alert("Please empty the function before hiding it.");
+                        	//alert("Please empty the function before hiding it.");
 						}
+                    }
+                }
+                catch(err) {
+                }
+            }
+		}
+
+		function hideBlockByComment(comment) {
+			blocks = workspace.getTopBlocks(true);
+            for(var i=0; i<blocks.length; i++) {
+                try {
+                    if (blocks[i].comment.text_ == comment) {
+						blocks[i].setShadow(true);
+						blocks[i].setCollapsed(true);
+						blocks[i].svgGroup_.style.display = "none";
                     }
                 }
                 catch(err) {
@@ -479,6 +529,12 @@
 				$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
 				$('a#downloadLink').attr("download", designName+".xml");
 				$('a#designNameArea').text(designName);
+
+				hideBlockByComment("MAIN EVENT HANDLER LOOP");
+				var hiddenBlock;
+				for (hiddenBlock of blocksToHide) {
+					hideBlock(hiddenBlock);
+				}
 			}).error(function(){
   				alert("There was an error loading your design from the rover");
 			});
