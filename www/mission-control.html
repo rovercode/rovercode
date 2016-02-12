@@ -170,8 +170,7 @@
 	<script>
 		var sidebarVisible = true;
         var runningEnabled = false;
-		//var blocksToHide = ["initially","onMyEvent", "onMyOtherEvent"];
-		var blocksToHide = ["initially","onMyEvent"];
+		var blocksToHide = ["always", "initially","onMyEvent", "onMyOtherEvent"];
 		var hiddenBlocks = [];
 		designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
 		$('a#designNameArea').text(designName);
@@ -412,9 +411,11 @@
 							blocks[i].setCollapsed(true);
 							blocks[i].svgGroup_.style.display = "none";
 							hiddenBlocks.push(blockName);
+                            return true;
 						}
 						else
 						{
+                            return false;
                         	//alert("Please empty the function before hiding it.");
 						}
                     }
@@ -448,7 +449,7 @@
 
         function runCode() {
             if (stepCode() && runningEnabled) {
-                window.setTimeout(runCode, 50);
+                window.setTimeout(runCode, 10);
             }
         }
             
@@ -532,9 +533,15 @@
 
 				hideBlockByComment("MAIN EVENT HANDLER LOOP");
 				var hiddenBlock;
+                var allBlocksHidden = true;
 				for (hiddenBlock of blocksToHide) {
-					hideBlock(hiddenBlock);
+                    if (!hideBlock(hiddenBlock)) {
+                        allBlocksHidden = false;
+                    }
 				}
+                if (allBlocksHidden) {
+                    showBlock('always');
+                }
 			}).error(function(){
   				alert("There was an error loading your design from the rover");
 			});
