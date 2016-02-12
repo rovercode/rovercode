@@ -170,7 +170,8 @@
 	<script>
 		var sidebarVisible = true;
         var runningEnabled = false;
-		var blocksToHide = ["initially","onMyEvent", "onMyOtherEvent"];
+		//var blocksToHide = ["initially","onMyEvent", "onMyOtherEvent"];
+		var blocksToHide = ["initially","onMyEvent"];
 		var hiddenBlocks = [];
 		designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
 		$('a#designNameArea').text(designName);
@@ -180,6 +181,7 @@
         Blockly.HSV_SATURATION = 0.85;
 		Blockly.HSV_VALUE = 0.9; 
         Blockly.Flyout.prototype.CORNER_RADIUS = 0;
+        Blockly.BlockSvg.START_HAT = true;
 
 		if(!!window.EventSource) {
 			var source = new EventSource("event-sending-test.php");
