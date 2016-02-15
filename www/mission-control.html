@@ -401,6 +401,7 @@
                     if (blocks[i].inputList[0].fieldRow[1].text_ == blockName) {
 						blocks[i].setShadow(false);
 						blocks[i].setCollapsed(false);
+						blocks[i].setCommentText(null);
 						blocks[i].svgGroup_.style.display = "inline";
 						hiddenBlocks.splice(loc,1);
                     }
@@ -419,6 +420,7 @@
 							blocks[i].setShadow(true);
 							blocks[i].setCollapsed(true);
 							blocks[i].svgGroup_.style.display = "none";
+							blocks[i].setCommentText('PASS');
 							hiddenBlocks.push(blockName);
                             return true;
 						}
@@ -438,7 +440,7 @@
 			blocks = workspace.getTopBlocks(true);
             for(var i=0; i<blocks.length; i++) {
                 try {
-                    if (blocks[i].comment.text_ == comment) {
+					if (blocks[i].getCommentText().indexOf(comment) > -1) {
 						blocks[i].setShadow(true);
 						blocks[i].setCollapsed(true);
 						blocks[i].svgGroup_.style.display = "none";
@@ -450,11 +452,16 @@
 		}
 
         function highlightBlock(id) {
-            workspace.highlightBlock(id);
-            highlightPause = true;
+			if (workspace.getBlockById(id).getCommentText().indexOf('PASS') > -1) {
+				console.log('not pausing');
+				highlightPause = false;
+			}
+			else
+			{
+            	highlightPause = true;
+            	workspace.highlightBlock(id);
+			}
         } 
-
-        var stepCount = 0;
 
         function runCode() {
             if (stepCode() && runningEnabled) {
