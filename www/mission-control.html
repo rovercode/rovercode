@@ -43,6 +43,7 @@
 			<ul class="left">
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
                 <li><a href="#"><i class='fi-check'></i>Saved</a></li>
+                <li><a href="#" onclick='showCode();'>Show Code</a></li>
                 <li class="has-dropdown">
                     <a href="#">Show</a>
                     <ul class="dropdown">
@@ -338,7 +339,17 @@
 			interpreter.setProperty(scope, 'callMyPHP',
 				interpreter.createNativeFunction(wrapper));
 
-			// Add test API function for getting a sting
+			// Add set motor API function 
+			wrapper = function(motor, direction, speed) {
+                writeToConsole(motor);
+                writeToConsole(direction);
+                writeToConsole(speed);
+                return false;
+			};
+			interpreter.setProperty(scope, 'setMotor',
+				interpreter.createNativeFunction(wrapper));
+
+			// Add test API function for getting a string
 			wrapper = function(text) {
 				return interpreter.createPrimitive('myEvent');
 			};
