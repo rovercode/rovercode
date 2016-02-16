@@ -158,6 +158,7 @@
         </category>
         <category name="output" colour="42">
             <block type="set_motor"></block>
+            <block type="stop_motor"></block>
         </category>
         <category name="input" colour="120">
         </category>
@@ -347,6 +348,14 @@
                 return false;
 			};
 			interpreter.setProperty(scope, 'setMotor',
+				interpreter.createNativeFunction(wrapper));
+
+            // Add set motor API function 
+			wrapper = function(motor) {
+                writeToConsole(motor);
+                return false;
+			};
+			interpreter.setProperty(scope, 'stopMotor',
 				interpreter.createNativeFunction(wrapper));
 
 			// Add test API function for getting a string
