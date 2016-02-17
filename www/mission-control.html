@@ -139,34 +139,31 @@
       </div>
 
 	<xml id="toolbox" style="display: none">
-        <category name="loops" colour="210">
+        <category name="loops" colour=282>
             <block type="controls_whileUntil"></block>
             <block type="controls_repeat_ext"></block>
             <block type="controls_for"></block>
             <block type="controls_forEach"></block>
         </category>
-        <category name="conditionals" colour="100">
-            <block type="controls_if"></block>
-        </category>
         <category name="logic" colour="210">
+            <block type="controls_if"></block>
             <block type="logic_compare"></block>
             <block type="logic_operation"></block>
             <block type="logic_negate"></block>
             <block type="logic_boolean"></block>
         </category>
-        <category name="lists" colour="110">
-            <block type="lists_create_empty"></block>
-            <block type="lists_create_with"></block>
-            <block type="lists_repeat"></block>
-            <block type="lists_length"></block>
-            <block type="lists_isEmpty"></block>
-            <block type="lists_indexOf"></block>
-            <block type="lists_getIndex"></block>
-            <block type="lists_setIndex"></block>
-            <block type="lists_getSublist"></block>
-            <block type="lists_split"></block>
+        <category name="motors" colour="42">
+            <block type="motors_start"></block>
+        	<block type="motors_stop"></block>
         </category>
-        <category name="numbers" colour="10">
+        <category name="sensors" colour="120">
+        </category>
+		<category name="colour" colour="20">
+            <block type="colour_random"></block>
+            <block type="colour_rgb"></block>
+            <block type="colour_blend"></block>
+        </category>
+        <category name="numbers" colour="230">
             <block type="math_number"></block>
             <block type="math_arithmetic"></block>
             <block type="math_single"></block>
@@ -181,7 +178,7 @@
             <block type="math_random_int"></block>
             <block type="math_random_float"></block>
         </category>
-        <category name="text" colour="220">
+        <category name="text" colour="20">
             <block type="text"></block>
             <block type="text_print"></block>
             <block type="text_append"></block>
@@ -194,20 +191,23 @@
             <block type="text_trim"></block>
             <block type="text_join"></block>
         </category>
-        <category name="events" colour="320">
-            <block type="pop_event_queue"></block>
-        </category>
-        <category name="colour" colour="20">
-            <block type="colour_random"></block>
-            <block type="colour_rgb"></block>
-            <block type="colour_blend"></block>
-        </category>
-        <category name="motors" colour="42">
-            <block type="set_motor"></block>
-            <block type="stop_motor"></block>
-        </category>
-        <category name="input" colour="120">
-        </category>
+        <category name="advanced" colour="200">
+			<category name="events" colour="230">
+				<block type="pop_event_queue"></block>
+			</category>
+		    <category name="lists" colour="260">
+				<block type="lists_create_empty"></block>
+				<block type="lists_create_with"></block>
+				<block type="lists_repeat"></block>
+				<block type="lists_length"></block>
+				<block type="lists_isEmpty"></block>
+				<block type="lists_indexOf"></block>
+				<block type="lists_getIndex"></block>
+				<block type="lists_setIndex"></block>
+				<block type="lists_getSublist"></block>
+				<block type="lists_split"></block>
+			</category>
+		</category>
         <sep></sep>
         <category name="variables" colour="20" custom="VARIABLE">
         </category>
