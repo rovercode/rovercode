@@ -14,7 +14,7 @@
 	<script src="js/foundation/foundation.js"></script>
 	<script src="js/foundation/foundation.topbar.js"></script>
 	<script src="js/foundation/foundation.reveal.js"></script>
-	<script src="js/foundation/foundation.accordion.js"></script> 
+	<script src="js/foundation/foundation.accordion.js"></script>
 	<script src="blockly/appengine/storage.js"></script>
 	<script src="blockly/javascript_compressed.js"></script>
 	<script src="blockly/generators/javascript/motors.js"></script>
@@ -44,6 +44,8 @@
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
                 <li><a href="#"><i class='fi-check'></i>Saved</a></li>
                 <li><a href="#" onclick='showCode();'>Show Code</a></li>
+                <li><a href="#" onclick='testStartMotor();'>Start Motor</a></li>
+								<li><a href="#" onclick='testStopMotor();'>Stop Motor</a></li>
                 <li class="has-dropdown">
                     <a href="#">Show</a>
                     <ul class="dropdown">
@@ -108,7 +110,7 @@
 				<input type="text" name="designName">
 				<input type="submit" value="OK" class="button alert">
 			</form>
-			<h2>Or, load a saved design</h2> 
+			<h2>Or, load a saved design</h2>
 			<a href="#" onclick="return chooseDesign()" class = "button">Go</a>
         </div>
 	</div>
@@ -224,7 +226,7 @@
 		var blocklyArea = document.getElementById('blocklyArea');
 		var blocklyDiv = document.getElementById('blocklyDiv');
         Blockly.HSV_SATURATION = 0.85;
-		Blockly.HSV_VALUE = 0.9; 
+		Blockly.HSV_VALUE = 0.9;
         Blockly.Flyout.prototype.CORNER_RADIUS = 0;
         Blockly.BlockSvg.START_HAT = true;
 
@@ -306,7 +308,7 @@
 	  	window.addEventListener('resize', onresize, false);
 	  	onresize();
 
-        videoSource = 'http://' + window.location.hostname + ':8082/?action=stream'; 
+        videoSource = 'http://' + window.location.hostname + ':8082/?action=stream';
         $('#videoBackground').append('<img src=' + videoSource + ' />');
         $('#videoBackground').find('img').on("error", function() {
             $('#videoBackground').empty();
@@ -386,7 +388,7 @@
 			interpreter.setProperty(scope, 'callMyPHP',
 				interpreter.createNativeFunction(wrapper));
 
-			// Add set motor API function 
+			// Add set motor API function
 			wrapper = function(motor, direction, speed) {
                 writeToConsole(motor);
                 writeToConsole(direction);
@@ -396,7 +398,7 @@
 			interpreter.setProperty(scope, 'setMotor',
 				interpreter.createNativeFunction(wrapper));
 
-            // Add set motor API function 
+            // Add set motor API function
 			wrapper = function(motor) {
                 writeToConsole(motor);
                 return false;
@@ -419,6 +421,18 @@
             consoleDiv[0].scrollTop = consoleDiv[0].scrollHeight;
         }
 
+				function testStartMotor() {
+					$.post('py-cgi-test.py', {command: 'START', pin: 5, direction: 'FORWARD', speed: 42}, function(response){
+			    	writeToConsole(response);
+          });
+        }
+
+				function testStopMotor() {
+					$.post('py-cgi-test.py', {command: 'STOP', pin: 5, direction: '', speed: 0}, function(response){
+			    	writeToConsole(response);
+          });
+        }
+
 		function updateCode() {
 			code = Blockly.JavaScript.workspaceToCode(workspace);
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
@@ -437,7 +451,7 @@
 		}
 
 		function toggleBlock(blockName) {
-			loc = hiddenBlocks.indexOf(blockName); 
+			loc = hiddenBlocks.indexOf(blockName);
 			if (loc> -1)
 			{
 				showBlock(blockName);
@@ -449,7 +463,7 @@
 		}
 
 		function showBlock(blockName) {
-			loc = hiddenBlocks.indexOf(blockName); 
+			loc = hiddenBlocks.indexOf(blockName);
 			blocks = workspace.getTopBlocks(true);
             for(var i=0; i<blocks.length; i++) {
                 try {
@@ -516,14 +530,14 @@
             	highlightPause = true;
             	workspace.highlightBlock(id);
 			}
-        } 
+        }
 
         function runCode() {
             if (stepCode() && runningEnabled) {
                 window.setTimeout(runCode, 10);
             }
         }
-            
+
 		function stepCode() {
             var ok = myInterpreter.step();
             if (!ok) {
@@ -550,7 +564,7 @@
         }
 
         function goToRunningState() {
-            $('#runButton').css('color', '#FFCC33'); 
+            $('#runButton').css('color', '#FFCC33');
             updateCode();
             runCode();
         }
@@ -559,7 +573,7 @@
             runningEnabled = false;
             $('#runButton').css('color', '#FFFFFF');
         }
-        
+
 
 		function saveDesign() {
 			xml = Blockly.Xml.workspaceToDom(workspace);
@@ -624,7 +638,7 @@
 			});
             updateCode();
 		}
-			
+
 
 		function toggleSidebar() {
 			var widthDelta = 400;
@@ -636,7 +650,7 @@
 				$("#blocklyArea").css("min-width", 'auto');
 				$("#sidebarButton").css("background-color", "#000000");
 			}
-			$("#consoleArea").fadeToggle(0);	
+			$("#consoleArea").fadeToggle(0);
 			$("#videoBackground").fadeToggle(0);
 			onresize();
 			Blockly.fireUiEvent(window, 'resize');
@@ -676,7 +690,7 @@
 	</script>
 
 
-	<script type="text/javascript"> 
+	<script type="text/javascript">
 	   $(document).foundation();
 	</script>
 
