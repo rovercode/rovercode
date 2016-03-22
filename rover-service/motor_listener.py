@@ -11,6 +11,7 @@ pwm = pwmLib.CHIP_PWM_Adapter()
 
 while True:
     rxd = r.blpop('motorQueue', 0)
+    print rxd
     decoded = json.loads(rxd[1])
     print decoded['command']
     print decoded['pin']

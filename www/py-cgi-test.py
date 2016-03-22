@@ -37,7 +37,7 @@ speed = form.getvalue("speed")
 
 #command2 = motorCommand(27,'START','FORWARD',100)
 command2 = motorCommand(pin,command,direction,speed)
-print command2
+print str(command2)
 r.rpush('motorQueue', str(command2))
 
 #command3 = motorCommand(28,'stop')
