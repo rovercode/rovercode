@@ -44,8 +44,8 @@
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
                 <li><a href="#"><i class='fi-check'></i>Saved</a></li>
                 <li><a href="#" onclick='showCode();'>Show Code</a></li>
-                <li><a href="#" onclick="sendMotorCommand('START', 5, 'FORWARD', 42);">Start Motor</a></li>
-								<li><a href="#" onclick="sendMotorCommand('STOP', 5, '', 0);">Stop Motor</a></li>
+                <li><a href="#" onclick="sendMotorCommand('START_MOTOR', 'XIO-P7', 42);">Start Motor</a></li>
+								<li><a href="#" onclick="sendMotorCommand('STOP_MOTOR', 'XIO-P7', 0);">Stop Motor</a></li>
                 <li class="has-dropdown">
                     <a href="#">Show</a>
                     <ul class="dropdown">
@@ -395,7 +395,12 @@
                 writeToConsole(motor);
                 writeToConsole(direction);
                 writeToConsole(speed);
-								sendMotorCommand('START', 6, direction.data, speed.data);
+								if (direction.data  == 'FORWARD')
+									pin = 'XIO-P7';
+								else {
+									pin = 'XIO-P5'
+								}
+								sendMotorCommand('START_MOTOR', pin, speed.data);
                 return false;
 			};
 			interpreter.setProperty(scope, 'setMotor',
@@ -403,8 +408,10 @@
 
       // Add stop motor API function
 			wrapper = function(motor) {
-								// TODO: get pin for motor
-								sendMotorCommand('STOP', 5, '', 0)
+								// TODO: get pin for motor from actual datastructure
+								/* Stop both forward and backward pins, just to be safe */
+								sendMotorCommand('STOP_MOTOR', XIO-P7, 0)
+								sendMotorCommand('STOP_MOTOR', XIO-P5, 0)
                 writeToConsole(motor);
                 return false;
 			};
@@ -426,8 +433,8 @@
             consoleDiv[0].scrollTop = consoleDiv[0].scrollHeight;
         }
 
-				function sendMotorCommand(command, pin, direction, speed) {
-					$.post('send-motor-command.php', {command: command, pin: pin, direction: direction, speed: speed}, function(response){
+				function sendMotorCommand(command, pin, speed) {
+					$.post('send-command.php', {command: command, pin: pin, speed: Number(speed)}, function(response){
 			    	writeToConsole(response);
           });
 				}
