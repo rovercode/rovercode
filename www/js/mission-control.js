@@ -1,16 +1,21 @@
+/*----- GLOBALS -----*/
+
 var sidebarVisible = true;
-		var runningEnabled = false;
+var runningEnabled = false;
 var blocksToHide = ["always", "initially","onMyEvent", "onMyOtherEvent"];
 var hiddenBlocks = [];
-		var highlightPause = false;
+var highlightPause = false;
 var blocklyArea = document.getElementById('blocklyArea');
 var blocklyDiv = document.getElementById('blocklyDiv');
 
+/*----- INIT CODE -----*/
+/* Set overall Blockly colors */
 Blockly.HSV_SATURATION = 0.85;
 Blockly.HSV_VALUE = 0.9;
 Blockly.Flyout.prototype.CORNER_RADIUS = 0;
 Blockly.BlockSvg.START_HAT = true;
 
+/* Setup listener for events */
 if(!!window.EventSource) {
 	var source = new EventSource("event-sending-test.php");
 	source.addEventListener('message', function(event) {
@@ -24,6 +29,7 @@ if(!!window.EventSource) {
 	}, false);
 }
 
+/* Inject Blockly */
 var workspace = Blockly.inject(blocklyDiv,
 	{toolbox: document.getElementById('toolbox'),
 				css: false,
@@ -42,11 +48,30 @@ workspace.addChangeListener(saveDesign);
 loadDesign('event_handler_hidden');
 writeToConsole("RoverCode console started");
 
+/* Handle Blockly resizing */
+var onresize = function(e) {
+	var element = blocklyArea;
+	var x = 0;
+	var y = 0;
+	do {
+			x += element.offsetLeft;
+			y += element.offsetTop;
+			element = element.offsetParent;
+	} while (element);
+	blocklyDiv.style.left = x + 'px';
+	blocklyDiv.style.top = y + 'px';
+	blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+	blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+};
+window.addEventListener('resize', onresize, false);
+onresize();
+
 /* Prevent default right-click menu from getting in the way of ours */
 document.addEventListener("contextmenu", function(e){
 	e.preventDefault();
 }, false);
 
+/* Bind key shortcuts */
 document.onkeydown = keyEvent;
 function keyEvent(e) {
 		var evtobj = window.event ? event : e;
@@ -72,23 +97,7 @@ function keyEvent(e) {
 		}
 }
 
-var onresize = function(e) {
-	var element = blocklyArea;
-	var x = 0;
-	var y = 0;
-	do {
-			x += element.offsetLeft;
-			y += element.offsetTop;
-			element = element.offsetParent;
-	} while (element);
-	blocklyDiv.style.left = x + 'px';
-	blocklyDiv.style.top = y + 'px';
-	blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-	blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
-};
-window.addEventListener('resize', onresize, false);
-onresize();
-
+/* Add video stream */
 videoSource = 'http://' + window.location.hostname + ':8082/?action=stream';
 $('#videoBackground').append('<img src=' + videoSource + ' />');
 $('#videoBackground').find('img').on("error", function() {
@@ -100,10 +109,129 @@ $('#nameModal').foundation('reveal', 'open');
 
 testString = "more stuff";
 
+/*----- DESIGN SAVING/LOADING FUNCTIONS -----*/
+
 function chooseDesign() {
 	$('#loadModal').foundation('reveal', 'open');
 	refreshSavedBds();
 }
+
+function saveDesign() {
+	xml = Blockly.Xml.workspaceToDom(workspace);
+	xmlString = Blockly.Xml.domToText(xml);
+	$.post('save-bd.php', {bdString: xmlString, designName: designName}, function(response){
+	}).error(function(){
+			writeToConsole("There was an error saving your design to the rover");
+	});
+}
+
+function refreshSavedBds() {
+	$.get('get-saved-bd-list.php', function(response){
+		json = JSON.parse(response);
+		if (!json.length){
+			$('#savedDesignsArea').text("There are no designs saved on this rover");
+		} else {
+			$('#savedDesignsArea').empty();
+			json.forEach(function(entry) {
+				$('#savedDesignsArea').append("<a href='#' class='button' style='margin:10px;' onclick='return loadDesign(\""+entry+"\")'>"+entry+"</a>");
+			});
+		}
+	}
+	);
+}
+
+function loadDesign(name) {
+	$('#loadModal').foundation('reveal', 'close');
+	$.get('get-bd.php', { designName:name }, function(response){
+		workspace.clear();
+		xmlDom = Blockly.Xml.textToDom(response);
+		Blockly.Xml.domToWorkspace(workspace, xmlDom);
+		if (name == 'event_handler_hidden')
+			designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
+		else
+			designName = name;
+		$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
+		$('a#downloadLink').attr("download", designName+".xml");
+		$('a#designNameArea').text(designName);
+
+		hideBlockByComment("MAIN EVENT HANDLER LOOP");
+		var hiddenBlock;
+		var allBlocksHidden = true;
+		for (hiddenBlock of blocksToHide) {
+			if (!hideBlock(hiddenBlock))
+				allBlocksHidden = false;
+		}
+		if (allBlocksHidden)
+			showBlock('always');
+	}).error(function(){
+			alert("There was an error loading your design from the rover");
+	});
+	updateCode();
+}
+
+function acceptName() {
+	designName = $('input[name=designName]').val();
+
+	$.get('get-saved-bd-list.php', function(response){
+		json = JSON.parse(response);
+		var duplicate = false;
+		json.forEach(function(entry) {
+			if (entry == designName)
+				duplicate = true;
+		});
+
+		if (designName === ''){
+			$('#nameErrorArea').text('Please enter a name for your design in the box');
+		} else if (duplicate) {
+			$('#nameErrorArea').text('This name has already been chosen. Please pick another one.');
+		} else {
+			saveDesign();
+			$('#nameErrorArea').empty();
+			$('a#designNameArea').text(designName);
+			$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
+			$('a#downloadLink').attr("download", designName+".xml");
+			$('#nameModal').foundation('reveal', 'close');
+		}
+	});
+}
+
+$('#uploadForm #fileToUpload').change(function(){
+	var file = this.files[0];
+	var type = file.type;
+	if(type == "text/xml")
+		$('#loadErrorArea').empty();
+	else
+		$('#loadErrorArea').text("Please select a .xml file");
+});
+
+$('#uploadForm input[name=button]').click(function(){
+
+	var formData = new FormData();
+	formData.append("fileToUpload", $('#fileToUpload').get(0).files[0]);
+
+	$.ajax({
+		url: 'upload.php',  //Server script to process data
+		type: 'POST',
+		xhr: function() {  // Custom XMLHttpRequest
+			var myXhr = $.ajaxSettings.xhr();
+			return myXhr;
+		},
+		success: function (data) {
+			refreshSavedBds();
+			$("#loadStatusArea").text(data + " Look for it above.");
+
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			$("#loadStatusArea").text("There was an error uploading your design. " + thrownError);
+		},
+		data: formData,
+		cache: false,
+		contentType: false,
+		processData: false
+	});
+});
+
+/*----- RUNNING SANDBOXED CODE FUNCTIONS -----*/
 
 function updateCode() {
 	code = Blockly.JavaScript.workspaceToCode(workspace);
@@ -121,6 +249,50 @@ function showCode() {
 	consoleDiv = $('#consoleArea');
 	consoleDiv.append("<p>"+code+"</p>");
 }
+
+function runCode() {
+		if (stepCode() && runningEnabled) {
+				window.setTimeout(runCode, 10);
+		}
+}
+
+function stepCode() {
+		var ok = myInterpreter.step();
+		if (!ok) {
+				// Program complete, no more code to execute.
+				workspace.highlightBlock(null);
+				console.log("code finished");
+				goToStopState();
+				return false;
+		}
+		if (highlightPause) {
+				// A block has been highlighted.  Pause execution here.
+				console.log("code paused");
+				highlightPause = false;
+		} else {
+				// Keep executing until a highlight statement is reached.
+				stepCode();
+		}
+		return true;
+}
+
+function resetCode() {
+	goToStopState();
+	updateCode();
+}
+
+function goToRunningState() {
+	$('#runButton').css('color', '#FFCC33');
+	updateCode();
+	runCode();
+}
+
+function goToStopState() {
+	runningEnabled = false;
+	$('#runButton').css('color', '#FFFFFF');
+}
+
+/*----- BLOCK VISIBILITY FUNCTIONS -----*/
 
 function toggleBlock(blockName) {
 	loc = hiddenBlocks.indexOf(blockName);
@@ -186,102 +358,7 @@ function hideBlockByComment(comment) {
 	}
 }
 
-function runCode() {
-		if (stepCode() && runningEnabled) {
-				window.setTimeout(runCode, 10);
-		}
-}
-
-function stepCode() {
-		var ok = myInterpreter.step();
-		if (!ok) {
-				// Program complete, no more code to execute.
-				workspace.highlightBlock(null);
-				console.log("code finished");
-				goToStopState();
-				return false;
-		}
-		if (highlightPause) {
-				// A block has been highlighted.  Pause execution here.
-				console.log("code paused");
-				highlightPause = false;
-		} else {
-				// Keep executing until a highlight statement is reached.
-				stepCode();
-		}
-		return true;
-}
-
-function resetCode() {
-	goToStopState();
-	updateCode();
-}
-
-function goToRunningState() {
-	$('#runButton').css('color', '#FFCC33');
-	updateCode();
-	runCode();
-}
-
-function goToStopState() {
-	runningEnabled = false;
-	$('#runButton').css('color', '#FFFFFF');
-}
-
-
-
-function saveDesign() {
-	xml = Blockly.Xml.workspaceToDom(workspace);
-	xmlString = Blockly.Xml.domToText(xml);
-	$.post('save-bd.php', {bdString: xmlString, designName: designName}, function(response){
-	}).error(function(){
-			writeToConsole("There was an error saving your design to the rover");
-	});
-}
-
-function refreshSavedBds() {
-	$.get('get-saved-bd-list.php', function(response){
-		json = JSON.parse(response);
-		if (!json.length){
-			$('#savedDesignsArea').text("There are no designs saved on this rover");
-		} else {
-			$('#savedDesignsArea').empty();
-			json.forEach(function(entry) {
-				$('#savedDesignsArea').append("<a href='#' class='button' style='margin:10px;' onclick='return loadDesign(\""+entry+"\")'>"+entry+"</a>");
-			});
-		}
-	}
-	);
-}
-
-function loadDesign(name) {
-	$('#loadModal').foundation('reveal', 'close');
-	$.get('get-bd.php', { designName:name }, function(response){
-		workspace.clear();
-		xmlDom = Blockly.Xml.textToDom(response);
-		Blockly.Xml.domToWorkspace(workspace, xmlDom);
-		if (name == 'event_handler_hidden')
-			designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
-		else
-			designName = name;
-		$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
-		$('a#downloadLink').attr("download", designName+".xml");
-		$('a#designNameArea').text(designName);
-
-		hideBlockByComment("MAIN EVENT HANDLER LOOP");
-		var hiddenBlock;
-		var allBlocksHidden = true;
-		for (hiddenBlock of blocksToHide) {
-			if (!hideBlock(hiddenBlock))
-				allBlocksHidden = false;
-		}
-		if (allBlocksHidden)
-			showBlock('always');
-	}).error(function(){
-			alert("There was an error loading your design from the rover");
-	});
-	updateCode();
-}
+/*----- PAGE ELEMENT VISIBILITY FUNCTIONS -----*/
 
 function toggleSidebar() {
 	var widthDelta = 400;
@@ -299,32 +376,6 @@ function toggleSidebar() {
 	Blockly.fireUiEvent(window, 'resize');
 }
 
-function acceptName() {
-	designName = $('input[name=designName]').val();
-
-	$.get('get-saved-bd-list.php', function(response){
-		json = JSON.parse(response);
-		var duplicate = false;
-		json.forEach(function(entry) {
-			if (entry == designName)
-				duplicate = true;
-		});
-
-		if (designName === ''){
-			$('#nameErrorArea').text('Please enter a name for your design in the box');
-		} else if (duplicate) {
-			$('#nameErrorArea').text('This name has already been chosen. Please pick another one.');
-		} else {
-			saveDesign();
-			$('#nameErrorArea').empty();
-			$('a#designNameArea').text(designName);
-			$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
-			$('a#downloadLink').attr("download", designName+".xml");
-			$('#nameModal').foundation('reveal', 'close');
-		}
-	});
-}
-
 function highlightBlock(id) {
 	if (workspace.getBlockById(id).getCommentText().indexOf('PASS') > -1) {
 		console.log('not pausing');
@@ -335,50 +386,10 @@ function highlightBlock(id) {
 	}
 }
 
+/*----- UTILITY FUNCTIONS -----*/
+
 function writeToConsole(entry) {
 		consoleDiv = $('#consoleArea');
 		consoleDiv.append("<p>>> "+entry+"</p>");
 		consoleDiv[0].scrollTop = consoleDiv[0].scrollHeight;
 }
-
-function sendMotorCommand(command, pin, speed) {
-	$.post('send-command.php', {command: command, pin: pin, speed: Number(speed)}, function(response){
-		writeToConsole(response);
-	});
-}
-
-$('#uploadForm #fileToUpload').change(function(){
-	var file = this.files[0];
-	var type = file.type;
-	if(type == "text/xml")
-		$('#loadErrorArea').empty();
-	else
-		$('#loadErrorArea').text("Please select a .xml file");
-});
-
-$('#uploadForm input[name=button]').click(function(){
-
-	var formData = new FormData();
-	formData.append("fileToUpload", $('#fileToUpload').get(0).files[0]);
-
-	$.ajax({
-		url: 'upload.php',  //Server script to process data
-		type: 'POST',
-		xhr: function() {  // Custom XMLHttpRequest
-			var myXhr = $.ajaxSettings.xhr();
-			return myXhr;
-		},
-		success: function (data) {
-			refreshSavedBds();
-			$("#loadStatusArea").text(data + " Look for it above.");
-
-		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			$("#loadStatusArea").text("There was an error uploading your design. " + thrownError);
-		},
-		data: formData,
-		cache: false,
-		contentType: false,
-		processData: false
-	});
-});

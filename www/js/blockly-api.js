@@ -1,3 +1,5 @@
+/*----- DEFINE API -----*/
+
 function initApi(interpreter, scope) {
 
 	// Add an API function for the alert() block.
@@ -42,7 +44,7 @@ function initApi(interpreter, scope) {
 		if (direction.data  == 'FORWARD')
 			pin = 'XIO-P7';
 		else {
-			pin = 'XIO-P5'
+			pin = 'XIO-P5';
 		}
 		sendMotorCommand('START_MOTOR', pin, speed.data);
 		return false;
@@ -54,8 +56,8 @@ function initApi(interpreter, scope) {
 	wrapper = function(motor) {
 		// TODO: get pin for motor from actual datastructure
 		/* Stop both forward and backward pins, just to be safe */
-		sendMotorCommand('STOP_MOTOR', XIO-P7, 0)
-		sendMotorCommand('STOP_MOTOR', XIO-P5, 0)
+		sendMotorCommand('STOP_MOTOR', XIO-P7, 0);
+		sendMotorCommand('STOP_MOTOR', XIO-P5, 0);
 		writeToConsole(motor);
 		return false;
 	};
@@ -68,4 +70,12 @@ function initApi(interpreter, scope) {
 	};
 	interpreter.setProperty(scope, 'popEventQueue',
 		interpreter.createNativeFunction(wrapper));
+}
+
+/*-----HELPER FUNCTIONS -----*/
+
+function sendMotorCommand(command, pin, speed) {
+	$.post('send-command.php', {command: command, pin: pin, speed: Number(speed)}, function(response){
+		writeToConsole(response);
+	});
 }
