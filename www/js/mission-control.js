@@ -2,11 +2,13 @@
 
 var sidebarVisible = true;
 var runningEnabled = false;
-var blocksToHide = ["always", "initially","onMyEvent", "onMyOtherEvent"];
+//var blocksToHide = ["always", "initially","onMyEvent", "onMyOtherEvent"];
+var blocksToHide = [];
 var hiddenBlocks = [];
 var highlightPause = false;
 var blocklyArea = document.getElementById('blocklyArea');
 var blocklyDiv = document.getElementById('blocklyDiv');
+var eventQueue = [];
 
 /*----- INIT CODE -----*/
 /* Set overall Blockly colors */
@@ -17,9 +19,12 @@ Blockly.BlockSvg.START_HAT = true;
 
 /* Setup listener for events */
 if(!!window.EventSource) {
-	var source = new EventSource("event-sending-test.php");
+	var source = new EventSource("event-notifier.php");
 	source.addEventListener('message', function(event) {
+		console.log("Received event: " + event.data);
 		writeToConsole(event.data + "<br>");
+		eventQueue.push(event.data);
+		console.log("queue is: " + eventQueue);
 	}, false);
 	source.addEventListener('open', function(event) {
 		console.log('sse open' + "<br>");
@@ -45,7 +50,7 @@ var workspace = Blockly.inject(blocklyDiv,
 );
 workspace.addChangeListener(updateCode);
 workspace.addChangeListener(saveDesign);
-loadDesign('event_handler_hidden');
+loadDesign('event tester');
 writeToConsole("RoverCode console started");
 
 /* Handle Blockly resizing */
@@ -98,7 +103,7 @@ function keyEvent(e) {
 }
 
 /* Add video stream */
-videoSource = 'http://' + window.location.hostname + ':8082/?action=stream';
+videoSource = 'http://' + window.location.hostname + ':8080/?action=stream';
 $('#videoBackground').append('<img src=' + videoSource + ' />');
 $('#videoBackground').find('img').on("error", function() {
 		$('#videoBackground').empty();
@@ -267,7 +272,7 @@ function stepCode() {
 		}
 		if (highlightPause) {
 				// A block has been highlighted.  Pause execution here.
-				console.log("code paused");
+				//console.log("code paused");
 				highlightPause = false;
 		} else {
 				// Keep executing until a highlight statement is reached.
@@ -378,7 +383,7 @@ function toggleSidebar() {
 
 function highlightBlock(id) {
 	if (workspace.getBlockById(id).getCommentText().indexOf('PASS') > -1) {
-		console.log('not pausing');
+		//console.log('not pausing');
 		highlightPause = false;
 	} else {
 		highlightPause = true;

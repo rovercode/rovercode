@@ -66,7 +66,15 @@ function initApi(interpreter, scope) {
 
 	// Add test API function for popping the event queue
 	wrapper = function(text) {
-		return interpreter.createPrimitive('myEvent');
+		/* For some reason, there are serious problems when
+		 * currentEvent is '' */
+		currentEvent = 'nothing';
+		if (eventQueue.length > 0) {
+			console.log('There is something in the event queue');
+			console.log('Here it is: ' + eventQueue);
+			currentEvent = eventQueue.shift();
+		}
+		return interpreter.createPrimitive(currentEvent);
 	};
 	interpreter.setProperty(scope, 'popEventQueue',
 		interpreter.createNativeFunction(wrapper));
