@@ -2,8 +2,8 @@
 
 var sidebarVisible = true;
 var runningEnabled = false;
-//var blocksToHide = ["always", "initially","onMyEvent", "onMyOtherEvent"];
-var blocksToHide = [];
+var blocksToHide = ["always", "initially","onMyEvent", "onMyOtherEvent"];
+//var blocksToHide = [];
 var hiddenBlocks = [];
 var highlightPause = false;
 var blocklyArea = document.getElementById('blocklyArea');
@@ -23,6 +23,7 @@ if(!!window.EventSource) {
 	source.addEventListener('message', function(event) {
 		console.log("Received event: " + event.data);
 		writeToConsole(event.data + "<br>");
+		updateUiForEvent(event.data);
 		eventQueue.push(event.data);
 		console.log("queue is: " + eventQueue);
 	}, false);
@@ -110,9 +111,30 @@ $('#videoBackground').find('img').on("error", function() {
 		$('#videoBackground').append("[no Rover webcam detected]");
 });
 
-$('#nameModal').foundation('reveal', 'open');
+//$('#nameModal').foundation('reveal', 'open');
 
 testString = "more stuff";
+
+/*----- UI EVENT HANDLING -----*/
+function updateUiForEvent(event){
+	switch(event) {
+		case 'leftEyeCovered':
+			$(".leftEyeIndicator").css("background-color", "#43AC6A");
+			break;
+		case 'leftEyeUncovered':
+			$(".leftEyeIndicator").css("background-color", "#BBBBBB");
+			break;
+		case 'rightEyeCovered':
+			$(".rightEyeIndicator").css("background-color", "#43AC6A");
+			break;
+		case 'rightEyeUncovered':
+			$(".rightEyeIndicator").css("background-color", "#BBBBBB");
+			break;
+		default:
+			break;
+
+	}
+}
 
 /*----- DESIGN SAVING/LOADING FUNCTIONS -----*/
 
