@@ -7,7 +7,7 @@ PWM_FREQ_HZ = 1000
 
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-pwm = pwmLib.get_platform_pwm(2)
+pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
 
 def leftEyeCallback(self):
