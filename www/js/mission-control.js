@@ -51,7 +51,8 @@ var workspace = Blockly.inject(blocklyDiv,
 );
 workspace.addChangeListener(updateCode);
 workspace.addChangeListener(saveDesign);
-loadDesign('event tester');
+//loadDesign('event_handler_hidden');
+loadDesign('Continue_testing');
 writeToConsole("RoverCode console started");
 
 /* Handle Blockly resizing */
@@ -268,7 +269,8 @@ function updateCode() {
 	highlightPause = false;
 	workspace.traceOn(true);
 	workspace.highlightBlock(null);
-	runningEnabled = true;
+	runningEnabled = false;
+	sleeping = false;
 }
 
 function showCode() {
@@ -277,30 +279,41 @@ function showCode() {
 	consoleDiv.append("<p>"+code+"</p>");
 }
 
+function beginSleep(sleepTimeInMs) {
+	sleeping = true;
+	window.setTimeout(endSleep, sleepTimeInMs);
+}
+
+function endSleep() {
+	sleeping = false;
+	if (runningEnabled)
+		runCode();
+}
+
 function runCode() {
-		if (stepCode() && runningEnabled) {
-				window.setTimeout(runCode, 10);
-		}
+	if (stepCode() && runningEnabled && !sleeping) {
+			window.setTimeout(runCode, 10);
+	}
 }
 
 function stepCode() {
-		var ok = myInterpreter.step();
-		if (!ok) {
-				// Program complete, no more code to execute.
-				workspace.highlightBlock(null);
-				console.log("code finished");
-				goToStopState();
-				return false;
-		}
-		if (highlightPause) {
-				// A block has been highlighted.  Pause execution here.
-				//console.log("code paused");
-				highlightPause = false;
-		} else {
-				// Keep executing until a highlight statement is reached.
-				stepCode();
-		}
-		return true;
+	var ok = myInterpreter.step();
+	if (!ok) {
+			// Program complete, no more code to execute.
+			workspace.highlightBlock(null);
+			console.log("code finished");
+			goToStopState();
+			return false;
+	}
+	if (highlightPause) {
+			// A block has been highlighted.  Pause execution here.
+			//console.log("code paused");
+			highlightPause = false;
+	} else {
+			// Keep executing until a highlight statement is reached.
+			stepCode();
+	}
+	return true;
 }
 
 function resetCode() {
@@ -311,6 +324,7 @@ function resetCode() {
 function goToRunningState() {
 	$('#runButton').css('color', '#FFCC33');
 	updateCode();
+	runningEnabled = true;
 	runCode();
 }
 
