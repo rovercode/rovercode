@@ -10,6 +10,12 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0)
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
 
+# Demonstrate overriding methods for debug if not on real hardware
+if gpio.__class__.__name__ == 'DUMMYGPIOAdapter':
+	def dummyGpioSetup(pin, mode, pull_up_down=gpioLib.PUD_OFF):
+		print "Setting up dummy pin " + pin
+	gpio.setup = dummyGpioSetup;
+
 def leftEyeCallback(self):
 	if gpio.is_high("XIO-P3"):
 		event = 'leftEyeUncovered'
