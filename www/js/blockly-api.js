@@ -64,6 +64,15 @@ function initApi(interpreter, scope) {
 	interpreter.setProperty(scope, 'stopMotor',
 		interpreter.createNativeFunction(wrapper));
 
+	// Add get sensor covered API function
+	wrapper = function(sensor) {
+		writeToConsole("Getting sensor + " + sensor);
+		sensorCovered = checkSensor(sensor);
+		return interpreter.createPrimitive(sensorCovered);
+	};
+	interpreter.setProperty(scope, 'getSensorCovered',
+		interpreter.createNativeFunction(wrapper));
+
 	// Add test API function for popping the event queue
 	wrapper = function(text) {
 		/* For some reason, there are serious problems when
@@ -86,4 +95,20 @@ function sendMotorCommand(command, pin, speed) {
 	$.post('send-command.php', {command: command, pin: pin, speed: Number(speed)}, function(response){
 		writeToConsole(response);
 	});
+}
+
+function checkSensor(sensor) {
+	covered = false;
+	$.ajax({
+	    url : "check-ir-sensor.php",
+	    type : "get",
+	    async: false,
+	    success : function(response) {
+				covered = (response.responseText == "True");
+	    },
+	    error: function() {
+				$('#consoleArea').append('Error: Failed to check IR sensor status!');
+	    }
+	 });
+	 return covered;
 }
