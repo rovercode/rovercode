@@ -64,6 +64,15 @@ function initApi(interpreter, scope) {
 	interpreter.setProperty(scope, 'stopMotor',
 		interpreter.createNativeFunction(wrapper));
 
+	// Add get sensor covered API function
+	wrapper = function(sensor) {
+		writeToConsole("Getting sensor + " + sensor);
+		sensorCovered = checkSensor(sensor);
+		return interpreter.createPrimitive(sensorCovered);
+	};
+	interpreter.setProperty(scope, 'getSensorCovered',
+		interpreter.createNativeFunction(wrapper));
+
 	// Add continue API function
 	/* TODO: Make the highlighting stay on continue block while sleeping */
 	wrapper = function(lengthInMs) {

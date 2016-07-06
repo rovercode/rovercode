@@ -53,5 +53,7 @@ while (True):
             print decoded['pin']
             print "Stopping motor"
             pwm.stop(decoded['pin'])
+		elif decoded['command'] == 'GET_SENSOR_VAL_BOOL':
+			print decoded
 
 pwm.cleanup()

@@ -19,8 +19,10 @@
 	<script src="blockly/javascript_compressed.js"></script>
 	<script src="blockly/generators/javascript/motors.js"></script>
 	<script src="blockly/generators/javascript/events.js"></script>
+	<script src="blockly/generators/javascript/sensors.js"></script>
 	<script src="blockly/blocks/motors.js"></script>
 	<script src="blockly/blocks/events.js"></script>
+	<script src="blockly/blocks/sensors.js"></script>
 	<script src="JS-Interpreter/acorn_interpreter.js"></script>
 	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
@@ -170,7 +172,8 @@
             <block type="motors_start"></block>
         	<block type="motors_stop"></block>
         </category>
-        <category name="sensors" colour="120">
+        <category name="sensors" colour="160">
+					<block type="sensors_get_covered"></block>
         </category>
 		<category name="colour" colour="20">
             <block type="colour_random"></block>
