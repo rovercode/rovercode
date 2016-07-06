@@ -64,6 +64,16 @@ function initApi(interpreter, scope) {
 	interpreter.setProperty(scope, 'stopMotor',
 		interpreter.createNativeFunction(wrapper));
 
+	// Add continue API function
+	/* TODO: Make the highlighting stay on continue block while sleeping */
+	wrapper = function(lengthInMs) {
+		beginSleep(lengthInMs)
+		writeToConsole("Sleeping for " + lengthInMs + "ms.");
+		return false;
+	};
+	interpreter.setProperty(scope, 'sleep',
+		interpreter.createNativeFunction(wrapper));
+
 	// Add test API function for popping the event queue
 	wrapper = function(text) {
 		/* For some reason, there are serious problems when
