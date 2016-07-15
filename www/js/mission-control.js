@@ -2,7 +2,7 @@
 
 var sidebarVisible = true;
 var runningEnabled = false;
-var blocksToHide = ["always", "initially","onMyEvent", "onMyOtherEvent"];
+var blocksToHide = ["always", "initially","whenRightEyeSeesSomething", "whenLeftEyeSeesSomething"];
 //var blocksToHide = [];
 var hiddenBlocks = [];
 var highlightPause = false;
@@ -111,7 +111,7 @@ $('#videoBackground').find('img').on("error", function() {
 		$('#videoBackground').append("[no Rover webcam detected]");
 });
 
-//$('#nameModal').foundation('reveal', 'open');
+$('#nameModal').foundation('reveal', 'open');
 
 testString = "more stuff";
 
