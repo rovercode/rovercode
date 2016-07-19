@@ -53,7 +53,8 @@ while (True):
             print decoded['pin']
             print "Stopping motor"
             pwm.stop(decoded['pin'])
-		elif decoded['command'] == 'GET_SENSOR_VAL_BOOL':
-			print decoded
-
+        elif decoded['command'] == 'GET_SENSOR_VAL_BOOL':
+            print decoded['sensorName']
+            pin = decoded['pin']
+            r.rpush('replyQueue', int(gpio.is_high(pin)))
 pwm.cleanup()

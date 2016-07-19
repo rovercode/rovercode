@@ -76,7 +76,7 @@ function initApi(interpreter, scope) {
 	// Add continue API function
 	/* TODO: Make the highlighting stay on continue block while sleeping */
 	wrapper = function(lengthInMs) {
-		beginSleep(lengthInMs)
+		beginSleep(lengthInMs);
 		writeToConsole("Sleeping for " + lengthInMs + "ms.");
 		return false;
 	};
@@ -105,4 +105,25 @@ function sendMotorCommand(command, pin, speed) {
 	$.post('send-command.php', {command: command, pin: pin, speed: Number(speed)}, function(response){
 		writeToConsole(response);
 	});
+}
+
+function checkSensor(sensor) {
+	sensorVal = 0;
+  if (sensor == 'SENSORS_left') {
+		pin = "XIO-P3";
+	} else if (sensor == 'SENSORS_right') {
+		pin = "XIO-P4";
+	} else {
+		return 0;
+	}
+
+	$.ajax({
+			url: 'get-sensor-val.php',
+			data: {command: 'GET_SENSOR_VAL_BOOL', pin: pin},
+			success: function (result) {
+					sensorVal = result;
+			},
+			async: false
+	});
+	return sensorVal;
 }
