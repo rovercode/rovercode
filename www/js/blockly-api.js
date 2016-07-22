@@ -66,8 +66,10 @@ function initApi(interpreter, scope) {
 
 	// Add get sensor covered API function
 	wrapper = function(sensor) {
+    console.log("Made it to getSensorCovered");
 		writeToConsole("Getting sensor + " + sensor);
-		sensorCovered = checkSensor(sensor);
+		sensorCovered = sensorStateCache[sensor];
+		writeToConsole("Its value is " + sensorCovered);
 		return interpreter.createPrimitive(sensorCovered);
 	};
 	interpreter.setProperty(scope, 'getSensorCovered',
@@ -107,23 +109,23 @@ function sendMotorCommand(command, pin, speed) {
 	});
 }
 
-function checkSensor(sensor) {
-	sensorVal = 0;
-  if (sensor == 'SENSORS_left') {
-		pin = "XIO-P3";
-	} else if (sensor == 'SENSORS_right') {
-		pin = "XIO-P4";
-	} else {
-		return 0;
-	}
-
-	$.ajax({
-			url: 'get-sensor-val.php',
-			data: {command: 'GET_SENSOR_VAL_BOOL', pin: pin},
-			success: function (result) {
-					sensorVal = result;
-			},
-			async: false
-	});
-	return sensorVal;
-}
+// function checkSensor(sensor) {
+// 	sensorVal = 0;
+//   if (sensor == 'SENSORS_left') {
+// 		pin = "XIO-P3";
+// 	} else if (sensor == 'SENSORS_right') {
+// 		pin = "XIO-P4";
+// 	} else {
+// 		return 0;
+// 	}
+//
+// 	$.ajax({
+// 			url: 'get-sensor-val.php',
+// 			data: {command: 'GET_SENSOR_VAL_BOOL', pin: pin},
+// 			success: function (result) {
+// 					sensorVal = result;
+// 			},
+// 			async: false
+// 	});
+// 	return sensorVal;
+// }

@@ -1,4 +1,4 @@
-/*----- GLOBALS -----*/
+/*----- MISC GLOBALS -----*/
 
 var sidebarVisible = true;
 var runningEnabled = false;
@@ -9,6 +9,15 @@ var highlightPause = false;
 var blocklyArea = document.getElementById('blocklyArea');
 var blocklyDiv = document.getElementById('blocklyDiv');
 var eventQueue = [];
+
+/*----- SENSOR VALUES CACHE -----*/
+/** Keep track of the last-known value of a sensor locally. Update
+	* it according to events. This keeps us from having to do a synchronous
+	* poll when the blockly code requests the value.
+	*/
+var sensorStateCache = new Array();
+sensorStateCache["SENSORS_leftIr"] = false;
+sensorStateCache["SENSORS_rightIr"] = false;
 
 /*----- INIT CODE -----*/
 /* Set overall Blockly colors */
@@ -23,7 +32,7 @@ if(!!window.EventSource) {
 	source.addEventListener('message', function(event) {
 		console.log("Received event: " + event.data);
 		writeToConsole(event.data + "<br>");
-		updateUiForEvent(event.data);
+		updateLocalStateAfterEvent(event.data);
 		eventQueue.push(event.data);
 		console.log("queue is: " + eventQueue);
 	}, false);
@@ -116,18 +125,22 @@ $('#nameModal').foundation('reveal', 'open');
 testString = "more stuff";
 
 /*----- UI EVENT HANDLING -----*/
-function updateUiForEvent(event){
+function updateLocalStateAfterEvent(event){
 	switch(event) {
 		case 'leftEyeCovered':
+			sensorStateCache.SENSORS_leftIr = true;
 			$(".leftEyeIndicator").css("background-color", "#43AC6A");
 			break;
 		case 'leftEyeUncovered':
+			sensorStateCache.SENSORS_leftIr = false;
 			$(".leftEyeIndicator").css("background-color", "#BBBBBB");
 			break;
 		case 'rightEyeCovered':
+			sensorStateCache.SENSORS_rightIr = true;
 			$(".rightEyeIndicator").css("background-color", "#43AC6A");
 			break;
 		case 'rightEyeUncovered':
+			sensorStateCache.SENSORS_rightIr = false;
 			$(".rightEyeIndicator").css("background-color", "#BBBBBB");
 			break;
 		default:
