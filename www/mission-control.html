@@ -26,8 +26,8 @@
 	<script src="JS-Interpreter/acorn_interpreter.js"></script>
 	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
-  <link href="http://fonts.googleapis.com/css?family=Just+Another+Hand:400,300,700" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" href="foundation-icons/foundation-icons.css">
+<link href="https://fonts.googleapis.com/css?family=Faster+One" rel="stylesheet">
+	<link rel="stylesheet" href="foundation-icons/foundation-icons.css">
 	<script src="js/blockly-api.js"></script>
 
 </head>
@@ -35,37 +35,29 @@
 <body>
 	<div class="fixed">
 		<nav class="top-bar" data-topbar>
-		  <ul class="title-area">
-			<li class="name">
-                <a href="#">rovercode</a>
-			</li>
-		  </ul>
-
 		  <section class="top-bar-section">
 			<!-- Left Nav Section -->
 			<ul class="left">
+					<li id='main-title'>rovercode</li>
 			    <li><a href="#" class="button expand" style="background-color: #000000; font-weight: bold" onclick="$('#nameModal').foundation('reveal', 'open')" id="designNameArea"></a></li>
-                <li><a href="#"><i class='fi-check'></i>Saved</a></li>
-                <li><a href="#" onclick='showCode();'>Show Code</a></li>
-                <li><a href="#" onclick="sendMotorCommand('START_MOTOR', 'XIO-P7', 42);">Start Motor</a></li>
-								<li><a href="#" onclick="sendMotorCommand('STOP_MOTOR', 'XIO-P7', 0);">Stop Motor</a></li>
-                <li class="has-dropdown">
-                    <a href="#">Show</a>
-                    <ul class="dropdown">
-                        <li><a href="#" onclick="toggleBlock('initially')">initially</a></li>
-                        <li><a href="#" onclick="toggleBlock('always')">always</a></li>
-                        <li><a href="#" onclick="toggleBlock('whenLeftEyeSeesSomething')">whenLeftEyeSeesSomething</a></li>
-                        <li><a href="#" onclick="toggleBlock('whenRightEyeSeesSomething')">whenRightEyeSeesSomething</a></li>
-                    </ul>
-                </li>
-                <li class="has-dropdown">
-				    <a href="#">File</a>
-				    <ul class="dropdown">
-				        <li><a href="#" onclick="return chooseDesign()">Load Previous Design</a></li>
-				        <li><a href="#" onclick="$('#nameModal').foundation('reveal', 'open')">Copy This Design</a></li>
-				        <li><a href="#" id="downloadLink">Download This Design</a></li>
-				    </ul>
-                </li>
+					<li><a href="#"><i class='fi-check'></i>Saved</a></li>
+					<li class="has-dropdown">
+						<a href="#">File</a>
+						<ul class="dropdown">
+							<li><a href="#" onclick="return chooseDesign()">Load Previous Design</a></li>
+							<li><a href="#" onclick="$('#nameModal').foundation('reveal', 'open')">Copy This Design</a></li>
+							<li><a href="#" id="downloadLink">Download This Design</a></li>
+						</ul>
+					</li>
+					<li class="has-dropdown">
+						<a href="#">Show</a>
+							<ul class="dropdown">
+								<li><a href="#" onclick="toggleBlock('initially')">initially</a></li>
+								<li><a href="#" onclick="toggleBlock('always')">always</a></li>
+								<li><a href="#" onclick="toggleBlock('whenLeftEyeSeesSomething')">whenLeftEyeSeesSomething</a></li>
+								<li><a href="#" onclick="toggleBlock('whenRightEyeSeesSomething')">whenRightEyeSeesSomething</a></li>
+							</ul>
+					</li>
 			</ul>
 			<!-- Right Nav Section -->
 			<ul class="right">
