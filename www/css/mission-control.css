@@ -10,11 +10,11 @@ table {
     font-size: 100%;
 }
 
-.title-area li a {
-    font-family: "Just Another Hand";
-    color: #fff;
-    font-size: 200%;
-    margin-left: 5px;
+#main-title {
+    font-family: 'Faster One', cursive;
+    color: #eee;
+    font-size: 28px;
+    margin-left: 15px;
     margin-right: 20px;
 }
 
