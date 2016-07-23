@@ -425,6 +425,7 @@ function toggleSidebar() {
 	}
 	$("#consoleArea").fadeToggle(0);
 	$("#videoBackground").fadeToggle(0);
+	$("#indicatorsArea").fadeToggle(0);
 	onresize();
 	Blockly.fireUiEvent(window, 'resize');
 }
