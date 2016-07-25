@@ -17,7 +17,7 @@ if gpio.__class__.__name__ == 'DUMMYGPIOAdapter':
 	gpio.setup = dummyGpioSetup;
 
 def leftEyeCallback(self):
-	if gpio.is_high("XIO-P3"):
+	if gpio.is_high("XIO-P2"):
 		event = 'leftEyeUncovered'
 	else:
 		event = 'leftEyeCovered'
@@ -33,8 +33,8 @@ def rightEyeCallback(self):
 	r.rpush('eventQueue', event);
 
 #Set up input listeners
-gpio.setup("XIO-P3", gpioLib.IN)
-gpio.add_event_detect("XIO-P3", gpioLib.BOTH, leftEyeCallback, 300)
+gpio.setup("XIO-P2", gpioLib.IN)
+gpio.add_event_detect("XIO-P2", gpioLib.BOTH, leftEyeCallback, 300)
 gpio.setup("XIO-P4", gpioLib.IN)
 gpio.add_event_detect("XIO-P4", gpioLib.BOTH, rightEyeCallback, 300)
 
@@ -53,8 +53,4 @@ while (True):
             print decoded['pin']
             print "Stopping motor"
             pwm.stop(decoded['pin'])
-        elif decoded['command'] == 'GET_SENSOR_VAL_BOOL':
-            print decoded['sensorName']
-            pin = decoded['pin']
-            r.rpush('replyQueue', int(gpio.is_high(pin)))
 pwm.cleanup()
