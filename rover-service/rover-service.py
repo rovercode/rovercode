@@ -2,6 +2,7 @@ import Adafruit_GPIO.PWM as pwmLib
 import Adafruit_GPIO.GPIO as gpioLib
 import redis
 import json
+import threading
 
 PWM_FREQ_HZ = 1000
 
@@ -16,27 +17,40 @@ if gpio.__class__.__name__ == 'DUMMYGPIOAdapter':
 		print "Setting up dummy pin " + pin
 	gpio.setup = dummyGpioSetup;
 
-def leftEyeCallback(self):
-	if gpio.is_high("XIO-P2"):
-		event = 'leftEyeUncovered'
-	else:
-		event = 'leftEyeCovered'
-	print event
-	r.rpush('eventQueue', event);
+killThreadsFlag = False;
 
-def rightEyeCallback(self):
-	if gpio.is_high("XIO-P4"):
-		event = 'rightEyeUncovered'
-	else:
-		event = 'rightEyeCovered'
-	print event
-	r.rpush('eventQueue', event);
+#Sometimes sensor edges are so slow that polling is best
+class gpioPoller (threading.Thread):
+	def __init__(self, threadID, name, pin, risingEvent, fallingEvent):
+		threading.Thread.__init__(self)
+		self.threadID = threadID
+		self.name = name
+		self.pin = pin
+		self.risingEvent = risingEvent
+		self.fallingEvent = fallingEvent
 
-#Set up input listeners
+	def run(self):
+		oldVal = True;
+		while (not killThreadsFlag):
+			newVal = gpio.is_high(self.pin)
+			if (oldVal == False) and (newVal == True):
+				print self.risingEvent
+				r.rpush('eventQueue', self.risingEvent)
+			elif (oldVal == True) and (newVal == False):
+				print self.fallingEvent
+				r.rpush('eventQueue', self.fallingEvent)
+			else:
+				pass
+			oldVal = newVal
+		self.name.exit()
+
 gpio.setup("XIO-P2", gpioLib.IN)
-gpio.add_event_detect("XIO-P2", gpioLib.BOTH, leftEyeCallback, 300)
 gpio.setup("XIO-P4", gpioLib.IN)
-gpio.add_event_detect("XIO-P4", gpioLib.BOTH, rightEyeCallback, 300)
+rightEyePollingThread = gpioPoller(1, "rightEyePollingThread", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered')
+rightEyePollingThread.start();
+leftEyePollingThread = gpioPoller(2, "leftEyePollingThread", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered')
+leftEyePollingThread.start();
+
 
 while (True):
     rxd = r.lpop('commandQueue');
@@ -53,4 +67,6 @@ while (True):
             print decoded['pin']
             print "Stopping motor"
             pwm.stop(decoded['pin'])
+killThreadsFlag = True;
+gpioLib.cleanup();
 pwm.cleanup()
