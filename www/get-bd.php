@@ -1,7 +1,7 @@
 <?php
 /**
  * File Upload Handler
- * 
+ *
  * PHP version 5
  *
  * @category File_Io
@@ -14,10 +14,14 @@
 $bds = glob('saved-bds/*.xml');
 
 foreach ($bds as $bd) {
-    $xml=simplexml_load_file($bd) or die("Error: Bad BD xml file.");
-    if ((string)$xml->designName == $_GET["designName"]) {
-        echo (string)$xml->bd;
-        break;
+    try {
+      $xml=simplexml_load_file($bd);
+      if ((string)$xml->designName == $_GET["designName"]) {
+          echo (string)$xml->bd;
+          break;
+        }
+    } catch (Exception $e) {
+      error_log("Bad BD xml file");
     }
 }
 
