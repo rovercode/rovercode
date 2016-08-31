@@ -1,7 +1,7 @@
 <?php
 /**
  * File Upload Handler
- * 
+ *
  * PHP version 5
  *
  * @category File_Io
@@ -16,8 +16,14 @@ $bds = glob('saved-bds/*.xml');
 $names = [];
 
 foreach ($bds as $bd) {
-    $xml=simplexml_load_file($bd) or die("Error: Bad BD xml file.");
-    $names[] = (string)$xml->designName;
+  try {
+    $xml=simplexml_load_file($bd);
+    if($xml) {
+      $names[] = (string)$xml->designName;
+    }
+  } catch (Exception $e) {
+    error_log("Error reading file name", 0)  ;
+  }
 }
 echo json_encode(array_values($names));
 
