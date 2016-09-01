@@ -1,5 +1,9 @@
 /*----- DEFINE API -----*/
 
+leftMotor = {FORWARD: "XIO-P0", BACKWARD: "XIO-P1"};
+rightMotor = {FORWARD: "XIO-P6", BACKWARD: "XIO-P7"};
+motorPins = {LEFT: leftMotor, RIGHT: rightMotor};
+
 function initApi(interpreter, scope) {
 
 	// Add an API function for the alert() block.
@@ -36,16 +40,7 @@ function initApi(interpreter, scope) {
 
 	// Add set motor API function
 	wrapper = function(motor, direction, speed) {
-		// TODO: get pin for motor
-		//sendMotorCommand('START', 5, 'FORWARD', 42);
-		writeToConsole(motor);
-		writeToConsole(direction);
-		writeToConsole(speed);
-		if (direction.data  == 'FORWARD')
-			pin = 'XIO-P7';
-		else {
-			pin = 'XIO-P5';
-		}
+		pin = motorPins[motor.data][direction.data];
 		sendMotorCommand('START_MOTOR', pin, speed.data);
 		return false;
 	};
@@ -54,11 +49,9 @@ function initApi(interpreter, scope) {
 
 	// Add stop motor API function
 	wrapper = function(motor) {
-		// TODO: get pin for motor from actual datastructure
 		/* Stop both forward and backward pins, just to be safe */
-		sendMotorCommand('STOP_MOTOR', XIO-P7, 0);
-		sendMotorCommand('STOP_MOTOR', XIO-P5, 0);
-		writeToConsole(motor);
+		sendMotorCommand('START_MOTOR', motorPins[motor.data].FORWARD, 0);
+		sendMotorCommand('START_MOTOR', motorPins[motor.data].BACKWARD, 0);
 		return false;
 	};
 	interpreter.setProperty(scope, 'stopMotor',
@@ -67,9 +60,7 @@ function initApi(interpreter, scope) {
 	// Add get sensor covered API function
 	wrapper = function(sensor) {
     console.log("Made it to getSensorCovered");
-		writeToConsole("Getting sensor + " + sensor);
 		sensorCovered = sensorStateCache[sensor];
-		writeToConsole("Its value is " + sensorCovered);
 		return interpreter.createPrimitive(sensorCovered);
 	};
 	interpreter.setProperty(scope, 'getSensorCovered',
@@ -105,7 +96,7 @@ function initApi(interpreter, scope) {
 
 function sendMotorCommand(command, pin, speed) {
 	$.post('send-command.php', {command: command, pin: pin, speed: Number(speed)}, function(response){
-		writeToConsole(response);
+		//writeToConsole(response);
 	});
 }
 
