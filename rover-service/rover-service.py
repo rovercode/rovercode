@@ -44,12 +44,19 @@ class gpioPoller (threading.Thread):
 			oldVal = newVal
 		self.name.exit()
 
+# set up IR sensor gpio
 gpio.setup("XIO-P2", gpioLib.IN)
 gpio.setup("XIO-P4", gpioLib.IN)
 rightEyePollingThread = gpioPoller(1, "rightEyePollingThread", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered')
 rightEyePollingThread.start();
 leftEyePollingThread = gpioPoller(2, "leftEyePollingThread", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered')
 leftEyePollingThread.start();
+
+# set up motor gpio
+pwm.start("XIO-P0", 0);
+pwm.start("XIO-P1", 0);
+pwm.start("XIO-P6", 0);
+pwm.start("XIO-P7", 0);
 
 
 while (True):
@@ -62,11 +69,11 @@ while (True):
             print decoded['pin']
             print decoded['speed']
             print "Starting motor"
-            pwm.start(decoded['pin'], float(decoded['speed']), PWM_FREQ_HZ)
+            pwm.set_duty_cycle(decoded['pin'], float(decoded['speed']))
         elif decoded['command'] == 'STOP_MOTOR':
             print decoded['pin']
             print "Stopping motor"
-            pwm.stop(decoded['pin'])
+            pwm.set_duty_cycle(decoded['pin'], 0)
 killThreadsFlag = True;
 gpioLib.cleanup();
 pwm.cleanup()
