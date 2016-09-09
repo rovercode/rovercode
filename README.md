@@ -7,7 +7,7 @@
 
 rovercode is easy-to-use package for controlling robots that can sense and react to their environment. The Blockly editor makes it easy to program and run your bot straight from your browser. Just drag and drop your commands to drive motors, read values from a variety of supported sensors, and see what your bot sees with the built in webcam viewer.
 
-Rovercode runs on any single-board-computer supported by the [Adafruit Python GPIO wrapper library](https://github.com/adafruit/Adafruit_Python_GPIO), including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black. Once installed, just point your browser at the rovers address and get started.
+rovercode runs on any single-board-computer supported by the [Adafruit Python GPIO wrapper library](https://github.com/adafruit/Adafruit_Python_GPIO), including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black. Once installed, just point your browser at the rovers address and get started.
 
 [Try a live demo.](http://codetherover.com/demo/rover-code/www/mission-control.html)
 
