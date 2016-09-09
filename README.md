@@ -24,7 +24,7 @@ In your browser, you design the code using [Blockly](https://developers.google.c
 [Try a live demo](http://codetherover.com/demo/rover-code/www/mission-control.html)
 
 ## Install, Play and Contribute
-rovercode is on its first release. It is usable now, but we have lots of great features left to be added. Check out the [install instructions](https://github.com/aninternetof/rovercode/wiki/Getting-Set-Up) and the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing). Check out the [feature tracker](https://github.com/aninternetof/rovercode/issues) to see if there's something fun to contribute.
+rovercode is on its first release. It is usable now, but we have lots of great features left to be added. Check out the [install instructions](https://github.com/aninternetof/rovercode/wiki/Getting-Set-Up) and the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing). Check out the [feature tracker](https://github.com/aninternetof/rovercode/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Afeature) to see if there's something fun to contribute.
 
 ## Licence
-[GNU GPL V3](license) © Brady L. Hurlburt and the rovercode.org community
+[GNU GPLv3](license) © Brady L. Hurlburt and the rovercode.org community
