@@ -166,13 +166,12 @@ function saveDesign() {
 }
 
 function refreshSavedBds() {
-	$.get('get-saved-bd-list.php', function(response){
-		json = JSON.parse(response);
-		if (!json.length){
+	$.get('http://localhost:5000/api/v1/blockdiagrams', function(json){
+		if (!json.result.length){
 			$('#savedDesignsArea').text("There are no designs saved on this rover");
 		} else {
 			$('#savedDesignsArea').empty();
-			json.forEach(function(entry) {
+			json.result.forEach(function(entry) {
 				$('#savedDesignsArea').append("<a href='#' class='button' style='margin:10px;' onclick='return loadDesign(\""+entry+"\")'>"+entry+"</a>");
 			});
 		}
@@ -182,9 +181,10 @@ function refreshSavedBds() {
 
 function loadDesign(name) {
 	$('#loadModal').foundation('reveal', 'close');
-	$.get('get-bd.php', { designName:name }, function(response){
+	$.get('http://localhost:5000/api/v1/blockdiagrams/'+name, function(response){
 		workspace.clear();
-		xmlDom = Blockly.Xml.textToDom(response);
+
+		xmlDom = Blockly.Xml.textToDom(response.getElementsByTagName('bd')[0].childNodes[0].nodeValue);
 		Blockly.Xml.domToWorkspace(workspace, xmlDom);
 		if (name == 'event_handler_hidden')
 			designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
@@ -212,13 +212,12 @@ function loadDesign(name) {
 function acceptName() {
 	designName = $('input[name=designName]').val();
 
-	$.get('get-saved-bd-list.php', function(response){
-		json = JSON.parse(response);
+	$.get('http://localhost:5000/api/v1/blockdiagrams', function(json){
 		var duplicate = false;
-		json.forEach(function(entry) {
-			if (entry == designName)
+		for (var i=0; i<json.length; i++){
+			if (json[i] == designName)
 				duplicate = true;
-		});
+		}
 
 		if (designName === ''){
 			$('#nameErrorArea').text('Please enter a name for your design in the box');
