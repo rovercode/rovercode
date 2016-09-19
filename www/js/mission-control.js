@@ -212,13 +212,12 @@ function loadDesign(name) {
 function acceptName() {
 	designName = $('input[name=designName]').val();
 
-	$.get('get-saved-bd-list.php', function(response){
-		json = JSON.parse(response);
+	$.get('http://localhost:5000/api/v1/blockdiagrams', function(json){
 		var duplicate = false;
-		json.forEach(function(entry) {
-			if (entry == designName)
+		for (i=0; i<json.length; i++){
+			if (json[i] == designName)
 				duplicate = true;
-		});
+		}
 
 		if (designName === ''){
 			$('#nameErrorArea').text('Please enter a name for your design in the box');
