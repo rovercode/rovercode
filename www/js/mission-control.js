@@ -214,7 +214,7 @@ function acceptName() {
 
 	$.get('http://localhost:5000/api/v1/blockdiagrams', function(json){
 		var duplicate = false;
-		for (i=0; i<json.length; i++){
+		for (var i=0; i<json.length; i++){
 			if (json[i] == designName)
 				duplicate = true;
 		}
