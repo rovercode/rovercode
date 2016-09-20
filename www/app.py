@@ -17,7 +17,7 @@ def getblockdiagrams():
 
 @app.route('/api/v1/blockdiagrams', methods=['POST'])
 def saveblockdiagram():
-    designName = request.form['designName']
+    designName = request.form['designName'].replace(' ', '_').replace('.', '_')
     bdString = request.form['bdString']
     root = xml.etree.ElementTree.Element("root")
 
