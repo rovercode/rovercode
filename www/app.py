@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response, request, redirect
+from flask import Flask, jsonify, Response, request
 from os import listdir
 from os.path import isfile, join
 from flask_cors import CORS, cross_origin
@@ -26,7 +26,7 @@ def saveblockdiagram():
 
     tree = xml.etree.ElementTree.ElementTree(root)
     tree.write('saved-bds/' + designName + '.xml')
-    return redirect(request.url)
+    return ('', 200)
 
 @app.route('/api/v1/blockdiagrams/<string:id>', methods=['GET'])
 def getblockdiagram(id):
