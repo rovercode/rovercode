@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, request
 from os import listdir
 from os.path import isfile, join
 from flask_cors import CORS, cross_origin
@@ -14,6 +14,19 @@ def getblockdiagrams():
         if isfile(join('saved-bds', f)) and f.endswith('.xml'):
             names.append(xml.etree.ElementTree.parse(join('saved-bds', f)).getroot().find('designName').text)
     return jsonify(result=names)
+
+@app.route('/api/v1/blockdiagrams', methods=['POST'])
+def saveblockdiagram():
+    designName = request.form['designName'].replace(' ', '_').replace('.', '_')
+    bdString = request.form['bdString']
+    root = xml.etree.ElementTree.Element("root")
+
+    xml.etree.ElementTree.SubElement(root, 'designName').text = designName
+    xml.etree.ElementTree.SubElement(root, 'bd').text = bdString
+
+    tree = xml.etree.ElementTree.ElementTree(root)
+    tree.write('saved-bds/' + designName + '.xml')
+    return ('', 200)
 
 @app.route('/api/v1/blockdiagrams/<string:id>', methods=['GET'])
 def getblockdiagram(id):

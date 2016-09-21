@@ -159,7 +159,7 @@ function chooseDesign() {
 function saveDesign() {
 	xml = Blockly.Xml.workspaceToDom(workspace);
 	xmlString = Blockly.Xml.domToText(xml);
-	$.post('save-bd.php', {bdString: xmlString, designName: designName}, function(response){
+	$.post('http://localhost:5000/api/v1/blockdiagrams', {bdString: xmlString, designName: designName}, function(response){
 	}).error(function(){
 			writeToConsole("There was an error saving your design to the rover");
 	});
