@@ -7,7 +7,6 @@ import Adafruit_GPIO.PWM as pwmLib
 import Adafruit_GPIO.GPIO as gpioLib
 import json
 import threading
-import smokesignal
 
 app = Flask(__name__)
 CORS(app)
