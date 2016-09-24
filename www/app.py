@@ -1,12 +1,42 @@
 from flask import Flask, jsonify, Response, request, send_from_directory
 from os import listdir
 from os.path import isfile, join
+from flask_cors import CORS, cross_origin
 import xml.etree.ElementTree
+from flask_socketio import SocketIO, emit
 import Adafruit_GPIO.PWM as pwmLib
 
+# Let SocketIO choose the best async mode
+async_mode = None
+
 app = Flask(__name__)
+socketio = SocketIO(app, async_mode=async_mode)
+thread = None
+CORS(app)
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
+
+def background_thread():
+    """Example of how to send server generated events to clients."""
+    count = 0
+    while True:
+        socketio.sleep(2)
+        count += 1
+        socketio.emit('my_response',
+                      {'data': 'Server generated event'},
+                      namespace='/test')
+
+@socketio.on('connect', namespace='/test')
+def test_connect():
+    global thread
+    print 'Websocket connected'
+    if thread is None:
+        thread = socketio.start_background_task(target=background_thread)
+    emit('my_response', {'data': 'Connected', 'count': 0})
+
+@socketio.on('my_event', namespace='/test')
+def test_message(message):
+    print "Got a message: " + message['data']
 
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
 def get_block_diagrams():
@@ -98,4 +128,4 @@ def run_command(decoded):
 
 if __name__ == '__main__':
     init_rover_service()
-    app.run(host='0.0.0.0', debug=True)
+    socketio.run(app, host='0.0.0.0', debug=True)
