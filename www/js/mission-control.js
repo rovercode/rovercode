@@ -26,23 +26,33 @@ Blockly.HSV_VALUE = 0.9;
 Blockly.Flyout.prototype.CORNER_RADIUS = 0;
 Blockly.BlockSvg.START_HAT = true;
 
-/* Setup listener for events */
-if(!!window.EventSource) {
-	var source = new EventSource("event-notifier.php");
-	source.addEventListener('message', function(event) {
-		console.log("Received event: " + event.data);
-		writeToConsole(event.data + "<br>");
-		updateLocalStateAfterEvent(event.data);
-		eventQueue.push(event.data);
-		console.log("queue is: " + eventQueue);
-	}, false);
-	source.addEventListener('open', function(event) {
-		console.log('sse open' + "<br>");
-	}, false);
-	source.addEventListener('error', function(event) {
-		console.log('sse error' + "<br>");
-	}, false);
-}
+/* Set up a listener for sensor events */
+namespace = '/test'
+port = '5000'
+var socket = io.connect('http://' + document.domain + ':' + port + namespace);
+socket.on('connect', function () {
+    socket.emit('my_event', {data: 'Connected, baby!'})
+});
+socket.on('my_response', function(msg) {
+    writeToConsole(msg.data);
+});
+// /* Setup listener for events */
+// if(!!window.EventSource) {
+// 	var source = new EventSource("event-notifier.php");
+// 	source.addEventListener('message', function(event) {
+// 		console.log("Received event: " + event.data);
+// 		writeToConsole(event.data + "<br>");
+// 		updateLocalStateAfterEvent(event.data);
+// 		eventQueue.push(event.data);
+// 		console.log("queue is: " + eventQueue);
+// 	}, false);
+// 	source.addEventListener('open', function(event) {
+// 		console.log('sse open' + "<br>");
+// 	}, false);
+// 	source.addEventListener('error', function(event) {
+// 		console.log('sse error' + "<br>");
+// 	}, false);
+// }
 
 /* Inject Blockly */
 var workspace = Blockly.inject(blocklyDiv,
