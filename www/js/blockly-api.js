@@ -1,22 +1,21 @@
 /*----- DEFINE API -----*/
 
-leftMotor = { FORWARD: "XIO-P0", BACKWARD: "XIO-P1" };
-rightMotor = { FORWARD: "XIO-P6", BACKWARD: "XIO-P7" };
-motorPins = { LEFT: leftMotor, RIGHT: rightMotor };
+leftMotor = {FORWARD: "XIO-P0", BACKWARD: "XIO-P1"};
+rightMotor = {FORWARD: "XIO-P6", BACKWARD: "XIO-P7"};
+motorPins = {LEFT: leftMotor, RIGHT: rightMotor};
 
 function initApi(interpreter, scope) {
 
 	// Add an API function for the alert() block.
-	var wrapper = function (text) {
+	var wrapper = function(text) {
 		text = text ? text.toString() : '';
 		return interpreter.createPrimitive(writeToConsole(text));
 	};
-
 	interpreter.setProperty(scope, 'alert',
 		interpreter.createNativeFunction(wrapper));
 
 	// Add an API function for highlighting blocks.
-	wrapper = function (id) {
+	wrapper = function(id) {
 		id = id ? id.toString() : '';
 		return interpreter.createPrimitive(highlightBlock(id));
 	};
@@ -24,9 +23,9 @@ function initApi(interpreter, scope) {
 		interpreter.createNativeFunction(wrapper));
 
 	// Add test API function for AJAX
-	wrapper = function (text) {
+	wrapper = function(text) {
 		$.ajax({
-			url: 'process.php',
+			url:'process.php',
 			complete: function (response) {
 				writeToConsole(response.responseText);
 			},
@@ -40,7 +39,7 @@ function initApi(interpreter, scope) {
 		interpreter.createNativeFunction(wrapper));
 
 	// Add set motor API function
-	wrapper = function (motor, direction, speed) {
+	wrapper = function(motor, direction, speed) {
 		pin = motorPins[motor.data][direction.data];
 		sendMotorCommand('START_MOTOR', pin, speed.data);
 		return false;
@@ -49,7 +48,7 @@ function initApi(interpreter, scope) {
 		interpreter.createNativeFunction(wrapper));
 
 	// Add stop motor API function
-	wrapper = function (motor) {
+	wrapper = function(motor) {
 		/* Stop both forward and backward pins, just to be safe */
 		sendMotorCommand('START_MOTOR', motorPins[motor.data].FORWARD, 0);
 		sendMotorCommand('START_MOTOR', motorPins[motor.data].BACKWARD, 0);
@@ -59,8 +58,8 @@ function initApi(interpreter, scope) {
 		interpreter.createNativeFunction(wrapper));
 
 	// Add get sensor covered API function
-	wrapper = function (sensor) {
-		console.log("Made it to getSensorCovered");
+	wrapper = function(sensor) {
+    console.log("Made it to getSensorCovered");
 		sensorCovered = sensorStateCache[sensor];
 		return interpreter.createPrimitive(sensorCovered);
 	};
@@ -69,7 +68,7 @@ function initApi(interpreter, scope) {
 
 	// Add continue API function
 	/* TODO: Make the highlighting stay on continue block while sleeping */
-	wrapper = function (lengthInMs) {
+	wrapper = function(lengthInMs) {
 		beginSleep(lengthInMs);
 		writeToConsole("Sleeping for " + lengthInMs + "ms.");
 		return false;
@@ -78,7 +77,7 @@ function initApi(interpreter, scope) {
 		interpreter.createNativeFunction(wrapper));
 
 	// Add test API function for popping the event queue
-	wrapper = function (text) {
+	wrapper = function(text) {
 		/* For some reason, there are serious problems when
 		 * currentEvent is '' */
 		currentEvent = 'nothing';
@@ -96,14 +95,9 @@ function initApi(interpreter, scope) {
 /*-----HELPER FUNCTIONS -----*/
 
 function sendMotorCommand(command, pin, speed) {
-	$.post('http://localhost:5000/api/v1/sendcommand',
-		JSON.stringify({
-			command: command,
-			pin: pin,
-			speed: Number(speed)
-		}), function (response) {
-			//writeToConsole(response);
-		});
+	$.post('send-command.php', {command: command, pin: pin, speed: Number(speed)}, function(response){
+		//writeToConsole(response);
+	});
 }
 
 // function checkSensor(sensor) {

@@ -3,17 +3,9 @@ from os import listdir
 from os.path import isfile, join
 from flask_cors import CORS, cross_origin
 import xml.etree.ElementTree
-import Adafruit_GPIO.PWM as pwmLib
-import Adafruit_GPIO.GPIO as gpioLib
-import json
-import threading
 
 app = Flask(__name__)
 CORS(app)
-
-PWM_FREQ_HZ = 1000
-
-pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
 def getblockdiagrams():
@@ -44,38 +36,5 @@ def getblockdiagram(id):
         content = content_file.read()
     return Response(content, mimetype='text/xml')
 
-@app.route('/api/v1/sendcommand', methods = ['POST'])
-def sendCommand():
-    print request.form
-    runCommand(request.json)
-    return jsonify(request.json)
-
-def init_rover_service():
-    # set up motor pwm
-    pwm.start("XIO-P0", 0);
-    pwm.start("XIO-P1", 0);
-    pwm.start("XIO-P6", 0);
-    pwm.start("XIO-P7", 0);
-
-    # test adapter
-    if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
-        def mock_set_duty_cycle(pin, speed):
-            print "Setting pin " + pin + " to speed " + str(speed)
-        pwm.set_duty_cycle = mock_set_duty_cycle
-
-def runCommand(decoded):
-    print decoded['command']
-    if decoded['command'] == 'START_MOTOR':
-        print decoded['pin']
-        print decoded['speed']
-        print "Starting motor"
-        pwm.set_duty_cycle(decoded['pin'], float(decoded['speed']))
-    elif decoded['command'] == 'STOP_MOTOR':
-        print decoded['pin']
-        print "Stopping motor"
-        pwm.set_duty_cycle(decoded['pin'], 0)
-
 if __name__ == '__main__':
-    init_rover_service()
     app.run(host='0.0.0.0', debug=True)
-
