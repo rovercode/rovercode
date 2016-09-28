@@ -4,19 +4,14 @@ from os.path import isfile, join
 from flask_cors import CORS, cross_origin
 import xml.etree.ElementTree
 import Adafruit_GPIO.PWM as pwmLib
-import Adafruit_GPIO.GPIO as gpioLib
-import json
-import threading
 
 app = Flask(__name__)
 CORS(app)
 
-PWM_FREQ_HZ = 1000
-
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
-def getblockdiagrams():
+def get_block_diagrams():
     names = []
     for f in listdir('saved-bds'):
         if isfile(join('saved-bds', f)) and f.endswith('.xml'):
@@ -24,7 +19,7 @@ def getblockdiagrams():
     return jsonify(result=names)
 
 @app.route('/api/v1/blockdiagrams', methods=['POST'])
-def saveblockdiagram():
+def save_block_diagram():
     designName = request.form['designName'].replace(' ', '_').replace('.', '_')
     bdString = request.form['bdString']
     root = xml.etree.ElementTree.Element("root")
@@ -37,7 +32,7 @@ def saveblockdiagram():
     return ('', 200)
 
 @app.route('/api/v1/blockdiagrams/<string:id>', methods=['GET'])
-def getblockdiagram(id):
+def get_block_diagram(id):
     id = id.replace(' ', '_').replace('.', '_')
     bd = [f for f in listdir('saved-bds') if isfile(join('saved-bds', f)) and id in f]
     with open(join('saved-bds',bd[0]), 'r') as content_file:
@@ -45,10 +40,9 @@ def getblockdiagram(id):
     return Response(content, mimetype='text/xml')
 
 @app.route('/api/v1/sendcommand', methods = ['POST'])
-def sendCommand():
-    print request.form
-    runCommand(request.json)
-    return jsonify(request.json)
+def send_command():
+    run_command(request.json)
+    return jsonify(request.json) 
 
 def init_rover_service():
     # set up motor pwm
@@ -63,7 +57,7 @@ def init_rover_service():
             print "Setting pin " + pin + " to speed " + str(speed)
         pwm.set_duty_cycle = mock_set_duty_cycle
 
-def runCommand(decoded):
+def run_command(decoded):
     print decoded['command']
     if decoded['command'] == 'START_MOTOR':
         print decoded['pin']
