@@ -8,7 +8,7 @@ PWM_FREQ_HZ = 1000
 
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
+#pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
 
 # Demonstrate overriding methods for debug if not on real hardware
@@ -53,27 +53,27 @@ leftEyePollingThread = gpioPoller(2, "leftEyePollingThread", "XIO-P2", 'leftEyeU
 leftEyePollingThread.start();
 
 # set up motor gpio
-pwm.start("XIO-P0", 0);
-pwm.start("XIO-P1", 0);
-pwm.start("XIO-P6", 0);
-pwm.start("XIO-P7", 0);
+#pwm.start("XIO-P0", 0);
+#pwm.start("XIO-P1", 0);
+#pwm.start("XIO-P6", 0);
+#pwm.start("XIO-P7", 0);
 
 
-while (True):
-    rxd = r.lpop('commandQueue');
-    if rxd:
-        print rxd
-        decoded = json.loads(rxd)
-        print decoded['command']
-        if decoded['command'] == 'START_MOTOR':
-            print decoded['pin']
-            print decoded['speed']
-            print "Starting motor"
-            pwm.set_duty_cycle(decoded['pin'], float(decoded['speed']))
-        elif decoded['command'] == 'STOP_MOTOR':
-            print decoded['pin']
-            print "Stopping motor"
-            pwm.set_duty_cycle(decoded['pin'], 0)
+# while (True):
+#     rxd = r.lpop('commandQueue');
+#     if rxd:
+#         print rxd
+#         decoded = json.loads(rxd)
+#         print decoded['command']
+#         if decoded['command'] == 'START_MOTOR':
+#             print decoded['pin']
+#             print decoded['speed']
+#             print "Starting motor"
+#             pwm.set_duty_cycle(decoded['pin'], float(decoded['speed']))
+#         elif decoded['command'] == 'STOP_MOTOR':
+#             print decoded['pin']
+#             print "Stopping motor"
+#             pwm.set_duty_cycle(decoded['pin'], 0)
 killThreadsFlag = True;
 gpioLib.cleanup();
 pwm.cleanup()
