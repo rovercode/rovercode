@@ -7,3 +7,6 @@
 [submodule "JS-Interpreter"]
 	path = www/JS-Interpreter
 	url = https://github.com/NeilFraser/JS-Interpreter
+[submodule "Adafruit_Python_GPIO"]
+	path = www/Adafruit_Python_GPIO
+	url = https://github.com/aninternetof/Adafruit_Python_GPIO
