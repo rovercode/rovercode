@@ -97,11 +97,11 @@ function initApi(interpreter, scope) {
 
 function sendMotorCommand(command, pin, speed) {
 	$.post('http://localhost:5000/api/v1/sendcommand',
-		JSON.stringify({
+		{
 			command: command,
 			pin: pin,
 			speed: Number(speed)
-		}), function (response) {
+		}, function (response) {
 			//writeToConsole(response);
 		});
 }
