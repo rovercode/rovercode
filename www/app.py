@@ -41,8 +41,8 @@ def get_block_diagram(id):
 
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():
-    run_command(request.json)
-    return jsonify(request.json) 
+    run_command(request.form)
+    return jsonify(request.form)
 
 def init_rover_service():
     # set up motor pwm
