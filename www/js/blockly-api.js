@@ -96,7 +96,7 @@ function initApi(interpreter, scope) {
 /*-----HELPER FUNCTIONS -----*/
 
 function sendMotorCommand(command, pin, speed) {
-	$.post('http://localhost:5000/api/v1/sendcommand',
+	$.post(roverResource('sendcommand'),
 		{
 			command: command,
 			pin: pin,

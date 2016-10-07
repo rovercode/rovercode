@@ -10,6 +10,9 @@ var blocklyArea = document.getElementById('blocklyArea');
 var blocklyDiv = document.getElementById('blocklyDiv');
 var eventQueue = [];
 
+var roverDomain = ''; //Later, if the rover is not hosting the webpage, its address will go here
+var roverApiPath = '/api/v1/';
+
 /*----- SENSOR VALUES CACHE -----*/
 /** Keep track of the last-known value of a sensor locally. Update
 	* it according to events. This keeps us from having to do a synchronous
@@ -18,6 +21,11 @@ var eventQueue = [];
 var sensorStateCache = new Array();
 sensorStateCache["SENSORS_leftIr"] = false;
 sensorStateCache["SENSORS_rightIr"] = false;
+
+/*----- HELPER FUNCTIONS -----*/
+function roverResource(resource) {
+	return roverDomain+roverApiPath+resource;
+}
 
 /*----- INIT CODE -----*/
 /* Set overall Blockly colors */
@@ -159,14 +167,14 @@ function chooseDesign() {
 function saveDesign() {
 	xml = Blockly.Xml.workspaceToDom(workspace);
 	xmlString = Blockly.Xml.domToText(xml);
-	$.post('http://localhost:5000/api/v1/blockdiagrams', {bdString: xmlString, designName: designName}, function(response){
+	$.post(roverResource('blockdiagrams'), {bdString: xmlString, designName: designName}, function(response){
 	}).error(function(){
 			writeToConsole("There was an error saving your design to the rover");
 	});
 }
 
 function refreshSavedBds() {
-	$.get('http://localhost:5000/api/v1/blockdiagrams', function(json){
+	$.get(roverResource('blockdiagrams'), function(json){
 		if (!json.result.length){
 			$('#savedDesignsArea').text("There are no designs saved on this rover");
 		} else {
@@ -181,7 +189,7 @@ function refreshSavedBds() {
 
 function loadDesign(name) {
 	$('#loadModal').foundation('reveal', 'close');
-	$.get('http://localhost:5000/api/v1/blockdiagrams/'+name, function(response){
+	$.get(roverResource('blockdiagrams')+'/'+name, function(response){
 		workspace.clear();
 
 		xmlDom = Blockly.Xml.textToDom(response.getElementsByTagName('bd')[0].childNodes[0].nodeValue);
@@ -212,7 +220,7 @@ function loadDesign(name) {
 function acceptName() {
 	designName = $('input[name=designName]').val();
 
-	$.get('http://localhost:5000/api/v1/blockdiagrams', function(json){
+	$.get(roverResource('blockdiagrams'), function(json){
 		var duplicate = false;
 		for (var i=0; i<json.length; i++){
 			if (json[i] == designName)
