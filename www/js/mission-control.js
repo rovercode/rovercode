@@ -18,7 +18,6 @@ var eventQueue = [];
 var sensorStateCache = new Array();
 sensorStateCache["SENSORS_leftIr"] = false;
 sensorStateCache["SENSORS_rightIr"] = false;
-$.ajaxSetup({ contentType: "application/json; charset=utf-8", });
 
 /*----- INIT CODE -----*/
 /* Set overall Blockly colors */
