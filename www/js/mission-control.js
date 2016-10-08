@@ -22,11 +22,6 @@ var sensorStateCache = new Array();
 sensorStateCache["SENSORS_leftIr"] = false;
 sensorStateCache["SENSORS_rightIr"] = false;
 
-/*----- HELPER FUNCTIONS -----*/
-function roverResource(resource) {
-	return roverDomain+roverApiPath+resource;
-}
-
 /*----- INIT CODE -----*/
 /* Set overall Blockly colors */
 Blockly.HSV_SATURATION = 0.85;
