@@ -1,3 +1,7 @@
+/*----- MISC GLOBALS -----*/
+var roverDomain = ''; //Later, if the rover is not hosting the webpage, its address will go here
+var roverApiPath = '/api/v1/';
+
 /*----- HELPER FUNCTIONS -----*/
 function roverResource(resource) {
 	return roverDomain+roverApiPath+resource;
