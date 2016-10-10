@@ -35,7 +35,14 @@ function refreshSavedBds() {
 		} else {
 			$('#savedDesignsArea').empty();
 			json.result.forEach(function(entry) {
-				$('#savedDesignsArea').append("<a href='#' class='button' style='margin:10px;' onclick='return loadDesign(\""+entry+"\")'>"+entry+"</a>");
+				$(document.createElement('a')).addClass('button')
+					.html(entry)
+					.attr('href', '#')
+					.css('margin', '10px')
+					.appendTo($("#savedDesignsArea"))
+					.click(function() {
+						return loadDesign(entry);
+					});
 			});
 		}
 	}
