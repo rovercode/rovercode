@@ -44,7 +44,7 @@ function refreshSavedBds() {
 
 function loadDesign(name) {
 	$('#loadModal').foundation('reveal', 'close');
-	$.get(roverResource(['blockdiagrams', 'name']), function(response){
+	$.get(roverResource(['blockdiagrams', name]), function(response){
 		workspace.clear();
 
 		xmlDom = Blockly.Xml.textToDom(response.getElementsByTagName('bd')[0].childNodes[0].nodeValue);
