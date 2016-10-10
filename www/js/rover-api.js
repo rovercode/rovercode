@@ -71,8 +71,9 @@ function loadDesign(name) {
 			if (!hideBlock(hiddenBlock))
 				allBlocksHidden = false;
 		}
-		if (allBlocksHidden)
+		if (allBlocksHidden) {
 			showBlock('always');
+		}
 	}).error(function(){
 			alert("There was an error loading your design from the rover");
 	});
@@ -82,24 +83,22 @@ function loadDesign(name) {
 function acceptName() {
 	designName = $('input[name=designName]').val();
 
-	$.get(roverResource('blockdiagrams'), function(json){
-		var duplicate = false;
-		for (var i=0; i<json.length; i++){
-			if (json[i] == designName)
-				duplicate = true;
-		}
+	if (!designName) {
+		$('#nameErrorArea').text('Please enter a name for your design in the box');
+	} else {
+		$.get(roverResource('blockdiagrams'), function(json){
+			var duplicate = json.result.indexOf(designName) > -1;
+			if (duplicate) {
+				$('#nameErrorArea').text('This name has already been chosen. Please pick another one.');
+			} else {
+				saveDesign();
+				$('#nameErrorArea').empty();
+				$('a#designNameArea').text(designName);
+				$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
+				$('a#downloadLink').attr("download", designName+".xml");
+				$('#nameModal').foundation('reveal', 'close');
+			}
+		});
+	}
 
-		if (designName === ''){
-			$('#nameErrorArea').text('Please enter a name for your design in the box');
-		} else if (duplicate) {
-			$('#nameErrorArea').text('This name has already been chosen. Please pick another one.');
-		} else {
-			saveDesign();
-			$('#nameErrorArea').empty();
-			$('a#designNameArea').text(designName);
-			$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
-			$('a#downloadLink').attr("download", designName+".xml");
-			$('#nameModal').foundation('reveal', 'close');
-		}
-	});
 }
