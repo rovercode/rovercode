@@ -19,6 +19,8 @@ pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
 popd > /dev/null
 
+cp www/lighttpd.conf /etc/lighttpd/lighttpd.conf
+
 echo "Setup complete."
 
 exit 0
