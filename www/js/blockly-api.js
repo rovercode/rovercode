@@ -93,19 +93,6 @@ function initApi(interpreter, scope) {
 		interpreter.createNativeFunction(wrapper));
 }
 
-/*-----HELPER FUNCTIONS -----*/
-
-function sendMotorCommand(command, pin, speed) {
-	$.post('http://localhost:5000/api/v1/sendcommand',
-		JSON.stringify({
-			command: command,
-			pin: pin,
-			speed: Number(speed)
-		}), function (response) {
-			//writeToConsole(response);
-		});
-}
-
 // function checkSensor(sensor) {
 // 	sensorVal = 0;
 //   if (sensor == 'SENSORS_left') {
