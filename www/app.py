@@ -1,12 +1,10 @@
 from flask import Flask, jsonify, Response, request
 from os import listdir
 from os.path import isfile, join
-from flask_cors import CORS, cross_origin
 import xml.etree.ElementTree
 import Adafruit_GPIO.PWM as pwmLib
 
 app = Flask(__name__)
-CORS(app)
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 
