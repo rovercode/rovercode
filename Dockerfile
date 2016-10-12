@@ -4,7 +4,7 @@ MAINTAINER Clifton Barnes <clifton.a.barnes@gmail.com>
 
 RUN apt-get update
 RUN apt-get install -y python python-dev python-pip python-smbus lighttpd
-RUN pip install flask flask_cors
+RUN pip install flask
 
 EXPOSE 80 5000
 

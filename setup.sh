@@ -13,7 +13,7 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 fi
 
 apt-get install -y python python-dev python-pip python-smbus lighttpd
-pip install flask flask_cors
+pip install flask
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
