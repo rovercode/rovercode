@@ -19,8 +19,8 @@ pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
 popd > /dev/null
 
-sed "s@__ROOTDIR__@$PWD@" nginx-site > rovercode-nginx-site
-ln -s $(pwd)/rovercode-nginx-site /etc/ngninx/sites-enabled/rovercode
+sed "s@__ROOTDIR__@$(pwd)@" nginx-site > rovercode-nginx-site
+ln -s $(pwd)/rovercode-nginx-site /etc/nginx/sites-enabled/rovercode
 service nginx restart
 
 echo "Setup complete."
