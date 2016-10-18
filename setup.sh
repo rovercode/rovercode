@@ -12,14 +12,16 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 	exit 2
 fi
 
-apt-get install -y python python-dev python-pip python-smbus lighttpd
-pip install flask
+apt-get install -y python python-dev python-pip python-smbus nginx
+pip install flask uwsgi
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
 popd > /dev/null
 
-cp www/lighttpd.conf /etc/lighttpd/lighttpd.conf
+sed "s@__ROOTDIR__@$PWD@" nginx-site > rovercode-nginx-site
+ln -s $(pwd)/rovercode-nginx-site /etc/ngninx/sites-enabled/rovercode
+service nginx restart
 
 echo "Setup complete."
 
