@@ -2,6 +2,11 @@
 
 INI_DIR=www/
 
+if [ "${EUID}" -ne 0 ]; then
+	echo "Error: This script must be run as root."
+	exit 1
+fi
+
 if [ ! -e ${INI_DIR} ]; then
 	echo "Error: uwsgi ini directory not found."
 	exit 2
