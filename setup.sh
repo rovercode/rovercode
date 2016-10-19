@@ -20,7 +20,7 @@ python setup.py install
 popd > /dev/null
 
 sed "s@__ROOTDIR__@$(pwd)/www@" nginx-site > rovercode-nginx-site
-rm /etc/nginx/sites-enabled/rovercode > /dev/null
+rm -f /etc/nginx/sites-enabled/rovercode > /dev/null
 ln -s $(pwd)/rovercode-nginx-site /etc/nginx/sites-enabled/rovercode
 service nginx restart
 
