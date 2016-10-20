@@ -15,11 +15,12 @@ rovercode runs on any single-board-computer supported by the [Adafruit Python GP
 ## Easy Setup
 First, on your robot:
 ```
-$ git clone https://git.io/rovercode.git
+$ git clone --recursive https://github.com/aninternetof/rovercode.git
+$ sudo ./setup.sh
+$ cd www
+$ sudo uwsgi rovercode.ini
 ```
 Then, on your PC or tablet, point your browser to your robot's IP address.
-
-*A very nice install.sh is is coming soon. For now, use the [install instructions](https://github.com/aninternetof/rovercode/wiki/Getting-Set-Up) to set up dependencies.*
 
 ## Install, Play and Contribute
 rovercode is on its first release. It is usable now, but we have lots of great features left to be added. Check out the [install instructions](https://github.com/aninternetof/rovercode/wiki/Getting-Set-Up) and the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing). Check out the [feature tracker](https://huboard.com/aninternetof/rovercode) to see if there's something fun to contribute.
