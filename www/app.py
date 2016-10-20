@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response, request
+from flask import Flask, jsonify, Response, request, send_from_directory
 from os import listdir
 from os.path import isfile, join
 import xml.etree.ElementTree
@@ -36,6 +36,13 @@ def get_block_diagram(id):
     with open(join('saved-bds',bd[0]), 'r') as content_file:
         content = content_file.read()
     return Response(content, mimetype='text/xml')
+
+@app.route('/api/v1/download/<string:id>', methods = ['GET'])
+def download_block_diagram(id):
+    if isfile(join('saved-bds', id)):
+        return send_from_directory('saved-bds', id, mimetype='text/xml', as_attachment=True)
+    else:
+        return ('', 404)
 
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():

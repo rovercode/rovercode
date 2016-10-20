@@ -60,8 +60,7 @@ function loadDesign(name) {
 			designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
 		else
 			designName = name;
-		$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
-		$('a#downloadLink').attr("download", designName+".xml");
+		$('a#downloadLink').attr("onclick", "return downloadDesign(\""+designName+".xml\")");
 		$('a#designNameArea').text(designName);
 
 		hideBlockByComment("MAIN EVENT HANDLER LOOP");
@@ -94,11 +93,23 @@ function acceptName() {
 				saveDesign();
 				$('#nameErrorArea').empty();
 				$('a#designNameArea').text(designName);
-				$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
-				$('a#downloadLink').attr("download", designName+".xml");
+				$('a#downloadLink').attr("onclick", "return downloadDesign(\""+designName+".xml\")");
 				$('#nameModal').foundation('reveal', 'close');
 			}
 		});
 	}
 
+}
+
+function downloadDesign(name) {
+  $.get(roverResource(['download', name]), function(response) {
+    var blob = new Blob([new XMLSerializer().serializeToString(response)]);
+    var downloadUrl = URL.createObjectURL(blob);
+    $(document.createElement('a'))
+      .attr( {'download': name, 'href': downloadUrl} )
+      .get(0)
+      .click();
+  }).error(function() {
+    alert("There was an error accessing your design");
+  });
 }
