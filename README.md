@@ -17,8 +17,7 @@ First, on your robot:
 ```
 $ git clone --recursive https://github.com/aninternetof/rovercode.git
 $ sudo ./setup.sh
-$ cd www
-$ sudo uwsgi rovercode.ini
+$ sudo ./start.sh
 ```
 Then, on your PC or tablet, point your browser to your robot's IP address.
 
