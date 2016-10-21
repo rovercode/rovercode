@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, Response, request, send_from_directory
 from os import listdir
 from os.path import isfile, join
-from flask_cors import CORS, cross_origin
 import xml.etree.ElementTree
 from flask_socketio import SocketIO, emit
 import Adafruit_GPIO.PWM as pwmLib
@@ -12,7 +11,6 @@ async_mode = None
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
-CORS(app)
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 
