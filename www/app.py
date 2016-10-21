@@ -22,9 +22,9 @@ def background_thread():
         count += 1
         socketio.emit('my_response',
                       {'data': 'Server generated event'},
-                      namespace='/test')
+                      namespace='/api/v1')
 
-@socketio.on('connect', namespace='/test')
+@socketio.on('connect', namespace='/api/v1')
 def test_connect():
     global thread
     print 'Websocket connected'
@@ -32,7 +32,7 @@ def test_connect():
         thread = socketio.start_background_task(target=background_thread)
     emit('my_response', {'data': 'Connected', 'count': 0})
 
-@socketio.on('my_event', namespace='/test')
+@socketio.on('my_event', namespace='/api/v1')
 def test_message(message):
     print "Got a message: " + message['data']
 

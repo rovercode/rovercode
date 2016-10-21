@@ -27,9 +27,8 @@ Blockly.Flyout.prototype.CORNER_RADIUS = 0;
 Blockly.BlockSvg.START_HAT = true;
 
 /* Set up a listener for sensor events */
-namespace = '/test'
-port = '5000'
-var socket = io.connect('http://' + document.domain + ':' + port + namespace);
+namespace = '/api/v1';
+var socket = io.connect(namespace);
 socket.on('connect', function () {
     socket.emit('my_event', {data: 'Connected, baby!'})
 });
