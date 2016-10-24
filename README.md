@@ -14,10 +14,10 @@ rovercode runs on any single-board-computer supported by the [Adafruit Python GP
 
 ## Easy Setup
 First, on your robot:
-```
-$ git clone --recursive https://github.com/aninternetof/rovercode.git
-$ sudo ./setup.sh
-$ sudo ./start.sh
+```bash
+$ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
+$ sudo ./setup.sh #run this only once
+$ sudo ./start.sh #run this each time you boot the rover
 ```
 Then, on your PC or tablet, point your browser to your robot's IP address.
 
