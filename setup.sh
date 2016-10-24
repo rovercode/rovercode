@@ -20,10 +20,9 @@ python setup.py install
 popd > /dev/null
 
 rm -rf /var/www/rovercode > /dev/null
-mkdir /var/www/rovercode
+mkdir -p /var/www/rovercode
 ln -s $(pwd)/www /var/www/rovercode/www
-rm -f /etc/nginx/sites-enabled/rovercode > /dev/null
-ln -s $(pwd)/nginx-site /etc/nginx/sites-enabled/rovercode
+ln -fs $(pwd)/nginx-site /etc/nginx/sites-enabled/rovercode
 service nginx restart
 
 echo "Setup complete."
