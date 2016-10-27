@@ -17,7 +17,7 @@ gpio = gpioLib.get_platform_gpio();
 
 binary_sensors = []
 
-class gpioPoller:
+class BinarySensor:
     def __init__(self, name, pin, rising_event, falling_event):
         self.name = name
         self.pin = pin
@@ -107,8 +107,8 @@ def init_rover_service():
     gpio.setup("XIO-P2", gpioLib.IN)
     gpio.setup("XIO-P4", gpioLib.IN)
     global binary_sensors
-    binary_sensors.append(gpioPoller("right_ir_sensor", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered'))
-    binary_sensors.append(gpioPoller("left_ir_sensor", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered'))
+    binary_sensors.append(BinarySensor("right_ir_sensor", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered'))
+    binary_sensors.append(BinarySensor("left_ir_sensor", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered'))
 
     # test adapter
     if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
