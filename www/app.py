@@ -44,7 +44,7 @@ def sensors_thread():
             s.old_val = new_val
 
 @socketio.on('connect', namespace='/api/v1')
-def test_connect():
+def connect():
     global thread
     print 'Websocket connected'
     if thread is None:
