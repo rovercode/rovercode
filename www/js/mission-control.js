@@ -30,28 +30,16 @@ Blockly.BlockSvg.START_HAT = true;
 namespace = '/api/v1';
 var socket = io.connect(namespace);
 socket.on('connect', function () {
-    socket.emit('my_event', {data: 'Connected, baby!'})
+    socket.emit('status', {data: 'Connected, baby!'})
 });
-socket.on('my_response', function(msg) {
+socket.on('binary_sensors', function(msg) {
+    writeToConsole(msg.data);
+    updateLocalStateAfterEvent(msg.data);
+    eventQueue.push(msg.data);
+});
+socket.on('status', function(msg) {
     writeToConsole(msg.data);
 });
-// /* Setup listener for events */
-// if(!!window.EventSource) {
-// 	var source = new EventSource("event-notifier.php");
-// 	source.addEventListener('message', function(event) {
-// 		console.log("Received event: " + event.data);
-// 		writeToConsole(event.data + "<br>");
-// 		updateLocalStateAfterEvent(event.data);
-// 		eventQueue.push(event.data);
-// 		console.log("queue is: " + eventQueue);
-// 	}, false);
-// 	source.addEventListener('open', function(event) {
-// 		console.log('sse open' + "<br>");
-// 	}, false);
-// 	source.addEventListener('error', function(event) {
-// 		console.log('sse error' + "<br>");
-// 	}, false);
-// }
 
 /* Inject Blockly */
 var workspace = Blockly.inject(blocklyDiv,
