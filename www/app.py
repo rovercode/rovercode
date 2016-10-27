@@ -4,37 +4,58 @@ from os.path import isfile, join
 import xml.etree.ElementTree
 from flask_socketio import SocketIO, emit
 import Adafruit_GPIO.PWM as pwmLib
+import Adafruit_GPIO.GPIO as gpioLib
 
 # Let SocketIO choose the best async mode
 async_mode = None
-
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
+gpio = gpioLib.get_platform_gpio();
 
-def background_thread():
-    """Example of how to send server generated events to clients."""
-    count = 0
+binary_sensors = []
+
+class gpioPoller:
+    def __init__(self, name, pin, rising_event, falling_event):
+        self.name = name
+        self.pin = pin
+        self.rising_event = rising_event
+        self.falling_event = falling_event
+        self.old_val = False
+
+def sensors_thread():
     while True:
+        global binary_sensors
+        print 'Entered sensors_thread'
+        print len(binary_sensors)
         socketio.sleep(2)
-        count += 1
-        socketio.emit('my_response',
-                      {'data': 'Server generated event'},
-                      namespace='/api/v1')
+        for s in binary_sensors:
+            new_val = gpio.is_high(s.pin)
+            if (s.old_val == False) and (new_val == True):
+                print s.rising_event
+                socketio.emit('binary_sensors', {'data': s.rising_event},
+                    namespace='/api/v1')
+            elif (s.old_val == True) and (new_val == False):
+                print s.falling_event
+                socketio.emit('binary_sensors', {'data': s.falling_event},
+                    namespace='/api/v1')
+            else:
+                pass
+            s.old_val = new_val
 
 @socketio.on('connect', namespace='/api/v1')
 def test_connect():
     global thread
     print 'Websocket connected'
     if thread is None:
-        thread = socketio.start_background_task(target=background_thread)
-    emit('my_response', {'data': 'Connected', 'count': 0})
+        thread = socketio.start_background_task(target=sensors_thread)
+    emit('status', {'data': 'Connected'})
 
-@socketio.on('my_event', namespace='/api/v1')
+@socketio.on('status', namespace='/api/v1')
 def test_message(message):
-    print "Got a message: " + message['data']
+    print "Got a status message: " + message['data']
 
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
 def get_block_diagrams():
@@ -84,6 +105,13 @@ def init_rover_service():
     pwm.start("XIO-P6", 0);
     pwm.start("XIO-P7", 0);
 
+    # set up IR sensor gpio
+    gpio.setup("XIO-P2", gpioLib.IN)
+    gpio.setup("XIO-P4", gpioLib.IN)
+    global binary_sensors
+    binary_sensors.append(gpioPoller("right_ir_sensor", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered'))
+    binary_sensors.append(gpioPoller("left_ir_sensor", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered'))
+
     # test adapter
     if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
         def mock_set_duty_cycle(pin, speed):
@@ -102,6 +130,7 @@ def run_command(decoded):
         print "Stopping motor"
         pwm.set_duty_cycle(decoded['pin'], 0)
 
+init_rover_service()
+
 if __name__ == '__main__':
-    init_rover_service()
     socketio.run(app, host='0.0.0.0', debug=True)
