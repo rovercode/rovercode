@@ -28,9 +28,7 @@ class gpioPoller:
 def sensors_thread():
     while True:
         global binary_sensors
-        print 'Entered sensors_thread'
-        print len(binary_sensors)
-        socketio.sleep(2)
+        socketio.sleep(0.2)
         for s in binary_sensors:
             new_val = gpio.is_high(s.pin)
             if (s.old_val == False) and (new_val == True):
