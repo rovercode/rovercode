@@ -1,6 +1,5 @@
 server {
-    listen 80;
-    server_name localhost;
+    listen 80 default_server;
     root /var/www/rovercode/www;
     index index.html;
 
