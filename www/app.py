@@ -44,6 +44,28 @@ def download_block_diagram(id):
     else:
         return ('', 404)
 
+@app.route('/api/v1/upload', methods = ['POST'])
+def upload_block_diagram():
+    if 'fileToUpload' not in request.files:
+        return ('', 400)
+    file = request.files['fileToUpload']
+    filename = file.filename.rsplit('.', 1)[0]
+    suffix = 0
+    # Check if there already is a design with this name
+    while isfile(join('saved-bds', filename + '.xml')):
+        suffix += 1
+        # Append _# to the design name to make it unique
+        if (suffix > 1):
+            filename = filename.rsplit('_', 1)[0]
+        filename += '_' + str(suffix)
+    # Ensure that the design name is the same as the file name
+    root = xml.etree.ElementTree.fromstring(file.read())
+    designName = root.find('designName')
+    designName.text = filename
+    tree = xml.etree.ElementTree.ElementTree(root)
+    tree.write(join('saved-bds', filename + '.xml'))
+    return ('', 200)
+
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():
     run_command(request.form)
