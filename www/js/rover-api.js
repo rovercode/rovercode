@@ -113,3 +113,29 @@ function downloadDesign(name) {
     alert("There was an error accessing your design");
   });
 }
+
+function uploadDesign() {
+  var formData = new FormData();
+  formData.append("fileToUpload", $('#fileToUpload').get(0).files[0]);
+
+  $.ajax({
+    url: roverResource(['upload']),
+    type: 'POST',
+    xhr: function() {  // Custom XMLHttpRequest
+      var myXhr = $.ajaxSettings.xhr();
+      return myXhr;
+    },
+    success: function (data) {
+      refreshSavedBds();
+      $("#loadStatusArea").text(data + " Look for it above.");
+
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      $("#loadStatusArea").text("There was an error uploading your design. " + thrownError);
+    },
+    data: formData,
+    cache: false,
+    contentType: false,
+    processData: false
+  });
+}

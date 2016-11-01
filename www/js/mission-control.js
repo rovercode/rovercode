@@ -165,32 +165,7 @@ $('#uploadForm #fileToUpload').change(function(){
 		$('#loadErrorArea').text("Please select a .xml file");
 });
 
-$('#uploadForm input[name=button]').click(function(){
-
-	var formData = new FormData();
-	formData.append("fileToUpload", $('#fileToUpload').get(0).files[0]);
-
-	$.ajax({
-		url: 'upload.php',  //Server script to process data
-		type: 'POST',
-		xhr: function() {  // Custom XMLHttpRequest
-			var myXhr = $.ajaxSettings.xhr();
-			return myXhr;
-		},
-		success: function (data) {
-			refreshSavedBds();
-			$("#loadStatusArea").text(data + " Look for it above.");
-
-		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			$("#loadStatusArea").text("There was an error uploading your design. " + thrownError);
-		},
-		data: formData,
-		cache: false,
-		contentType: false,
-		processData: false
-	});
-});
+$('#uploadForm input[name=button]').click(uploadDesign);
 
 /*----- RUNNING SANDBOXED CODE FUNCTIONS -----*/
 
