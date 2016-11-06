@@ -119,12 +119,6 @@ def send_command():
     return jsonify(request.form)
 
 def init_rover_service():
-    # set up motor pwm
-    pwm.start("XIO-P0", 0);
-    pwm.start("XIO-P1", 0);
-    pwm.start("XIO-P6", 0);
-    pwm.start("XIO-P7", 0);
-
     # set up IR sensor gpio
     gpio.setup("XIO-P2", gpioLib.IN)
     gpio.setup("XIO-P4", gpioLib.IN)
@@ -138,19 +132,47 @@ def init_rover_service():
             print "Setting pin " + pin + " to speed " + str(speed)
         pwm.set_duty_cycle = mock_set_duty_cycle
 
+def singleton(class_):
+    instances = {}
+    def getInstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        else:
+            print "Warning: tried to create multiple instances of singleton " + class_.__name__
+        return instances[class_]
+    return getInstance
+
+@singleton
+class MotorManager:
+    started_motors = []
+
+    def __init__(self):
+        print "Starting motor manager"
+
+    def set_speed(self, pin, speed):
+        global pwm
+        if pin in self.started_motors:
+            pwm.set_duty_cycle(pin, speed)
+        else:
+            pwm.start(pin, speed)
+            self.started_motors.append(pin)
+
 def run_command(decoded):
     print decoded['command']
+    global motor_manager
     if decoded['command'] == 'START_MOTOR':
         print decoded['pin']
         print decoded['speed']
         print "Starting motor"
-        pwm.set_duty_cycle(decoded['pin'], float(decoded['speed']))
+        motor_manager.set_speed(decoded['pin'], float(decoded['speed']))
     elif decoded['command'] == 'STOP_MOTOR':
         print decoded['pin']
         print "Stopping motor"
-        pwm.set_duty_cycle(decoded['pin'], 0)
+        motor_manager.set_speed(decoded['pin'], 0)
 
 init_rover_service()
+
+motor_manager = MotorManager()
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', debug=True)
