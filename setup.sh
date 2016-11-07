@@ -12,8 +12,8 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 	exit 2
 fi
 
-apt-get install -y python python-dev python-pip python-smbus nginx uwsgi uwsgi-plugin-python
-pip install flask flask-socketio
+apt-get install -y python python-dev python-pip python-smbus nginx
+pip install flask flask-socketio uwsgi
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
