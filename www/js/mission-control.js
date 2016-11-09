@@ -28,9 +28,9 @@ Blockly.BlockSvg.START_HAT = true;
 
 /* Set up a listener for sensor events */
 namespace = '/api/v1';
-var socket = io.connect(namespace);
+socket = io.connect(namespace);
 socket.on('connect', function () {
-    socket.emit('status', {data: 'Connected, baby!'})
+    socket.emit('status', {data: 'Connected'});
 });
 socket.on('binary_sensors', function(msg) {
     writeToConsole(msg.data);
