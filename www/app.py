@@ -7,7 +7,7 @@ import Adafruit_GPIO.PWM as pwmLib
 import Adafruit_GPIO.GPIO as gpioLib
 
 # Let SocketIO choose the best async mode
-async_mode = None
+async_mode = 'gevent_uwsgi'
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
