@@ -41,6 +41,7 @@ rm -rf /var/www/rovercode > /dev/null
 mkdir -p /var/www/rovercode
 ln -s $(pwd)/www /var/www/rovercode/www
 ln -fs $(pwd)/nginx-site /etc/nginx/sites-enabled/rovercode
+rm -rf /etc/nginx/sites-enabled/ > /dev/null
 service nginx restart
 
 echo "Setup complete."
