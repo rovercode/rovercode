@@ -13,7 +13,7 @@ if [ ! -e ${INI_DIR} ]; then
 fi
 
 pushd ${INI_DIR} > /dev/null
+echo "rovercode service starting"
 ./uwsgi rovercode.ini --plugins python,corerouter,http,gevent --gevent 1000 --http-websockets
 popd > /dev/null
-
-echo "rovercode service started"
+echo "rovercode service stopped"
