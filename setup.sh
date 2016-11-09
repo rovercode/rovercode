@@ -30,6 +30,7 @@ python uwsgiconfig.py --plugin plugins/http core
 python uwsgiconfig.py --plugin plugins/gevent core
 popd > /dev/null
 
+cp ${UWSGI_DIR}/uwsgi ${INI_DIR}
 cp ${UWSGI_DIR}/python_plugin.so ${INI_DIR}
 cp ${UWSGI_DIR}/corerouter_plugin.so ${INI_DIR}
 cp ${UWSGI_DIR}/http_plugin.so ${INI_DIR}
