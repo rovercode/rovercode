@@ -34,7 +34,7 @@ cp ${UWSGI_DIR}/python_plugin.so ${INI_DIR}
 cp ${UWSGI_DIR}/corerouter_plugin.so ${INI_DIR}
 cp ${UWSGI_DIR}/http_plugin.so ${INI_DIR}
 cp ${UWSGI_DIR}/gevent_plugin.so ${INI_DIR}
-rm -rf $(UWSGI_DIR)
+rm -rf ${UWSGI_DIR}
 
 rm -rf /var/www/rovercode > /dev/null
 mkdir -p /var/www/rovercode
