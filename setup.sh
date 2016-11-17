@@ -14,14 +14,14 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 	exit 2
 fi
 
-apt-get install -y python python-dev python-pip python-smbus nginx build-essential libssl-dev
+apt-get install -y python python-dev python-pip python-smbus nginx build-essential git libssl-dev
 pip install flask flask-socketio gevent uwsgi
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
 popd > /dev/null
 
-git clone https://github.com/unbit/uwsgi.git
+git clone -b uwsgi-2.0 https://github.com/unbit/uwsgi.git
 pushd ${UWSGI_DIR} > /dev/null
 python uwsgiconfig.py --build core
 python uwsgiconfig.py --plugin plugins/python core

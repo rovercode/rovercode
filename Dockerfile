@@ -3,7 +3,7 @@ FROM debian:stable
 MAINTAINER Clifton Barnes <clifton.a.barnes@gmail.com>
 
 RUN apt-get update
-RUN apt-get install -y python python-dev python-pip python-smbus nginx build-essential libssl-dev
+RUN apt-get install -y python python-dev python-pip python-smbus nginx build-essential git libssl-dev
 RUN pip install flask flask-socketio gevent uwsgi
 
 EXPOSE 80
@@ -17,7 +17,7 @@ RUN rm -f default
 WORKDIR /var/www/rovercode/www/Adafruit_Python_GPIO
 RUN python setup.py install
 WORKDIR /var/www/rovercode
-RUN git clone https://github.com/unbit/uwsgi.git
+RUN git clone -b uwsgi-2.0 https://github.com/unbit/uwsgi.git
 WORKDIR /var/www/rovercode/uwsgi
 RUN python uwsgiconfig.py --build core
 RUN python uwsgiconfig.py --plugin plugins/python core

@@ -12,14 +12,36 @@ rovercode runs on any single-board-computer supported by the [Adafruit Python GP
 
 [Try a live demo.](http://codetherover.com/demo/rover-code/www/mission-control.html)
 
-## Easy Setup
-First, on your robot:
+## Setup
+### Standard Setup
+First, on your rover (CHIP, Raspberry Pi, BeagleBone, etc):
 ```bash
+$ sudo apt install git
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
-$ sudo ./setup.sh #run this only once
+$ sudo ./setup.sh #run this only once -- it will take some time
 $ sudo ./start.sh #run this each time you boot the rover
 ```
 Then, on your PC or tablet, point your browser to your robot's IP address.
+
+### Development PC Setup
+First, on your development PC:
+```bash
+$ sudo apt install git
+$ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
+$ sudo ./setup.sh #run this only once -- it will take some time
+$ sudo ./start.sh #run this each time you want to work on rovercode
+```
+Then, on your PC, point your browser to `localhost`.
+
+### Development PC Alternate Setup (Docker)
+```bash
+$ sudo apt install git docker.io
+$ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
+$ sudo docker build -t rovercode ./ #run this only once -- it will take some time
+$ sudo docker run -p 80:80 rovercode #run this each time you want to work on rovercode
+
+```
+Then, on your PC, point your browser to `localhost`.
 
 ## Install, Play and Contribute
 rovercode is on its first release. It is usable now, but we have lots of great features left to be added. Check out the [install instructions](https://github.com/aninternetof/rovercode/wiki/Getting-Set-Up) and the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing). Check out the [feature tracker](https://huboard.com/aninternetof/rovercode) to see if there's something fun to contribute.
