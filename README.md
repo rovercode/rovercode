@@ -33,17 +33,17 @@ First, on your development PC:
 $ sudo apt install git
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
 $ sudo ./setup.sh #run this only once -- it will take some time
-$ sudo ./start.sh #run this each time you want to work on rovercode
+$ sudo ./start.sh #run this each time
 ```
 Then, still on your development PC, point your browser to `localhost`.
 
 #### Development PC Alternate Setup (Docker)
-Rather use Docker? Sure! First, on your development PC:
+Rather use Docker? We have an image for you! First, on your development PC:
 ```bash
 $ sudo apt install git docker.io
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
-$ sudo docker build -t rovercode ./ #run this only once -- it will take some time
-$ sudo docker run -p 80:80 rovercode #run this each time you want to work on rovercode
+$ docker pull cabarnes/rovercode
+$ sudo docker run --name rovercode -v ./:/var/www/rovercode -p 80:80 -d cabarnes/rovercode
 
 ```
 Then, still on your development PC, point your browser to `localhost`.
