@@ -14,6 +14,7 @@ thread = None
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
+DEFAULT_SOFTPWM_FREQ = 100
 
 binary_sensors = []
 
@@ -154,7 +155,7 @@ class MotorManager:
         if pin in self.started_motors:
             pwm.set_duty_cycle(pin, speed)
         else:
-            pwm.start(pin, speed)
+            pwm.start(pin, speed, DEFAULT_SOFTPWM_FREQ)
             self.started_motors.append(pin)
 
 def run_command(decoded):
