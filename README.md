@@ -42,8 +42,8 @@ Rather use Docker? We have an image for you! First, on your development PC:
 ```bash
 $ sudo apt install git docker.io
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
-$ docker pull cabarnes/rovercode
-$ sudo docker run --name rovercode -v ./:/var/www/rovercode -p 80:80 -d cabarnes/rovercode
+$ sudo docker pull cabarnes/rovercode
+$ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d cabarnes/rovercode
 
 ```
 Then, still on your development PC, point your browser to `localhost`.
