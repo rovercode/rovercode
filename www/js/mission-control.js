@@ -26,23 +26,20 @@ Blockly.HSV_VALUE = 0.9;
 Blockly.Flyout.prototype.CORNER_RADIUS = 0;
 Blockly.BlockSvg.START_HAT = true;
 
-/* Setup listener for events */
-if(!!window.EventSource) {
-	var source = new EventSource("event-notifier.php");
-	source.addEventListener('message', function(event) {
-		console.log("Received event: " + event.data);
-		writeToConsole(event.data + "<br>");
-		updateLocalStateAfterEvent(event.data);
-		eventQueue.push(event.data);
-		console.log("queue is: " + eventQueue);
-	}, false);
-	source.addEventListener('open', function(event) {
-		console.log('sse open' + "<br>");
-	}, false);
-	source.addEventListener('error', function(event) {
-		console.log('sse error' + "<br>");
-	}, false);
-}
+/* Set up a listener for sensor events */
+namespace = '/api/v1';
+socket = io.connect(namespace);
+socket.on('connect', function () {
+    socket.emit('status', {data: 'Connected'});
+});
+socket.on('binary_sensors', function(msg) {
+    writeToConsole(msg.data);
+    updateLocalStateAfterEvent(msg.data);
+    eventQueue.push(msg.data);
+});
+socket.on('status', function(msg) {
+    writeToConsole(msg.data);
+});
 
 /* Inject Blockly */
 var workspace = Blockly.inject(blocklyDiv,
@@ -156,85 +153,6 @@ function chooseDesign() {
 	refreshSavedBds();
 }
 
-function saveDesign() {
-	xml = Blockly.Xml.workspaceToDom(workspace);
-	xmlString = Blockly.Xml.domToText(xml);
-	$.post('save-bd.php', {bdString: xmlString, designName: designName}, function(response){
-	}).error(function(){
-			writeToConsole("There was an error saving your design to the rover");
-	});
-}
-
-function refreshSavedBds() {
-	$.get('get-saved-bd-list.php', function(response){
-		json = JSON.parse(response);
-		if (!json.length){
-			$('#savedDesignsArea').text("There are no designs saved on this rover");
-		} else {
-			$('#savedDesignsArea').empty();
-			json.forEach(function(entry) {
-				$('#savedDesignsArea').append("<a href='#' class='button' style='margin:10px;' onclick='return loadDesign(\""+entry+"\")'>"+entry+"</a>");
-			});
-		}
-	}
-	);
-}
-
-function loadDesign(name) {
-	$('#loadModal').foundation('reveal', 'close');
-	$.get('get-bd.php', { designName:name }, function(response){
-		workspace.clear();
-		xmlDom = Blockly.Xml.textToDom(response);
-		Blockly.Xml.domToWorkspace(workspace, xmlDom);
-		if (name == 'event_handler_hidden')
-			designName = "Unnamed_Design_" + (Math.floor(Math.random()*1000)).toString();
-		else
-			designName = name;
-		$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
-		$('a#downloadLink').attr("download", designName+".xml");
-		$('a#designNameArea').text(designName);
-
-		hideBlockByComment("MAIN EVENT HANDLER LOOP");
-		var hiddenBlock;
-		var allBlocksHidden = true;
-		for (hiddenBlock of blocksToHide) {
-			if (!hideBlock(hiddenBlock))
-				allBlocksHidden = false;
-		}
-		if (allBlocksHidden)
-			showBlock('always');
-	}).error(function(){
-			alert("There was an error loading your design from the rover");
-	});
-	updateCode();
-}
-
-function acceptName() {
-	designName = $('input[name=designName]').val();
-
-	$.get('get-saved-bd-list.php', function(response){
-		json = JSON.parse(response);
-		var duplicate = false;
-		json.forEach(function(entry) {
-			if (entry == designName)
-				duplicate = true;
-		});
-
-		if (designName === ''){
-			$('#nameErrorArea').text('Please enter a name for your design in the box');
-		} else if (duplicate) {
-			$('#nameErrorArea').text('This name has already been chosen. Please pick another one.');
-		} else {
-			saveDesign();
-			$('#nameErrorArea').empty();
-			$('a#designNameArea').text(designName);
-			$('a#downloadLink').attr("href", "saved-bds/"+designName+".xml");
-			$('a#downloadLink').attr("download", designName+".xml");
-			$('#nameModal').foundation('reveal', 'close');
-		}
-	});
-}
-
 $('#uploadForm #fileToUpload').change(function(){
 	var file = this.files[0];
 	var type = file.type;
@@ -244,32 +162,7 @@ $('#uploadForm #fileToUpload').change(function(){
 		$('#loadErrorArea').text("Please select a .xml file");
 });
 
-$('#uploadForm input[name=button]').click(function(){
-
-	var formData = new FormData();
-	formData.append("fileToUpload", $('#fileToUpload').get(0).files[0]);
-
-	$.ajax({
-		url: 'upload.php',  //Server script to process data
-		type: 'POST',
-		xhr: function() {  // Custom XMLHttpRequest
-			var myXhr = $.ajaxSettings.xhr();
-			return myXhr;
-		},
-		success: function (data) {
-			refreshSavedBds();
-			$("#loadStatusArea").text(data + " Look for it above.");
-
-		},
-		error: function (xhr, ajaxOptions, thrownError) {
-			$("#loadStatusArea").text("There was an error uploading your design. " + thrownError);
-		},
-		data: formData,
-		cache: false,
-		contentType: false,
-		processData: false
-	});
-});
+$('#uploadForm input[name=button]').click(uploadDesign);
 
 /*----- RUNNING SANDBOXED CODE FUNCTIONS -----*/
 
