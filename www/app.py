@@ -9,7 +9,11 @@ import Adafruit_GPIO.GPIO as gpioLib
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode=async_mode)
+try:
+    socketio = SocketIO(app, async_mode=async_mode)
+except:
+    # Needed for sphinx documentation
+    socketio = SocketIO(app)
 thread = None
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
