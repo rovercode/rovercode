@@ -26,6 +26,7 @@ autodoc_default_flags = [
     # Make sure that any autodoc declarations show the right members
     "members",
     "inherited-members",
+    "imported-members",
     "private-members",
     "show-inheritance",
 ]
