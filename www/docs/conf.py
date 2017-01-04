@@ -32,7 +32,7 @@ autodoc_default_flags = [
 autosummary_generate = True
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-needs_sphinx = '1.4.8'
+needs_sphinx = '1.5.1'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
