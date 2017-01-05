@@ -167,8 +167,7 @@ def send_command():
 
     Executes the posted command
 
-    **Available Commands:**
-    ::
+    **Available Commands:**::
         START_MOTOR
         STOP_MOTOR
     """
