@@ -8,10 +8,10 @@
 
 rovercode is easy-to-use package for controlling robots (rovers) that can sense and react to their environment. The Blockly editor makes it easy to program and run your bot straight from your browser. Just drag and drop your commands to drive motors, read values from a variety of supported sensors, and see what your rover sees with the built in webcam viewer.
 
-rovercode runs on any single-board-computer supported by the [Adafruit Python GPIO wrapper library](https://github.com/adafruit/Adafruit_Python_GPIO), including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black. Once installed, just point your browser at the rover's address and get started.
+rovercode runs on any single-board-computer supported by the [Adafruit Python GPIO wrapper library](https://github.com/adafruit/Adafruit_Python_GPIO), including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black. Once installed, head to to rovercode.org and connect to your rover.
 
+**rovercode is made up of two parts.** rovercode (this repo) is the service that runs on the rover. rovercode-web ([a different repo](https://github.com/aninterentof/rovercode)) is the web app that is hosted on the Internet.
 [Try a live demo.](http://codetherover.com/demo/rover-code/www/mission-control.html)
-
 ## Setup
 
 ### Standard Setup
@@ -22,7 +22,7 @@ $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rove
 $ sudo ./setup.sh #run this only once -- it will take some time
 $ sudo ./start.sh #run this each time you boot the rover
 ```
-Then, on any PC or tablet, point your browser to your robot's IP address. You're done! Start playing!
+Then, on any PC or tablet, head to rovercode.org to connect to your rover. Start playing!
 
 ### Development PC Setup
 When developing rovercode, you may want to run rovercode on your PC instead of a CHIP/Raspberry Pi/Beaglebone. Below are instructions for how to install and run rovercode on your PC. Everything should work fine: rovercode will automatically detect that it is not running on target hardware and will stub out the calls to the motors and sensors.
@@ -35,7 +35,7 @@ $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rove
 $ sudo ./setup.sh #run this only once -- it will take some time
 $ sudo ./start.sh #run this each time
 ```
-Then, still on your development PC, point your browser to `localhost`.
+Then, still on your development PC, head to rovercode.org and connect to your "rover" (your PC running the service).
 
 #### Development PC Alternate Setup (Docker)
 Rather use Docker? We have an image for you! First, on your development PC:
@@ -46,10 +46,10 @@ $ sudo docker pull cabarnes/rovercode
 $ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d cabarnes/rovercode
 
 ```
-Then, still on your development PC, point your browser to `localhost`.
+Then, still on your development PC, head to rovercode.org and connect to your "rover" (your PC running the service).
 
 ## Play and Contribute
-rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing) then head over to the [feature tracker](https://huboard.com/aninternetof/rovercode) to see if there's something fun to contribute.
+rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing) then head over to the [feature tracker](https://github.com/aninternetof/rovercode/projects/2) to see if there's something fun to contribute.
 
 ## License
 [GNU GPLv3](license) © Brady L. Hurlburt and the rovercode.org community
