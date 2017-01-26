@@ -9,7 +9,11 @@ import Adafruit_GPIO.GPIO as gpioLib
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode=async_mode)
+try:
+    socketio = SocketIO(app, async_mode=async_mode)
+except:
+    # Needed for sphinx documentation
+    socketio = SocketIO(app)
 thread = None
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
@@ -19,6 +23,19 @@ DEFAULT_SOFTPWM_FREQ = 100
 binary_sensors = []
 
 class BinarySensor:
+    """
+    The binary sensor object contains all of the important information for each
+    binary sensor
+
+    :param name:
+        The human readable name of the sensor
+    :param pin:
+        The hardware pin connected to the sensor
+    :param rising_event:
+        The event name associated with a signal changing from low to high
+    :param falling_event:
+        The event name associated with a signal changing from high to low
+    """
     def __init__(self, name, pin, rising_event, falling_event):
         self.name = name
         self.pin = pin
@@ -27,6 +44,9 @@ class BinarySensor:
         self.old_val = False
 
 def sensors_thread():
+    """
+    Scans each binary sensor and sends events based on changes
+    """
     while True:
         global binary_sensors
         socketio.sleep(0.2)
@@ -58,6 +78,11 @@ def test_message(message):
 
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
 def get_block_diagrams():
+    """
+    API: /blockdiagrams [GET]
+
+    Replies with a JSON formatted list of the block diagrams
+    """
     names = []
     for f in listdir('saved-bds'):
         if isfile(join('saved-bds', f)) and f.endswith('.xml'):
@@ -66,6 +91,11 @@ def get_block_diagrams():
 
 @app.route('/api/v1/blockdiagrams', methods=['POST'])
 def save_block_diagram():
+    """
+    API: /blockdiagrams [POST]
+
+    Saves the posted block diagram
+    """
     designName = request.form['designName'].replace(' ', '_').replace('.', '_')
     bdString = request.form['bdString']
     root = xml.etree.ElementTree.Element("root")
@@ -79,6 +109,12 @@ def save_block_diagram():
 
 @app.route('/api/v1/blockdiagrams/<string:id>', methods=['GET'])
 def get_block_diagram(id):
+    """
+    API: /blockdiagrams/<id> [GET]
+
+    Replies with an XML formatted description of the block diagram specified by
+    `id`
+    """
     id = id.replace(' ', '_').replace('.', '_')
     bd = [f for f in listdir('saved-bds') if isfile(join('saved-bds', f)) and id in f]
     with open(join('saved-bds',bd[0]), 'r') as content_file:
@@ -87,6 +123,11 @@ def get_block_diagram(id):
 
 @app.route('/api/v1/download/<string:id>', methods = ['GET'])
 def download_block_diagram(id):
+    """
+    API: /download/<id> [GET]
+
+    Starts a download of the block diagram specified by `id`
+    """
     if isfile(join('saved-bds', id)):
         return send_from_directory('saved-bds', id, mimetype='text/xml', as_attachment=True)
     else:
@@ -94,6 +135,11 @@ def download_block_diagram(id):
 
 @app.route('/api/v1/upload', methods = ['POST'])
 def upload_block_diagram():
+    """
+    API: /upload [POST]
+
+    Adds the posted block diagram
+    """
     if 'fileToUpload' not in request.files:
         return ('', 400)
     file = request.files['fileToUpload']
@@ -116,10 +162,22 @@ def upload_block_diagram():
 
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():
+    """
+    API: /sendcommand [POST]
+
+    Executes the posted command
+
+    **Available Commands:**::
+        START_MOTOR
+        STOP_MOTOR
+    """
     run_command(request.form)
     return jsonify(request.form)
 
 def init_rover_service():
+    """
+    Initializes hardware pins and motor speeds
+    """
     # set up IR sensor gpio
     gpio.setup("XIO-P2", gpioLib.IN)
     gpio.setup("XIO-P4", gpioLib.IN)
@@ -159,6 +217,12 @@ class MotorManager:
             self.started_motors.append(pin)
 
 def run_command(decoded):
+    """
+    Runs the command specified by `decoded`
+
+    :param decoded:
+        The command to run
+    """
     print decoded['command']
     global motor_manager
     if decoded['command'] == 'START_MOTOR':
