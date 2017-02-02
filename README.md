@@ -51,5 +51,7 @@ Then, still on your development PC, head to rovercode.org and connect to your "r
 ## Play and Contribute
 rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing) then head over to the [feature tracker](https://github.com/aninternetof/rovercode/projects/2) to see if there's something fun to contribute.
 
+## Run Tests
+
 ## License
 [GNU GPLv3](license) © Brady L. Hurlburt and the rovercode.org community
