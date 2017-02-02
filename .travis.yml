@@ -6,6 +6,10 @@ before_install:
   - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
   - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
   - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
+  - git clone https://github.com/aninternetof/Adafruit_Python_GPIO.git
+  - cd Adafruit_Python_GPIO
+  - python setup.py install
+  - cd ../
 install:
   - pip install flask flask-socketio gevent uwsgi Sphinx==1.4.8 sphinx_rtd_theme pytest-flask pytest-cov mock
   - pip install coveralls
