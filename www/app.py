@@ -8,13 +8,22 @@ import Adafruit_GPIO.GPIO as gpioLib
 
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
-app = Flask(__name__)
+
+def create_app():
+    app = Flask(__name__)
+    return app
+
+app = create_app()
+
+create_app()
 try:
     socketio = SocketIO(app, async_mode=async_mode)
 except:
     # Needed for sphinx documentation
     socketio = SocketIO(app)
 thread = None
+
+print "Registering rover!"
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
