@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, Response, request, send_from_directory
+import requests, json, socket
 from os import listdir
 from os.path import isfile, join
 import xml.etree.ElementTree
@@ -21,9 +22,9 @@ try:
 except:
     # Needed for sphinx documentation
     socketio = SocketIO(app)
-thread = None
 
-print "Registering rover!"
+ws_thread = None
+hb_thread = None
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
@@ -52,6 +53,35 @@ class BinarySensor:
         self.falling_event = falling_event
         self.old_val = False
 
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
+def heartbeat_thread():
+    while True:
+        global web_id
+        global payload
+        print "Registering rover:"
+        print payload
+        print "https://rovercode.com/mission-control/rovers/"+str(web_id)+"/"
+        try:
+            r = requests.put("https://rovercode.com/mission-control/rovers/"+str(web_id)+"/", payload)
+            print r
+        except:
+            print "Could not connected to rovercode-web"
+        socketio.sleep(3)
+
+payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()}
+if hb_thread is None:
+    print "POSTing first"
+    r = requests.post("https://rovercode.com/mission-control/rovers/", payload)
+    web_id = json.loads(r.text)['id']
+    print "web_id is " + str(web_id)
+    hb_thread = socketio.start_background_task(target=heartbeat_thread)
+
 def sensors_thread():
     """
     Scans each binary sensor and sends events based on changes
@@ -75,10 +105,10 @@ def sensors_thread():
 
 @socketio.on('connect', namespace='/api/v1')
 def connect():
-    global thread
+    global ws_thread
     print 'Websocket connected'
-    if thread is None:
-        thread = socketio.start_background_task(target=sensors_thread)
+    if ws_thread is None:
+        ws_thread = socketio.start_background_task(target=sensors_thread)
     emit('status', {'data': 'Connected'})
 
 @socketio.on('status', namespace='/api/v1')
