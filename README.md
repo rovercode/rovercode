@@ -2,7 +2,7 @@
 
 # rovercode
 
-[![Gitter](https://badges.gitter.im/aninternetof/rovercode.svg)](https://gitter.im/aninternetof/rovercode?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Slack](https://img.shields.io/badge/chat-on%20Slack-41AB8C.svg?style=flat)](https://rovercode.slack.com)
 [![MailingList](https://img.shields.io/badge/join-mailing%20list-yellow.svg?style=flat)](http://rovercode.org/cgi-bin/mailman/listinfo/developers)
 [![](https://images.microbadger.com/badges/image/cabarnes/rovercode.svg)](https://microbadger.com/images/cabarnes/rovercode)
 [![Build Status](https://travis-ci.org/aninternetof/rovercode.svg)](https://travis-ci.org/aninternetof/rovercode)
@@ -40,12 +40,12 @@ $ sudo ./start.sh #run this each time
 Then, still on your development PC, head to rovercode.org and connect to your "rover" (your PC running the service).
 
 #### Development PC Alternate Setup (Docker)
-Rather use Docker? We have an image for you! First, on your development PC:
+Rather use Docker? First, on your development PC:
 ```bash
 $ sudo apt install git docker.io
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
-$ sudo docker pull cabarnes/rovercode
-$ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d cabarnes/rovercode
+$ sudo docker build -t rovercode .
+$ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d rovercode
 
 ```
 Then, still on your development PC, head to rovercode.org and connect to your "rover" (your PC running the service).
@@ -53,7 +53,14 @@ Then, still on your development PC, head to rovercode.org and connect to your "r
 ## Play and Contribute
 rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing) then head over to the [feature tracker](https://github.com/aninternetof/rovercode/projects/2) to see if there's something fun to contribute.
 
-## Run Tests
+## Testing
+Run the tests like this:
+```bash
+$ pwd
+> ~/rovercode
+$ py.test
+```
+We're having some trouble running pytest-cov inside the Docker container. If you are using Docker for development and want to run test, you'll need to `pip install pytest pytest-cov` outside and run the `py.test` outside of Docker for now.
 
 ## License
 [GNU GPLv3](license) © Brady L. Hurlburt and the rovercode.org community
