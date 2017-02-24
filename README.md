@@ -60,7 +60,10 @@ $ pwd
 > ~/rovercode
 $ py.test
 ```
-We're having some trouble running pytest-cov inside the Docker container. If you are using Docker for development and want to run test, you'll need to `pip install pytest pytest-cov` outside and run the `py.test` outside of Docker for now.
+Or, if your using Docker, make sure the container is running (the `sudo docker run ...` command above), then do:
+```bash
+$ sudo docker exec -it rovercode bash -c "cd ../; py.test"
+```
 
 ## License
 [GNU GPLv3](license) © Brady L. Hurlburt and the rovercode.org community

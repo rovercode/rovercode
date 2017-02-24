@@ -25,6 +25,8 @@ except:
 
 ws_thread = None
 hb_thread = None
+payload = None;
+web_id = None;
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
@@ -60,26 +62,40 @@ def get_local_ip():
     s.close()
     return ip
 
+def register_with_web():
+    global web_id
+    global payload
+    payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()}
+    print "Registering with rovercode-web"
+    r = requests.post("https://rovercode.com/mission-control/rovers/", payload)
+    web_id = json.loads(r.text)['id']
+    print "rovercode-web id is " + str(web_id)
+    return r
+
 def heartbeat_thread():
     while True:
         global web_id
         global payload
-        print "Registering rover:"
-        print payload
-        print "https://rovercode.com/mission-control/rovers/"+str(web_id)+"/"
+        print "Checking in with rovercode-web"
         try:
             r = requests.put("https://rovercode.com/mission-control/rovers/"+str(web_id)+"/", payload)
             print r
+            if r.status_code in [200, 201]:
+                print "... success"
+            elif r.status_code in [404]:
+                #rovercode-web must have forgotten us. Reregister.
+                print "... reregistering"
+                r_rereg = register_with_web()
+                if r_rereg.status_code not in [200, 201]:
+                    print "... error in reregistering"
+            else:
+                print "... error"
         except:
             print "Could not connected to rovercode-web"
-        socketio.sleep(3)
+        socketio.sleep(30)
 
-payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()}
+register_with_web()
 if hb_thread is None:
-    print "POSTing first"
-    r = requests.post("https://rovercode.com/mission-control/rovers/", payload)
-    web_id = json.loads(r.text)['id']
-    print "web_id is " + str(web_id)
     hb_thread = socketio.start_background_task(target=heartbeat_thread)
 
 def sensors_thread():
