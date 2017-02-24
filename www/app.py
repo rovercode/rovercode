@@ -92,7 +92,7 @@ def heartbeat_thread():
                 print "... error"
         except:
             print "Could not connected to rovercode-web"
-        socketio.sleep(30)
+        socketio.sleep(3)
 
 register_with_web()
 if hb_thread is None:
