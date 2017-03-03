@@ -7,6 +7,8 @@ from flask_socketio import SocketIO, emit
 import Adafruit_GPIO.PWM as pwmLib
 import Adafruit_GPIO.GPIO as gpioLib
 
+ROVERCODE_WEB_REG_URL = "https://rovercode.com/mission-control/rovers/"
+
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
 
@@ -26,7 +28,6 @@ except:
 ws_thread = None
 hb_thread = None
 payload = None;
-web_id = None;
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
 gpio = gpioLib.get_platform_gpio();
@@ -62,41 +63,52 @@ def get_local_ip():
     s.close()
     return ip
 
-def register_with_web():
-    global web_id
-    global payload
-    payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()}
-    print "Registering with rovercode-web"
-    r = requests.post("https://rovercode.com/mission-control/rovers/", payload)
-    web_id = json.loads(r.text)['id']
-    print "rovercode-web id is " + str(web_id)
-    return r
+class HeartBeatManager():
+    def __init__(self, payload, id=None):
+        self.run = True;
+        self.thread = None;
+        self.web_id = id;
+        self.payload = payload;
 
-def heartbeat_thread():
-    while True:
-        global web_id
-        global payload
-        print "Checking in with rovercode-web"
-        try:
-            r = requests.put("https://rovercode.com/mission-control/rovers/"+str(web_id)+"/", payload)
-            print r
-            if r.status_code in [200, 201]:
-                print "... success"
-            elif r.status_code in [404]:
-                #rovercode-web must have forgotten us. Reregister.
-                print "... reregistering"
-                r_rereg = register_with_web()
-                if r_rereg.status_code not in [200, 201]:
-                    print "... error in reregistering"
-            else:
-                print "... error"
-        except:
-            print "Could not connected to rovercode-web"
-        socketio.sleep(3)
+    def register(self):
+        print "Registering with rovercode-web"
+        r = requests.post(ROVERCODE_WEB_REG_URL, self.payload)
+        self.web_id = json.loads(r.text)['id']
+        print "rovercode-web id is " + str(self.web_id)
+        return r
 
-register_with_web()
-if hb_thread is None:
-    hb_thread = socketio.start_background_task(target=heartbeat_thread)
+    def stopThread(self):
+        self.run = False;
+
+    def thread_func(self, run_once=False):
+        while self.run:
+            print "Checking in with rovercode-web"
+            try:
+                r = requests.put(ROVERCODE_WEB_REG_URL+str(self.web_id)+"/", self.payload)
+                print r
+                if r.status_code in [200, 201]:
+                    print "... success"
+                elif r.status_code in [404]:
+                    #rovercode-web must have forgotten us. Reregister.
+                    print "... reregistering"
+                    r_rereg = self.register()
+                    if r_rereg.status_code not in [200, 201]:
+                        print "... error in reregistering"
+                else:
+                    print "... error"
+            except:
+                print "Could not connected to rovercode-web"
+            if run_once:
+                break
+            socketio.sleep(3)
+        print "Exiting heartbeat thread"
+        return r
+
+heartbeat_manager = HeartBeatManager(
+        payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()})
+heartbeat_manager.register()
+if heartbeat_manager.thread is None:
+    heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
 
 def sensors_thread():
     """

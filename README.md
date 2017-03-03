@@ -60,7 +60,7 @@ $ pwd
 > ~/rovercode
 $ py.test
 ```
-Or, if your using Docker, make sure the container is running (the `sudo docker run ...` command above), then do:
+Or, if you're using Docker, make sure the container is running (the `sudo docker run ...` command above), then do:
 ```bash
 $ sudo docker exec -it rovercode bash -c "cd ../; py.test"
 ```
