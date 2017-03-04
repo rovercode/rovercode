@@ -5,7 +5,7 @@
 [![Slack](https://img.shields.io/badge/chat-on%20Slack-41AB8C.svg?style=flat)](https://rovercode.slack.com)
 [![MailingList](https://img.shields.io/badge/join-mailing%20list-yellow.svg?style=flat)](http://rovercode.org/cgi-bin/mailman/listinfo/developers)
 [![](https://images.microbadger.com/badges/image/cabarnes/rovercode.svg)](https://microbadger.com/images/cabarnes/rovercode)
-[![Build Status](https://travis-ci.org/aninternetof/rovercode.svg)](https://travis-ci.org/aninternetof/rovercode)
+[![Build Status](https://travis-ci.org/aninternetof/rovercode.svg?branch=development)](https://travis-ci.org/aninternetof/rovercode)
 [![Coverage Status](https://coveralls.io/repos/github/aninternetof/rovercode/badge.svg)](https://coveralls.io/github/aninternetof/rovercode)
 
 rovercode is easy-to-use package for controlling robots (rovers) that can sense and react to their environment. The Blockly editor makes it easy to program and run your bot straight from your browser. Just drag and drop your commands to drive motors, read values from a variety of supported sensors, and see what your rover sees with the built in webcam viewer.
