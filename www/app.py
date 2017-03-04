@@ -169,7 +169,7 @@ def test_message(message):
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
 def get_block_diagrams():
     """
-    API: /blockdiagrams [GET]
+    API: /blockdiagrams [GET].
 
     Replies with a JSON formatted list of the block diagrams
     """
@@ -182,7 +182,7 @@ def get_block_diagrams():
 @app.route('/api/v1/blockdiagrams', methods=['POST'])
 def save_block_diagram():
     """
-    API: /blockdiagrams [POST]
+    API: /blockdiagrams [POST].
 
     Saves the posted block diagram
     """
@@ -200,7 +200,7 @@ def save_block_diagram():
 @app.route('/api/v1/blockdiagrams/<string:id>', methods=['GET'])
 def get_block_diagram(id):
     """
-    API: /blockdiagrams/<id> [GET]
+    API: /blockdiagrams/<id> [GET].
 
     Replies with an XML formatted description of the block diagram specified by
     `id`
@@ -214,7 +214,7 @@ def get_block_diagram(id):
 @app.route('/api/v1/download/<string:id>', methods = ['GET'])
 def download_block_diagram(id):
     """
-    API: /download/<id> [GET]
+    API: /download/<id> [GET].
 
     Starts a download of the block diagram specified by `id`
     """
@@ -226,7 +226,7 @@ def download_block_diagram(id):
 @app.route('/api/v1/upload', methods = ['POST'])
 def upload_block_diagram():
     """
-    API: /upload [POST]
+    API: /upload [POST].
 
     Adds the posted block diagram
     """
@@ -253,7 +253,7 @@ def upload_block_diagram():
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():
     """
-    API: /sendcommand [POST]
+    API: /sendcommand [POST].
 
     Executes the posted command
 
