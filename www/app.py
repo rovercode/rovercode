@@ -83,21 +83,22 @@ class HeartBeatManager():
     def thread_func(self, run_once=False):
         while self.run:
             print "Checking in with rovercode-web"
-            try:
-                r = requests.put(ROVERCODE_WEB_REG_URL+str(self.web_id)+"/", self.payload)
-                print r
-                if r.status_code in [200, 201]:
-                    print "... success"
-                elif r.status_code in [404]:
-                    #rovercode-web must have forgotten us. Reregister.
-                    print "... reregistering"
-                    r_rereg = self.register()
-                    if r_rereg.status_code not in [200, 201]:
-                        print "... error in reregistering"
-                else:
-                    print "... error"
-            except:
-                print "Could not connected to rovercode-web"
+            # try:
+            print "ID is " + str(self.web_id)
+            r = requests.put(ROVERCODE_WEB_REG_URL+str(self.web_id)+"/", self.payload)
+            print r
+            if r.status_code in [200, 201]:
+                print "... success"
+            elif r.status_code in [404]:
+                #rovercode-web must have forgotten us. Reregister.
+                print "... reregistering"
+                r = self.register()
+                if r.status_code not in [200, 201]:
+                    print "... error in reregistering"
+            else:
+                print "... error"
+            # except:
+                # print "Could not connect to rovercode-web"
             if run_once:
                 break
             socketio.sleep(3)
