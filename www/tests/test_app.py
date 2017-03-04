@@ -1,17 +1,19 @@
+"""Test the app module."""
 import app
 import responses
-import requests
-import json
 
 def test_sensor_init():
+    """Test the initialization of the sensors."""
     assert len(app.binary_sensors) > 0
 
 def test_get_local_ip():
+    """Test that the rover can get its local ip address."""
     # quick and dirty test that it gets something of the form X.X.X.X
     assert len(app.get_local_ip().split('.')) == 4
 
 @responses.activate
 def test_register_with_web():
+    """Test the rover registering with rovercode-web."""
     payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
     web_id = 333
     heartbeat_manager = app.HeartBeatManager(payload=payload)
@@ -28,6 +30,7 @@ def test_register_with_web():
 
 @responses.activate
 def test_heartbeat_thread():
+    """Test the periodic registration thread."""
     # Test for a rover that has already been registered
     payload = {'name': 'Chipy2', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
     web_id = 444
@@ -48,7 +51,6 @@ def test_heartbeat_thread():
     web_id_new = 555
     response_payload_new = response_payload.copy()
     response_payload_new['id'] = web_id_new
-    reregister_attempted = False
 
     responses.add(responses.PUT, app.ROVERCODE_WEB_REG_URL+str(web_id_new)+"/",
                   json=None, status=404,

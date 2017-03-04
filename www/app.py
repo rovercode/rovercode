@@ -1,3 +1,4 @@
+"""Rovercode app."""
 from flask import Flask, jsonify, Response, request, send_from_directory
 import requests, json, socket
 from os import listdir
@@ -13,6 +14,7 @@ ROVERCODE_WEB_REG_URL = "https://rovercode.com/mission-control/rovers/"
 async_mode = 'gevent_uwsgi'
 
 def create_app():
+    """Creator of rovercode flask app."""
     app = Flask(__name__)
     return app
 
@@ -37,8 +39,7 @@ binary_sensors = []
 
 class BinarySensor:
     """
-    The binary sensor object contains all of the important information for each
-    binary sensor
+    The binary sensor object contains information for each binary sensor.
 
     :param name:
         The human readable name of the sensor
@@ -49,7 +50,9 @@ class BinarySensor:
     :param falling_event:
         The event name associated with a signal changing from high to low
     """
+
     def __init__(self, name, pin, rising_event, falling_event):
+        """Constructor for BinarySensor object."""
         self.name = name
         self.pin = pin
         self.rising_event = rising_event
@@ -57,6 +60,7 @@ class BinarySensor:
         self.old_val = False
 
 def get_local_ip():
+    """Get the local area network IP address of the rover."""
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     ip = s.getsockname()[0]
@@ -64,13 +68,29 @@ def get_local_ip():
     return ip
 
 class HeartBeatManager():
+    """
+    A manager to register the rover with rovercode-web and periodically check in.
+
+    :param run:
+        A flag for the state of the thread. Set to false to gracefully stop
+        the thread.
+    :param thread:
+        The Thread object that performs the periodic check-in.
+    :param web_id:
+        The rovercode-web id of this rover.
+    :param payload:
+        The json-formatted information about the rover to send to rovercode-web.
+    """
+
     def __init__(self, payload, id=None):
+        """Constructor for the HeartBeatManager."""
         self.run = True;
         self.thread = None;
         self.web_id = id;
         self.payload = payload;
 
     def register(self):
+        """Regiser the rover with rovercode-web."""
         print "Registering with rovercode-web"
         r = requests.post(ROVERCODE_WEB_REG_URL, self.payload)
         self.web_id = json.loads(r.text)['id']
@@ -78,9 +98,11 @@ class HeartBeatManager():
         return r
 
     def stopThread(self):
+        """Gracefully stop the periodic check-in thread."""
         self.run = False;
 
     def thread_func(self, run_once=False):
+        """Thread function that periodically checks in with rovercode-web."""
         while self.run:
             print "Checking in with rovercode-web"
             # try:
@@ -112,9 +134,7 @@ if heartbeat_manager.thread is None:
     heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
 
 def sensors_thread():
-    """
-    Scans each binary sensor and sends events based on changes
-    """
+    """Scan each binary sensor and sends events based on changes."""
     while True:
         global binary_sensors
         socketio.sleep(0.2)
@@ -134,6 +154,7 @@ def sensors_thread():
 
 @socketio.on('connect', namespace='/api/v1')
 def connect():
+    """Connect to the rovercode-web websocket."""
     global ws_thread
     print 'Websocket connected'
     if ws_thread is None:
@@ -142,6 +163,7 @@ def connect():
 
 @socketio.on('status', namespace='/api/v1')
 def test_message(message):
+    """Send a debug test message when status is received from rovercode-web."""
     print "Got a status message: " + message['data']
 
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
@@ -243,9 +265,7 @@ def send_command():
     return jsonify(request.form)
 
 def init_rover_service():
-    """
-    Initializes hardware pins and motor speeds
-    """
+    """Initialize hardware pins and motor speeds."""
     # set up IR sensor gpio
     gpio.setup("XIO-P2", gpioLib.IN)
     gpio.setup("XIO-P4", gpioLib.IN)
@@ -260,6 +280,7 @@ def init_rover_service():
         pwm.set_duty_cycle = mock_set_duty_cycle
 
 def singleton(class_):
+    """Helper class for creating a singleton."""
     instances = {}
     def getInstance(*args, **kwargs):
         if class_ not in instances:
@@ -271,12 +292,16 @@ def singleton(class_):
 
 @singleton
 class MotorManager:
+    """Object to manage the motor PWM states."""
+
     started_motors = []
 
     def __init__(self):
+        """Contruct a MotorManager."""
         print "Starting motor manager"
 
     def set_speed(self, pin, speed):
+        """Set the speed of a motor pin."""
         global pwm
         if pin in self.started_motors:
             pwm.set_duty_cycle(pin, speed)
@@ -286,7 +311,7 @@ class MotorManager:
 
 def run_command(decoded):
     """
-    Runs the command specified by `decoded`
+    Run the command specified by `decoded`.
 
     :param decoded:
         The command to run
