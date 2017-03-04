@@ -18,12 +18,12 @@ def test_register_with_web():
     web_id = 333
     heartbeat_manager = app.HeartBeatManager(payload=payload)
     response_payload = payload.copy()
-    response_payload['id'] = 333
+    response_payload['id'] = web_id
     responses.add(responses.POST, app.ROVERCODE_WEB_REG_URL,
                   json=response_payload, status=200,
                   content_type='application/json')
     result = heartbeat_manager.register()
-    assert result.status_code in [200, 201]
+    assert result.status_code == 200
     assert heartbeat_manager.web_id == web_id
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == app.ROVERCODE_WEB_REG_URL
@@ -43,7 +43,7 @@ def test_heartbeat_thread():
                   content_type='application/json')
 
     result = heartbeat_manager.thread_func(run_once=True)
-    assert result.status_code in [200, 201]
+    assert result.status_code == 200
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == app.ROVERCODE_WEB_REG_URL+str(web_id)+"/"
 

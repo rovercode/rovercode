@@ -14,7 +14,7 @@ install:
   - pip install coveralls
 script:
   - py.test
-  - pwd && prospector
+  - prospector
 after_success:
   - coveralls
 language: python

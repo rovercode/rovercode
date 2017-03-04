@@ -29,10 +29,10 @@ except:
 
 ws_thread = None
 hb_thread = None
-payload = None;
+payload = None
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
-gpio = gpioLib.get_platform_gpio();
+gpio = gpioLib.get_platform_gpio()
 DEFAULT_SOFTPWM_FREQ = 100
 
 binary_sensors = []
@@ -84,10 +84,10 @@ class HeartBeatManager():
 
     def __init__(self, payload, id=None):
         """Constructor for the HeartBeatManager."""
-        self.run = True;
-        self.thread = None;
-        self.web_id = id;
-        self.payload = payload;
+        self.run = True
+        self.thread = None
+        self.web_id = id
+        self.payload = payload
 
     def register(self):
         """Regiser the rover with rovercode-web."""
@@ -99,7 +99,7 @@ class HeartBeatManager():
 
     def stopThread(self):
         """Gracefully stop the periodic check-in thread."""
-        self.run = False;
+        self.run = False
 
     def thread_func(self, run_once=False):
         """Thread function that periodically checks in with rovercode-web."""
