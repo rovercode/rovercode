@@ -15,7 +15,7 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 fi
 
 apt-get install -y python python-dev python-pip python-smbus nginx build-essential git libssl-dev
-pip install flask flask-socketio gevent uwsgi Sphinx==1.4.8 sphinx_rtd_theme pytest-flask pytest-cov mock requests responses prospector==0.12.14
+pip install flask flask-socketio gevent uwsgi Sphinx==1.4.8 sphinx_rtd_theme pytest-flask pytest-cov mock requests responses prospector==0.12.4
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
