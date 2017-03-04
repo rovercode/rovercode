@@ -30,7 +30,7 @@ def test_register_with_web():
 
 @responses.activate
 def test_heartbeat_thread():
-    """Test the periodic hearbeat for a rover that is already registered"""
+    """Test the periodic hearbeat for a rover that is already registered."""
     payload = {'name': 'Chipy2', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
     web_id = 444
     response_payload = payload.copy()
@@ -48,7 +48,7 @@ def test_heartbeat_thread():
 
 @responses.activate
 def test_heartbeat_thread_forgotten():
-    """Test the periodic heartbeat for a rover forgotten by the server"""
+    """Test the periodic heartbeat for a rover forgotten by the server."""
     web_id = 555
     payload = {'name': 'Chipy3', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
     response_payload = payload.copy()
