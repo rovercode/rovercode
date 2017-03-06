@@ -1,4 +1,6 @@
+"""Rovercode app."""
 from flask import Flask, jsonify, Response, request, send_from_directory
+import requests, json, socket
 from os import listdir
 from os.path import isfile, join
 import xml.etree.ElementTree
@@ -6,10 +8,13 @@ from flask_socketio import SocketIO, emit
 import Adafruit_GPIO.PWM as pwmLib
 import Adafruit_GPIO.GPIO as gpioLib
 
+ROVERCODE_WEB_REG_URL = "https://rovercode.com/mission-control/rovers/"
+
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
 
 def create_app():
+    """Creator of rovercode flask app."""
     app = Flask(__name__)
     return app
 
@@ -21,20 +26,20 @@ try:
 except:
     # Needed for sphinx documentation
     socketio = SocketIO(app)
-thread = None
 
-print "Registering rover!"
+ws_thread = None
+hb_thread = None
+payload = None
 
 pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
-gpio = gpioLib.get_platform_gpio();
+gpio = gpioLib.get_platform_gpio()
 DEFAULT_SOFTPWM_FREQ = 100
 
 binary_sensors = []
 
 class BinarySensor:
     """
-    The binary sensor object contains all of the important information for each
-    binary sensor
+    The binary sensor object contains information for each binary sensor.
 
     :param name:
         The human readable name of the sensor
@@ -45,17 +50,91 @@ class BinarySensor:
     :param falling_event:
         The event name associated with a signal changing from high to low
     """
+
     def __init__(self, name, pin, rising_event, falling_event):
+        """Constructor for BinarySensor object."""
         self.name = name
         self.pin = pin
         self.rising_event = rising_event
         self.falling_event = falling_event
         self.old_val = False
 
+def get_local_ip():
+    """Get the local area network IP address of the rover."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
+class HeartBeatManager():
+    """
+    A manager to register the rover with rovercode-web and periodically check in.
+
+    :param run:
+        A flag for the state of the thread. Set to false to gracefully stop
+        the thread.
+    :param thread:
+        The Thread object that performs the periodic check-in.
+    :param web_id:
+        The rovercode-web id of this rover.
+    :param payload:
+        The json-formatted information about the rover to send to rovercode-web.
+    """
+
+    def __init__(self, payload, id=None):
+        """Constructor for the HeartBeatManager."""
+        self.run = True
+        self.thread = None
+        self.web_id = id
+        self.payload = payload
+
+    def register(self):
+        """Regiser the rover with rovercode-web."""
+        print "Registering with rovercode-web"
+        r = requests.post(ROVERCODE_WEB_REG_URL, self.payload)
+        self.web_id = json.loads(r.text)['id']
+        print "rovercode-web id is " + str(self.web_id)
+        return r
+
+    def stopThread(self):
+        """Gracefully stop the periodic check-in thread."""
+        self.run = False
+
+    def thread_func(self, run_once=False):
+        """Thread function that periodically checks in with rovercode-web."""
+        while self.run:
+            print "Checking in with rovercode-web"
+            # try:
+            print "ID is " + str(self.web_id)
+            r = requests.put(ROVERCODE_WEB_REG_URL+str(self.web_id)+"/", self.payload)
+            print r
+            if r.status_code in [200, 201]:
+                print "... success"
+            elif r.status_code in [404]:
+                #rovercode-web must have forgotten us. Reregister.
+                print "... reregistering"
+                r = self.register()
+                if r.status_code not in [200, 201]:
+                    print "... error in reregistering"
+            else:
+                print "... error"
+            # except:
+                # print "Could not connect to rovercode-web"
+            if run_once:
+                break
+            socketio.sleep(3)
+        print "Exiting heartbeat thread"
+        return r
+
+heartbeat_manager = HeartBeatManager(
+        payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()})
+heartbeat_manager.register()
+if heartbeat_manager.thread is None:
+    heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
+
 def sensors_thread():
-    """
-    Scans each binary sensor and sends events based on changes
-    """
+    """Scan each binary sensor and sends events based on changes."""
     while True:
         global binary_sensors
         socketio.sleep(0.2)
@@ -75,20 +154,22 @@ def sensors_thread():
 
 @socketio.on('connect', namespace='/api/v1')
 def connect():
-    global thread
+    """Connect to the rovercode-web websocket."""
+    global ws_thread
     print 'Websocket connected'
-    if thread is None:
-        thread = socketio.start_background_task(target=sensors_thread)
+    if ws_thread is None:
+        ws_thread = socketio.start_background_task(target=sensors_thread)
     emit('status', {'data': 'Connected'})
 
 @socketio.on('status', namespace='/api/v1')
 def test_message(message):
+    """Send a debug test message when status is received from rovercode-web."""
     print "Got a status message: " + message['data']
 
 @app.route('/api/v1/blockdiagrams', methods=['GET'])
 def get_block_diagrams():
     """
-    API: /blockdiagrams [GET]
+    API: /blockdiagrams [GET].
 
     Replies with a JSON formatted list of the block diagrams
     """
@@ -101,7 +182,7 @@ def get_block_diagrams():
 @app.route('/api/v1/blockdiagrams', methods=['POST'])
 def save_block_diagram():
     """
-    API: /blockdiagrams [POST]
+    API: /blockdiagrams [POST].
 
     Saves the posted block diagram
     """
@@ -119,7 +200,7 @@ def save_block_diagram():
 @app.route('/api/v1/blockdiagrams/<string:id>', methods=['GET'])
 def get_block_diagram(id):
     """
-    API: /blockdiagrams/<id> [GET]
+    API: /blockdiagrams/<id> [GET].
 
     Replies with an XML formatted description of the block diagram specified by
     `id`
@@ -133,7 +214,7 @@ def get_block_diagram(id):
 @app.route('/api/v1/download/<string:id>', methods = ['GET'])
 def download_block_diagram(id):
     """
-    API: /download/<id> [GET]
+    API: /download/<id> [GET].
 
     Starts a download of the block diagram specified by `id`
     """
@@ -145,7 +226,7 @@ def download_block_diagram(id):
 @app.route('/api/v1/upload', methods = ['POST'])
 def upload_block_diagram():
     """
-    API: /upload [POST]
+    API: /upload [POST].
 
     Adds the posted block diagram
     """
@@ -172,7 +253,7 @@ def upload_block_diagram():
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():
     """
-    API: /sendcommand [POST]
+    API: /sendcommand [POST].
 
     Executes the posted command
 
@@ -184,9 +265,7 @@ def send_command():
     return jsonify(request.form)
 
 def init_rover_service():
-    """
-    Initializes hardware pins and motor speeds
-    """
+    """Initialize hardware pins and motor speeds."""
     # set up IR sensor gpio
     gpio.setup("XIO-P2", gpioLib.IN)
     gpio.setup("XIO-P4", gpioLib.IN)
@@ -201,6 +280,7 @@ def init_rover_service():
         pwm.set_duty_cycle = mock_set_duty_cycle
 
 def singleton(class_):
+    """Helper class for creating a singleton."""
     instances = {}
     def getInstance(*args, **kwargs):
         if class_ not in instances:
@@ -212,12 +292,16 @@ def singleton(class_):
 
 @singleton
 class MotorManager:
+    """Object to manage the motor PWM states."""
+
     started_motors = []
 
     def __init__(self):
+        """Contruct a MotorManager."""
         print "Starting motor manager"
 
     def set_speed(self, pin, speed):
+        """Set the speed of a motor pin."""
         global pwm
         if pin in self.started_motors:
             pwm.set_duty_cycle(pin, speed)
@@ -227,7 +311,7 @@ class MotorManager:
 
 def run_command(decoded):
     """
-    Runs the command specified by `decoded`
+    Run the command specified by `decoded`.
 
     :param decoded:
         The command to run
