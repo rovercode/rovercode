@@ -64,5 +64,5 @@ def test_heartbeat_thread_forgotten():
                   content_type='application/json')
 
     result = heartbeat_manager.thread_func(run_once=True)
-    assert result.status_code in [200, 201]
+    assert result.status_code == 200
     assert heartbeat_manager.web_id == web_id
