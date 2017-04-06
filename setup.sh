@@ -47,7 +47,7 @@ service nginx restart
 read -p "Do you want to automatically start on boot? (choose N for development) :" answer
 case ${answer:0:1} in
     y|Y )
-        sed -i -e '$i \sh '$(pwd)'\/start.sh \n' /etc/rc.local
+        sed -i -e '$i \bash '$(pwd)'\/start.sh \n' /etc/rc.local
     ;;
     n|N )
         echo Not automatically starting on boot...
