@@ -20,8 +20,8 @@ First, on your rover (CHIP, Raspberry Pi, BeagleBone, etc):
 ```bash
 $ sudo apt install git
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
-$ sudo ./setup.sh #run this only once -- it will take some time
-$ sudo ./start.sh #run this each time you boot the rover
+$ sudo bash setup.sh #run this only once -- it will take some time
+$ sudo bash start.sh #run this each time you boot the rover
 ```
 Then, on any PC or tablet, head to rovercode.com to connect to your rover. Start playing!
 
@@ -33,8 +33,8 @@ First, on your development PC:
 ```bash
 $ sudo apt install git
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
-$ sudo ./setup.sh #run this only once -- it will take some time
-$ sudo ./start.sh #run this each time
+$ sudo bash setup.sh #run this only once -- it will take some time
+$ sudo bash start.sh #run this each time
 ```
 Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
 
