@@ -44,6 +44,16 @@ ln -fs $(pwd)/nginx-site /etc/nginx/sites-enabled/rovercode
 rm -rf /etc/nginx/sites-enabled/default > /dev/null
 service nginx restart
 
+read -p "Do you want to automatically start on boot? (choose N for development) :" answer
+case ${answer:0:1} in
+    [yY] | [yY][Ee][Ss] )
+        sed -i -e '$i \bash '$(pwd)'\/start.sh \n' /etc/rc.local
+    ;;
+    * )
+        echo Not automatically starting on boot...
+    ;;
+esac
+
 echo "Setup complete."
 
 exit 0
