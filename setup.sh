@@ -85,7 +85,7 @@ ask() {
 if ask "Do you want to automatically start on boot? (choose N for development):"; then
     echo "Going to start on boot..."
     mkdir .backup && cp /etc/rc.local .backup/
-    sed -i -e '$i \bash '$(pwd)'\/start.sh \n' /etc/rc.local
+    sed -i -e '$i \bash '$(pwd)'\/start.sh \&\n' /etc/rc.local
 else
     echo "Not going to start on boot..."
 fi
