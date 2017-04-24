@@ -21,7 +21,7 @@ First, on your rover (CHIP, Raspberry Pi, BeagleBone, etc):
 $ sudo apt install git
 $ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
 $ sudo bash setup.sh #run this only once -- it will take some time
-$ sudo bash start.sh #run this each time you boot the rover
+$ sudo bash start.sh #run this each time you boot the rover (or automatically start if chosen in setup)
 ```
 Then, on any PC or tablet, head to rovercode.com to connect to your rover. Start playing!
 
