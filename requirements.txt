@@ -2,7 +2,7 @@ flask
 flask-socketio
 gevent
 uwsgi
-Sphinx==1.4.8
+sphinx==1.5.5
 sphinx_rtd_theme
 pytest-flask
 pytest-cov
