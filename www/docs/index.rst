@@ -27,6 +27,7 @@ including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black.
    :caption: Contents:
 
    quickstart
+   contribute
    api
 
 Indices and tables
