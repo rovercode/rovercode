@@ -22,6 +22,9 @@ The rovercode service (this documentation) runs on the rover. The rover can be
 any single-board-computer supported by the Adafruit Python GPIO wrapper library,
 including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black.
 
+We'd love to chat with you! Join the `the rovercode Slack channel 
+<http://chat.rovercode.com>`_.
+
 rovercode is licensed under the `GNU General Public License v3.0
 <https://github.com/aninternetof/rovercode/blob/master/license>`_.
 
