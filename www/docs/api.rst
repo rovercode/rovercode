@@ -1,5 +1,7 @@
 API
 ====================================================================
 
-.. automodule:: app
-    :members:
+.. autosummary::
+    :toctree: generated
+
+    app
