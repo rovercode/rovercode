@@ -2,6 +2,6 @@ API
 ====================================================================
 
 .. autosummary::
-    :toctree: _autosummary
+    :toctree: generated
 
     app

@@ -64,5 +64,8 @@ Or, if you're using Docker, make sure the container is running (the `sudo docker
 $ sudo docker exec -it rovercode bash -c "cd ../; py.test"
 ```
 
+## Docs
+Read the complete docs [here](http://rovercode.readthedocs.io/en/latest).
+
 ## License
 [GNU GPLv3](license) © Brady L. Hurlburt and rovercode contributors
