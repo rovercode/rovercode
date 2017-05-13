@@ -6,6 +6,8 @@
 rovercode
 ============
 :License: GPLv3
+:Source: `<https://github.com/aninternetof/rovercode>`_
+
 .. image:: https://img.shields.io/badge/chat-on%20Slack-41AB8C.svg?style=flat
       :target: http://chat.rovercode.com/
 .. image:: https://api.travis-ci.org/aninternetof/rovercode.svg
