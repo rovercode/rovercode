@@ -67,5 +67,13 @@ $ sudo docker exec -it rovercode bash -c "cd ../; py.test"
 ## Docs
 Read the complete docs [here](http://rovercode.readthedocs.io/en/latest).
 
+## Contact
+Please join the rovercode developer mailing list! [Go here](https://1988.onlinegroups.net/groups/rovercode-developers/), then
+click "register".
+
+Also, we'd love to chat with you! Join the [the rovercode Slack channel](http://chat.rovercode.com).
+
+You can also email brady@rovercode.com.
+
 ## License
 [GNU GPLv3](license) © Brady L. Hurlburt and rovercode contributors
