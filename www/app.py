@@ -13,11 +13,11 @@ except ImportError:
     print "Adafruit_GPIO lib unavailable"
 
 ''' Default. Use with rovercode-web running at rovercode.com '''
-#ROVERCODE_WEB_REG_URL = "https://rovercode.com/mission-control/rovers/"
+ROVERCODE_WEB_REG_URL = "https://rovercode.com/mission-control/rovers/"
 ''' Uncomment this line to use with rovercode-web running at beta.rovercode.com '''
 #ROVERCODE_WEB_REG_URL = "https://beta.rovercode.com/mission-control/rovers/"
 ''' Uncomment this line to use with a local rovercodeweb docker container '''
-ROVERCODE_WEB_REG_URL = "http://rovercodeweb:8000/mission-control/rovers/"
+#ROVERCODE_WEB_REG_URL = "http://rovercodeweb:8000/mission-control/rovers/"
 
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
