@@ -73,6 +73,7 @@ Contents
    :caption: Contents:
 
    quickstart
+   detailed-usage
    contribute
    api
 
