@@ -3,6 +3,7 @@
 # rovercode
 
 [![Slack](https://img.shields.io/badge/chat-on%20Slack-41AB8C.svg?style=flat)](http://chat.rovercode.com/)
+[![Mailinglist](https://img.shields.io/badge/join-mailing%20list-yellow.svg?style=flat)](https://1988.onlinegroups.net/groups/rovercode-developers/)
 [![](https://images.microbadger.com/badges/image/cabarnes/rovercode.svg)](https://microbadger.com/images/cabarnes/rovercode)
 [![Build Status](https://travis-ci.org/aninternetof/rovercode.svg?branch=development)](https://travis-ci.org/aninternetof/rovercode)
 [![Coverage Status](https://coveralls.io/repos/github/aninternetof/rovercode/badge.svg)](https://coveralls.io/github/aninternetof/rovercode)
@@ -66,6 +67,14 @@ $ sudo docker exec -it rovercode bash -c "cd ../; py.test"
 
 ## Docs
 Read the complete docs [here](http://rovercode.readthedocs.io/en/latest).
+
+## Contact
+Please join the rovercode developer mailing list! [Go here](https://1988.onlinegroups.net/groups/rovercode-developers/), then
+click "register".
+
+Also, we'd love to chat with you! Join the [the rovercode Slack channel](http://chat.rovercode.com).
+
+You can also email brady@rovercode.com.
 
 ## License
 [GNU GPLv3](license) © Brady L. Hurlburt and rovercode contributors
