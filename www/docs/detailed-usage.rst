@@ -14,7 +14,7 @@ url by creating a .env file in your rovercode directory.
     # first, navigate to the rovercode root diretory (same level as the Dockerfile), then
     $ echo ROVERCODE_WEB_URL=https://beta.rovercode.com/ >> .env
 
-When you start rovercode, it will register itselft with `beta.rovercode.com`.
+When you start rovercode, it will register itself with `beta.rovercode.com`.
 
 develop rovercode and rovercode-web on the same machine at the same time
 --------------------------------------------------------------------------
