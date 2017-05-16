@@ -12,7 +12,7 @@ url by creating a .env file in your rovercode directory.
 .. code-block:: bash
 
     # first, navigate to the rovercode root diretory (same level as the Dockerfile), then
-    $ echo ROVERCODE_WEB_URL=https://beta.rovercode.com/ >> .env
+    $ echo ROVERCODE_WEB_URL=https://beta.rovercode.com/ > .env
 
 When you start rovercode, it will register itself with `beta.rovercode.com`.
 
