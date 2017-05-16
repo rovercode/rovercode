@@ -15,7 +15,7 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 fi
 
 apt-get install -y python python-dev python-pip python-smbus nginx build-essential git libssl-dev
-pip install flask flask-socketio gevent uwsgi Sphinx==1.4.8 sphinx_rtd_theme pytest-flask pytest-cov mock requests responses prospector==0.12.4
+pip install flask flask-socketio gevent uwsgi Sphinx==1.4.8 sphinx_rtd_theme pytest-flask pytest-cov mock requests responses pylint==1.6.5 prospector==0.12.4 flask-cors python-dotenv
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
@@ -43,6 +43,52 @@ ln -s $(pwd)/www /var/www/rovercode/www
 ln -fs $(pwd)/nginx-site /etc/nginx/sites-enabled/rovercode
 rm -rf /etc/nginx/sites-enabled/default > /dev/null
 service nginx restart
+
+# Ask the user if they want to start automatically on boot
+ask() {
+    # http://djm.me/ask
+    local prompt default REPLY
+
+    while true; do
+
+        if [ "${2:-}" = "Y" ]; then
+            prompt="Y/n"
+            default=Y
+        elif [ "${2:-}" = "N" ]; then
+            prompt="y/N"
+            default=N
+        else
+            prompt="y/n"
+            default=
+        fi
+
+        # Ask the question (not using "read -p" as it uses stderr not stdout)
+        echo -n "$1 [$prompt] "
+
+        # Read the answer (use /dev/tty in case stdin is redirected from somewhere else)
+        read REPLY </dev/tty
+
+        # Default?
+        if [ -z "$REPLY" ]; then
+            REPLY=$default
+        fi
+
+        # Check if the reply is valid
+        case "$REPLY" in
+            Y*|y*) return 0 ;;
+            N*|n*) return 1 ;;
+        esac
+
+    done
+}
+
+if ask "Do you want to automatically start on boot? (choose N for development):"; then
+    echo "Going to start on boot..."
+    mkdir .backup && cp /etc/rc.local .backup/
+    sed -i -e '$i \bash '$(pwd)'\/start.sh \&\n' /etc/rc.local
+else
+    echo "Not going to start on boot..."
+fi
 
 echo "Setup complete."
 

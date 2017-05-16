@@ -1,14 +1,26 @@
 """Rovercode app."""
 from flask import Flask, jsonify, Response, request, send_from_directory
+from flask_cors import CORS
 import requests, json, socket
 from os import listdir
 from os.path import isfile, join
 import xml.etree.ElementTree
 from flask_socketio import SocketIO, emit
-import Adafruit_GPIO.PWM as pwmLib
-import Adafruit_GPIO.GPIO as gpioLib
+from dotenv import load_dotenv, find_dotenv
+import os
+try:
+    import Adafruit_GPIO.PWM as pwmLib
+    import Adafruit_GPIO.GPIO as gpioLib
+except ImportError:
+    print "Adafruit_GPIO lib unavailable"
 
-ROVERCODE_WEB_REG_URL = "https://rovercode.com/mission-control/rovers/"
+
+load_dotenv(find_dotenv())
+rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
+if rovercode_web_url[-1:] != '/':
+    rovercode_web_url += '/'
+
+ROVERCODE_WEB_REG_URL = rovercode_web_url + "mission-control/rovers/"
 
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
@@ -16,6 +28,7 @@ async_mode = 'gevent_uwsgi'
 def create_app():
     """Creator of rovercode flask app."""
     app = Flask(__name__)
+    CORS(app, resources={r'/api/*': {"origins": [".*rovercode.com", ".*localhost"]}})
     return app
 
 app = create_app()
@@ -31,8 +44,12 @@ ws_thread = None
 hb_thread = None
 payload = None
 
-pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
-gpio = gpioLib.get_platform_gpio()
+try:
+    pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
+    gpio = gpioLib.get_platform_gpio()
+except NameError:
+    print "Adafruit_GPIO lib is unavailable"
+
 DEFAULT_SOFTPWM_FREQ = 100
 
 binary_sensors = []
@@ -328,7 +345,10 @@ def run_command(decoded):
         print "Stopping motor"
         motor_manager.set_speed(decoded['pin'], 0)
 
-init_rover_service()
+try:
+    init_rover_service()
+except NameError:
+    print "Adafruit_GPIO lib is unavailable"
 
 motor_manager = MotorManager()
 
