@@ -22,7 +22,7 @@ supply list
 - `jumpers <https://www.amazon.com/SUNKEE-100pcs-female-jumper-Dupont/dp/B00AYCON8Y/ref=sr_1_3?ie=UTF8&qid=1495206374&sr=8-3&keywords=female+jumper+wire>`_
 - `assorted resistors <https://www.amazon.com/E-Projects-EPC-103-Value-Resistor-Kit/dp/B00E9YQQSS/ref=sr_1_1?ie=UTF8&qid=1495206019&sr=8-1&keywords=assorted+resistors>`_
 - two `small proto boards <https://www.amazon.com/Vktech-Prototype-Universal-Printed-Circuit/dp/B00CGV6TZG/ref=sr_1_14?ie=UTF8&qid=1495206282&sr=8-14&keywords=protoboard&th=1>`_
-- `0.1" headers, male, vertical<https://www.amazon.com/Straight-Single-Header-Arduino-Prototype/dp/B01EFKXXJA/ref=sr_1_5?ie=UTF8&qid=1495206200&sr=8-5&keywords=0.1%22+male+header>`_ (we'll cut to desired length)
+- `0.1-inch headers, male, vertical <https://www.amazon.com/Straight-Single-Header-Arduino-Prototype/dp/B01EFKXXJA/ref=sr_1_5?ie=UTF8&qid=1495206200&sr=8-5&keywords=0.1%22+male+header>`_ (we'll cut to desired length)
 - soldering iron and solder
 
 chassis, motors, wheels -- the Thunder Tumbler
@@ -118,11 +118,31 @@ Note: These sensor circuits are not great. Their detection range is only of a co
 Our future reference design will include `a PCB with a Silicon Labs I2C MEMS
 IR sensor <https://upverter.com/ductape/aef33f7c39fd29d5/rovercode-prox-sensor/>`_, which should work much better.
 
+webcam -- the eye
+-------------------
+:important note: The default CHIP kernel does not enable the USB Video Class (UVC) driver. In the future we hope to provide a ready-to-use emmc image with this driver included, but for now you'll have to rebuild the kernel with the UVC driver included. This is a more advanced task. Your best bet is `this tutorial <http://www.raspibo.org/wiki/index.php/Compile_the_Linux_kernel_for_Chip:_my_personal_HOWTO>`_. If you're not up for this, don't worry -- just stay tuned for an update to this page telling you where you can get a ready-to-use emmc image.
+
+At the moment, the webcam streaming service is not installed or
+started with the main rovercode service (we have `an issue card
+<https://github.com/aninternetof/rovercode/issues/110>`_ to fix this). So,
+you'll need to get and run mjpg-streamer yourself for now.
+
+Get and build mjpg-streamer by following steps 1 through 5 in `these
+instructions <https://blog.miguelgrinberg.com/post/how-to-build-and-run-mjpg-streamer-on-the-raspberry-pi>`_.
+
+To make mjpg-start on boot, add this line to `/etc/rc.local`. Replace {BUILD_DIR} with the absolute path to the directory where you built
+mjpg-streamer.
+
+.. code-block:: guess
+
+    {BUILD_DIR}/mjpg_streamer -i "{BUILD_DIR}/input_uvc.so" -o "{BUILD_DIR}/output_http.so -w {BUILD_DIR}/www"
+
+Restart the rover. You can check that mjpg-streamer has started by
+pointing your PC's browser at `{ip-address-of-your-rover}:8080`. You should see
+the mjpg-streamer demo page.
+
 install rovercode service
 --------------------------
 Connect to the C.H.I.P. via serial or SSH.
 
 Follow the Standard Setup on the `quickstart page <quickstart.html>`_.
-
-webcam -- the eye
--------------------
