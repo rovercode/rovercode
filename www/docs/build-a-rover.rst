@@ -26,7 +26,7 @@ supply list
 - `C.H.I.P <https://getchip.com/pages/chip>`_
 - `webcam <https://smile.amazon.com/gp/product/B004FHO5Y6/ref=oh_aui_search_detailpage?ie=UTF8&psc=1>`_
 - `powered USB hub <https://smile.amazon.com/gp/product/B00ZYKL6UO/ref=oh_aui_search_detailpage?ie=UTF8&psc=1>`_
-- `USB battery <https://smile.amazon.com/gp/product/B011DD6Z2O/ref=oh_aui_search_detailpage?ie=UTF8&psc=1>`_`
+- `USB battery <https://smile.amazon.com/gp/product/B011DD6Z2O/ref=oh_aui_search_detailpage?ie=UTF8&psc=1>`_
 - soldering iron and solder
 
 chassis, motors, wheels -- the Thunder Tumbler
