@@ -89,7 +89,20 @@ know), so to avoid having to edit the code, use these pins:
 infrared sensors -- the ears
 -----------------------------
 
-[TODO: add schematic]
+We call the infrared sensors the ears of the rover. They might
+be better called eyes since they operate using light (albeit
+invisible light). But, the rover already has an eye (the webcam),
+and the IR sensor boards stick off the the sides like ears,
+so we go with it.
+
+Building the circuit
++++++++++++++++++++++++
+
+The rover has two ears: two IR sensor boards. They are identical.
+Each has an IR transmitter and an IR receiver. This is the circuit;
+create it on two of your proto boards:
+
+.. image:: http://i.imgur.com/HpGsVQv.png
 
 Each ear has a header with three things on it:
 
@@ -105,6 +118,9 @@ and let the input hardware of the pin serve as a rough comparator.
 Just like the motor signal pins, the pins for the IR ear signals are hardcoded
 at the moment (this time in `app.py` -- we are really gonna make this configurable
 soon). So to avoid having to change code, connect this like this:
+
+Connecting to the C.H.I.P
+++++++++++++++++++++++++++
 
 +-------------------+-------------+
 | IR Ear Signal     | C.H.I.P Pin |
