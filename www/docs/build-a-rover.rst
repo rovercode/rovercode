@@ -23,6 +23,10 @@ supply list
 - `assorted resistors <https://www.amazon.com/E-Projects-EPC-103-Value-Resistor-Kit/dp/B00E9YQQSS/ref=sr_1_1?ie=UTF8&qid=1495206019&sr=8-1&keywords=assorted+resistors>`_
 - two `small proto boards <https://www.amazon.com/Vktech-Prototype-Universal-Printed-Circuit/dp/B00CGV6TZG/ref=sr_1_14?ie=UTF8&qid=1495206282&sr=8-14&keywords=protoboard&th=1>`_
 - `0.1-inch headers, male, vertical <https://www.amazon.com/Straight-Single-Header-Arduino-Prototype/dp/B01EFKXXJA/ref=sr_1_5?ie=UTF8&qid=1495206200&sr=8-5&keywords=0.1%22+male+header>`_ (we'll cut to desired length)
+- `C.H.I.P <https://getchip.com/pages/chip>`_
+- `webcam <https://smile.amazon.com/gp/product/B004FHO5Y6/ref=oh_aui_search_detailpage?ie=UTF8&psc=1>`_
+- `powered USB hub <https://smile.amazon.com/gp/product/B00ZYKL6UO/ref=oh_aui_search_detailpage?ie=UTF8&psc=1>`_
+- `USB battery <https://smile.amazon.com/gp/product/B011DD6Z2O/ref=oh_aui_search_detailpage?ie=UTF8&psc=1>`_`
 - soldering iron and solder
 
 chassis, motors, wheels -- the Thunder Tumbler
@@ -157,8 +161,38 @@ Restart the rover. You can check that mjpg-streamer has started by
 pointing your PC's browser at `{ip-address-of-your-rover}:8080`. You should see
 the mjpg-streamer demo page.
 
+assembly
+----------
+Here is how it all hooks together:
+
+.. image:: http://i.imgur.com/h9Y6mPG.png
+
+Put everything on the chassis how you see fit. Below are some
+photos of how we did it. Hot glue is your friend.
+
+.. image:: http://i.imgur.com/p3TpMNj.jpg
+.. image:: http://i.imgur.com/N0N6NQe.jpg
+.. image:: http://i.imgur.com/TsyoME6.jpg
+
+Note that the motors are still powered by the Thunder Tumbler AA
+battery pack, so make sure there are batteries in there and
+that the switch on the bottom is turned on when in use.
+
+The webcam draws too much current to be directly connected to the
+C.H.I.P's USB host port. So, we use a powered USB hub.
+
 install rovercode service
 --------------------------
 Connect to the C.H.I.P. via serial or SSH.
 
 Follow the Standard Setup on the `quickstart page <quickstart.html>`_.
+
+play
+------
+Go to `<rovercode.com>`_, sign up for an account, then go to `Mission Control
+<https://rovercode.com/mission-control>`_. Click `Connect to a Rover`. Choose
+your rover, whose name is hardcoded `here <https://github.com/aninternetof/rovercode/blob/development/www/app.py#L148https://github.com/aninternetof/rovercode/blob/development/www/app.py#L148>`_,
+sadly. You should see a message in the console bar on the right saying
+that it has connected to a a rover and listing its local IP address.
+
+Drag in some commands, hit play, and have fun!
