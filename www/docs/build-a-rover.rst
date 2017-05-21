@@ -72,8 +72,8 @@ Connecting to the C.H.I.P
 
 Use your jumpers to connect the signals on your new 5-pin header to the C.H.I.P.
 Ground connects to ground, and the motor control signals can connect to any
-`XIO-P[0-7]` pin. Right now the pins are hard-coded iZn `blockly-api.js` (booooo, I
-know), so to avoid having to edit the code, use these pins:
+`XIO-P[0-7]` pin. Right now the pins are hard-coded in `blockly-api.js <https://github.com/aninternetof/rovercode-web/blob/development/mission_control/static/js/blockly-api.js#L3>`_
+(booooo, I know), so to avoid having to edit the code, use these pins:
 
 +-------------------+-------------+
 | Motor Signal      | C.H.I.P Pin |
@@ -120,8 +120,9 @@ an analog input of the C.H.I.P. We'll just hook it up to a regular GPIO input,
 and let the input hardware of the pin serve as a rough comparator.
 
 Just like the motor signal pins, the pins for the IR ear signals are hardcoded
-at the moment (this time in `app.py` -- we are really gonna make this configurable
-soon). So to avoid having to change code, connect this like this:
+at the moment (this time in `app.py <https://github.com/aninternetof/rovercode/blob/development/www/app.py#L287>`_
+-- we are really gonna make this configurable soon). So to avoid having to
+change code, connect this like this:
 
 Connecting to the C.H.I.P
 ++++++++++++++++++++++++++
@@ -140,7 +141,7 @@ IR sensor <https://upverter.com/ductape/aef33f7c39fd29d5/rovercode-prox-sensor/>
 
 webcam -- the eye
 -------------------
-:important note: The default CHIP kernel does not enable the USB Video Class (UVC) driver. In the future we hope to provide a ready-to-use emmc image with this driver included, but for now you'll have to rebuild the kernel with the UVC driver included. This is a more advanced task. Your best bet is `this tutorial <http://www.raspibo.org/wiki/index.php/Compile_the_Linux_kernel_for_Chip:_my_personal_HOWTO>`_. If you're not up for this, don't worry -- just stay tuned for an update to this page telling you where you can get a ready-to-use emmc image.
+:important note: The default CHIP kernel does not enable the USB Video Class (UVC) driver. In the future we hope to provide a ready-to-use eMMC image with this driver included, but for now you'll have to rebuild the kernel with the UVC driver included. This is a more advanced task. Your best bet is `this tutorial <http://www.raspibo.org/wiki/index.php/Compile_the_Linux_kernel_for_Chip:_my_personal_HOWTO>`_. If you're not up for this, don't worry -- just stay tuned for an update to this page telling you where you can get a ready-to-use eMMC image.
 
 At the moment, the webcam streaming service is not installed or
 started with the main rovercode service (we have `an issue card
@@ -189,9 +190,9 @@ Follow the Standard Setup on the `quickstart page <quickstart.html>`_.
 
 play
 ------
-Go to `<rovercode.com>`_, sign up for an account, then go to `Mission Control
+Go to `<https://rovercode.com>`_, sign up for an account, then go to `Mission Control
 <https://rovercode.com/mission-control>`_. Click `Connect to a Rover`. Choose
-your rover, whose name is hardcoded `here <https://github.com/aninternetof/rovercode/blob/development/www/app.py#L148https://github.com/aninternetof/rovercode/blob/development/www/app.py#L148>`_,
+your rover, whose name is hardcoded `here <https://github.com/aninternetof/rovercode/blob/development/www/app.py#L148>`_,
 sadly. You should see a message in the console bar on the right saying
 that it has connected to a a rover and listing its local IP address.
 
