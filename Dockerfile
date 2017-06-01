@@ -16,6 +16,8 @@ RUN pip install -r requirements.txt
 WORKDIR /etc/nginx/sites-enabled
 RUN rm -f default
 
+WORKDIR /var/www/rovercode/www/Adafruit_Python_GPIO
+RUN python setup.py install
 WORKDIR /var/www/rovercode
 RUN git clone -b uwsgi-2.0 https://github.com/unbit/uwsgi.git
 WORKDIR /var/www/rovercode/uwsgi
