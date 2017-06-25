@@ -20,7 +20,10 @@ rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
 if rovercode_web_url[-1:] != '/':
     rovercode_web_url += '/'
 
-ROVERCODE_WEB_REG_URL = rovercode_web_url + "mission-control/rovers/"
+rover_name = "Prototype2"
+
+ROVERCODE_WEB_REG_URL = rovercode_web_url + "mission-control/rovers"
+ROVERCODE_WEB_LOGIN_URL = rovercode_web_url + "accounts/login/"
 
 # Let SocketIO choose the best async mode
 async_mode = 'gevent_uwsgi'
@@ -105,14 +108,46 @@ class HeartBeatManager():
         self.thread = None
         self.web_id = id
         self.payload = payload
+        self.session = requests.session()
 
-    def register(self):
-        """Regiser the rover with rovercode-web."""
-        print "Registering with rovercode-web"
-        r = requests.post(ROVERCODE_WEB_REG_URL, self.payload)
+        # Log in to rovercode-web
+        self.session.get(ROVERCODE_WEB_LOGIN_URL)
+        csrftoken = self.session.cookies['csrftoken']
+        login_data = {
+            'login':'person',
+            'password':'demodemo',
+            'csrfmiddlewaretoken':csrftoken,
+        }
+        self.session.post(ROVERCODE_WEB_LOGIN_URL, data=login_data)
+
+        # We have a new csrf token after loggin in
+        csrftoken = self.session.cookies['testcookie']
+        csrftoken = self.session.cookies['csrftoken']
+        self.payload['csrfmiddlewaretoken'] = csrftoken
+        self.csrftoken = csrftoken
+
+    def create(self):
+        """Register the rover initially with rovercode-web."""
+        r = self.session.post(ROVERCODE_WEB_REG_URL + '/', self.payload)
         self.web_id = json.loads(r.text)['id']
         print "rovercode-web id is " + str(self.web_id)
         return r
+
+    def update(self):
+        """Check in with rovercode-web, updating our timestamp"""
+        headers = {'X-CSRFTOKEN':self.csrftoken}
+        return self.session.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
+                                data = self.payload,
+                                headers = headers)
+
+    def read(self):
+        """Look for our name on rovercode-web. Sets web_id if found."""
+        result = self.session.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name)
+        info = json.loads(result.text)
+        try:
+            self.web_id = info[0]['id']
+        except (KeyError, IndexError):
+            self.web_id = None
 
     def stopThread(self):
         """Gracefully stop the periodic check-in thread."""
@@ -120,24 +155,22 @@ class HeartBeatManager():
 
     def thread_func(self, run_once=False):
         """Thread function that periodically checks in with rovercode-web."""
+        self.read()
         while self.run:
-            print "Checking in with rovercode-web"
-            # try:
-            print "ID is " + str(self.web_id)
-            r = requests.put(ROVERCODE_WEB_REG_URL+str(self.web_id)+"/", self.payload)
-            print r
-            if r.status_code in [200, 201]:
-                print "... success"
-            elif r.status_code in [404]:
-                #rovercode-web must have forgotten us. Reregister.
-                print "... reregistering"
-                r = self.register()
-                if r.status_code not in [200, 201]:
-                    print "... error in reregistering"
+            if self.web_id is not None:
+                print "Checking in with rovercode-web"
+                print "ID is " + str(self.web_id)
+                r = self.update()
+                if r.status_code in [200, 201]:
+                    print "... success"
+                else:
+                    #rovercode-web must have forgotten us. Reregister.
+                    self.web_id = None
+                    print "... must create again"
             else:
-                print "... error"
-            # except:
-                # print "Could not connect to rovercode-web"
+                #we are a new rover
+                print "Registering with rovercode-web"
+                self.create()
             if run_once:
                 break
             socketio.sleep(3)
@@ -145,8 +178,7 @@ class HeartBeatManager():
         return r
 
 heartbeat_manager = HeartBeatManager(
-        payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()})
-heartbeat_manager.register()
+        payload = {'name': rover_name, 'local_ip': get_local_ip()})
 if heartbeat_manager.thread is None:
     heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
 

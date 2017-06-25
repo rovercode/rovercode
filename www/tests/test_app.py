@@ -14,14 +14,28 @@ def test_get_local_ip():
 @responses.activate
 def test_register_with_web():
     """Test the rover registering with rovercode-web."""
-    payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
+    payload = {'name': 'Chipy', 'local_ip': '2.2.2.2'}
     web_id = 333
-    heartbeat_manager = app.HeartBeatManager(payload=payload)
     response_payload = payload.copy()
     response_payload['id'] = web_id
+
+    def login_callback(request):
+        headers={'Set-Cookie':'testcookie=hi;csrftoken=GXM6XWRCJOJ2X7hMiTKF9lmnyyTcj8UZAguY7un0o8o6Iomr60nxXZab0L2ln0jE'}
+        return(200, headers, '')
+
+    responses.add_callback(responses.GET, app.ROVERCODE_WEB_LOGIN_URL,
+                  content_type='application/json',
+                  callback=login_callback,
+    )
+    responses.add_callback(responses.POST, app.ROVERCODE_WEB_LOGIN_URL,
+                  content_type='application/json',
+                  callback=login_callback,
+    )
     responses.add(responses.POST, app.ROVERCODE_WEB_REG_URL,
                   json=response_payload, status=200,
-                  content_type='application/json')
+                  content_type='application/json'
+    )
+    heartbeat_manager = app.HeartBeatManager(payload=payload)
     result = heartbeat_manager.register()
     assert result.status_code == 200
     assert heartbeat_manager.web_id == web_id
@@ -31,16 +45,29 @@ def test_register_with_web():
 @responses.activate
 def test_heartbeat_thread():
     """Test the periodic hearbeat for a rover that is already registered."""
-    payload = {'name': 'Chipy2', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
+    payload = {'name': 'Chipy2', 'local_ip': '2.2.2.2'}
     web_id = 444
     response_payload = payload.copy()
     response_payload['id'] = web_id
-    heartbeat_manager = app.HeartBeatManager(id=web_id, payload=payload)
 
+    def login_callback(request):
+        headers={'Set-Cookie':'csrftoken=abcd;'}
+        return(200, headers, '')
+
+    responses.add_callback(responses.GET, app.ROVERCODE_WEB_LOGIN_URL,
+                  content_type='application/json',
+                  callback=login_callback,
+    )
+    responses.add_callback(responses.POST, app.ROVERCODE_WEB_LOGIN_URL,
+                  content_type='application/json',
+                  callback=login_callback,
+    )
     responses.add(responses.PUT, app.ROVERCODE_WEB_REG_URL+str(web_id)+"/",
                   json=response_payload, status=200,
-                  content_type='application/json')
+                  content_type='application/json'
+    )
 
+    heartbeat_manager = app.HeartBeatManager(id=web_id, payload=payload)
     result = heartbeat_manager.thread_func(run_once=True)
     assert result.status_code == 200
     assert len(responses.calls) == 1
