@@ -14,48 +14,25 @@ try:
 except ImportError:
     print "Adafruit_GPIO lib unavailable"
 
-
-load_dotenv(find_dotenv())
-rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
-if rovercode_web_url[-1:] != '/':
-    rovercode_web_url += '/'
-
-rover_name = "Prototype2"
-
-ROVERCODE_WEB_REG_URL = rovercode_web_url + "mission-control/rovers"
-ROVERCODE_WEB_LOGIN_URL = rovercode_web_url + "accounts/login/"
-
-# Let SocketIO choose the best async mode
-async_mode = 'gevent_uwsgi'
-
-def create_app():
-    """Creator of rovercode flask app."""
-    app = Flask(__name__)
-    CORS(app, resources={r'/api/*': {"origins": [".*rovercode.com", ".*localhost"]}})
-    return app
-
-app = create_app()
-
-create_app()
-try:
-    socketio = SocketIO(app, async_mode=async_mode)
-except:
-    # Needed for sphinx documentation
-    socketio = SocketIO(app)
-
+"""Globals"""
+ROVERCODE_WEB_REG_URL = ''
+ROVERCODE_WEB_LOGIN_URL = ''
+DEFAULT_SOFTPWM_FREQ = 100
+binary_sensors = []
 ws_thread = None
 hb_thread = None
 payload = None
-
+rover_name = "Prototype2"
 try:
     pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
     gpio = gpioLib.get_platform_gpio()
 except NameError:
     print "Adafruit_GPIO lib is unavailable"
 
-DEFAULT_SOFTPWM_FREQ = 100
-
-binary_sensors = []
+"""Create flask app"""
+app = Flask(__name__)
+CORS(app, resources={r'/api/*': {"origins": [".*rovercode.com", ".*localhost"]}})
+socketio = SocketIO(app )
 
 class BinarySensor:
     """
@@ -111,17 +88,26 @@ class HeartBeatManager():
         self.session = requests.session()
 
         # Log in to rovercode-web
-        self.session.get(ROVERCODE_WEB_LOGIN_URL)
-        csrftoken = self.session.cookies['csrftoken']
+        self.session.get(ROVERCODE_WEB_LOGIN_URL + '/')
+        try:
+            csrftoken = self.session.cookies['csrftoken']
+        except KeyError:
+            # if the server doesn't provide a csrftoken, no problem
+            csrftoken = ''
+
         login_data = {
             'login':'person',
             'password':'demodemo',
             'csrfmiddlewaretoken':csrftoken,
         }
-        self.session.post(ROVERCODE_WEB_LOGIN_URL, data=login_data)
+        self.session.post(ROVERCODE_WEB_LOGIN_URL + '/', data=login_data)
 
         # We have a new csrf token after logging in
-        csrftoken = self.session.cookies['csrftoken']
+        try:
+            csrftoken = self.session.cookies['csrftoken']
+        except KeyError:
+            # if the server doesn't provide a csrftoken, no problem
+            csrftoken = ''
         self.payload['csrfmiddlewaretoken'] = csrftoken
         self.csrftoken = csrftoken
 
@@ -133,7 +119,7 @@ class HeartBeatManager():
         return r
 
     def update(self):
-        """Check in with rovercode-web, updating our timestamp"""
+        """Check in with rovercode-web, updating our timestamp."""
         headers = {'X-CSRFTOKEN':self.csrftoken}
         return self.session.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
                                 data = self.payload,
@@ -141,6 +127,7 @@ class HeartBeatManager():
 
     def read(self):
         """Look for our name on rovercode-web. Sets web_id if found."""
+        global rover_name
         result = self.session.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name)
         info = json.loads(result.text)
         try:
@@ -170,16 +157,13 @@ class HeartBeatManager():
                 #we are a new rover
                 print "Registering with rovercode-web"
                 self.create()
+                r = None
             if run_once:
                 break
             socketio.sleep(3)
         print "Exiting heartbeat thread"
         return r
 
-heartbeat_manager = HeartBeatManager(
-        payload = {'name': rover_name, 'local_ip': get_local_ip()})
-if heartbeat_manager.thread is None:
-    heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
 
 def sensors_thread():
     """Scan each binary sensor and sends events based on changes."""
@@ -314,9 +298,13 @@ def send_command():
 
 def init_rover_service():
     """Initialize hardware pins and motor speeds."""
-    # set up IR sensor gpio
-    gpio.setup("XIO-P2", gpioLib.IN)
-    gpio.setup("XIO-P4", gpioLib.IN)
+    global gpio
+    try:
+        # set up IR sensor gpio
+        gpio.setup("XIO-P2", gpioLib.IN)
+        gpio.setup("XIO-P4", gpioLib.IN)
+    except NameError:
+        print "Adafruit_GPIO lib is unavailable"
     global binary_sensors
     binary_sensors.append(BinarySensor("right_ir_sensor", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered'))
     binary_sensors.append(BinarySensor("left_ir_sensor", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered'))
@@ -376,12 +364,28 @@ def run_command(decoded):
         print "Stopping motor"
         motor_manager.set_speed(decoded['pin'], 0)
 
-try:
-    init_rover_service()
-except NameError:
-    print "Adafruit_GPIO lib is unavailable"
-
-motor_manager = MotorManager()
+def set_rovercodeweb_url(base_url):
+    """Set the global URL variables for rovercodeweb."""
+    global ROVERCODE_WEB_LOGIN_URL
+    global ROVERCODE_WEB_REG_URL
+    ROVERCODE_WEB_REG_URL = base_url + "mission-control/rovers"
+    ROVERCODE_WEB_LOGIN_URL = base_url + "accounts/login"
 
 if __name__ == '__main__':
+    print "Starting the rover service!"
+    load_dotenv(find_dotenv())
+    rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
+    if rovercode_web_url[-1:] != '/':
+        rovercode_web_url += '/'
+    set_rovercodeweb_url(rovercode_web_url)
+
+    heartbeat_manager = HeartBeatManager(
+            payload = {'name': rover_name, 'local_ip': get_local_ip()})
+    if heartbeat_manager.thread is None:
+        heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
+
+    init_rover_service()
+
+    motor_manager = MotorManager()
+
     socketio.run(app, port=80, host='0.0.0.0')

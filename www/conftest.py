@@ -1,9 +1,8 @@
 """Base classes for pytest."""
 import pytest
-from app import create_app
+import app
 
 @pytest.fixture
-def app():
-    """Create the rovercode Flask app."""
-    app = create_app()
+def testapp():
+    """Provide the rover service."""
     return app

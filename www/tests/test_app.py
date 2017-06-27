@@ -1,95 +1,89 @@
 """Test the app module."""
-import app
 import responses
+import re
 
-def test_sensor_init():
+TEST_URL = "http://a.com/"
+
+def test_sensor_init(testapp):
     """Test the initialization of the sensors."""
-    assert len(app.binary_sensors) > 0
+    testapp.init_rover_service()
+    assert len(testapp.binary_sensors) > 0
 
-def test_get_local_ip():
+def test_get_local_ip(testapp):
     """Test that the rover can get its local ip address."""
     # quick and dirty test that it gets something of the form X.X.X.X
-    assert len(app.get_local_ip().split('.')) == 4
+    assert len(testapp.get_local_ip().split('.')) == 4
 
 @responses.activate
-def test_register_with_web():
+def test_register_with_web_create(testapp):
     """Test the rover registering with rovercode-web."""
+    testapp.set_rovercodeweb_url(TEST_URL)
     payload = {'name': 'Chipy', 'local_ip': '2.2.2.2'}
     web_id = 333
     response_payload = payload.copy()
     response_payload['id'] = web_id
 
-    def login_callback(request):
-        headers={'Set-Cookie':'testcookie=hi;csrftoken=GXM6XWRCJOJ2X7hMiTKF9lmnyyTcj8UZAguY7un0o8o6Iomr60nxXZab0L2ln0jE'}
-        return(200, headers, '')
-
-    responses.add_callback(responses.GET, app.ROVERCODE_WEB_LOGIN_URL,
+    responses.add(responses.GET, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
                   content_type='application/json',
-                  callback=login_callback,
     )
-    responses.add_callback(responses.POST, app.ROVERCODE_WEB_LOGIN_URL,
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
                   content_type='application/json',
-                  callback=login_callback,
     )
-    responses.add(responses.POST, app.ROVERCODE_WEB_REG_URL,
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_REG_URL + '/',
                   json=response_payload, status=200,
                   content_type='application/json'
     )
-    heartbeat_manager = app.HeartBeatManager(payload=payload)
-    result = heartbeat_manager.register()
+    heartbeat_manager = testapp.HeartBeatManager(payload=payload)
+    result = heartbeat_manager.create()
     assert result.status_code == 200
     assert heartbeat_manager.web_id == web_id
-    assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == app.ROVERCODE_WEB_REG_URL
+    assert len(responses.calls) == 3
+    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
 
 @responses.activate
-def test_heartbeat_thread():
+def test_register_with_web_update(testapp):
     """Test the periodic hearbeat for a rover that is already registered."""
-    payload = {'name': 'Chipy2', 'local_ip': '2.2.2.2'}
+    testapp.set_rovercodeweb_url(TEST_URL)
+    payload = {'name': testapp.rover_name, 'local_ip': '2.2.2.2'}
     web_id = 444
     response_payload = payload.copy()
     response_payload['id'] = web_id
 
-    def login_callback(request):
-        headers={'Set-Cookie':'csrftoken=abcd;'}
-        return(200, headers, '')
-
-    responses.add_callback(responses.GET, app.ROVERCODE_WEB_LOGIN_URL,
+    responses.add(responses.GET, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
                   content_type='application/json',
-                  callback=login_callback,
     )
-    responses.add_callback(responses.POST, app.ROVERCODE_WEB_LOGIN_URL,
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
                   content_type='application/json',
-                  callback=login_callback,
     )
-    responses.add(responses.PUT, app.ROVERCODE_WEB_REG_URL+str(web_id)+"/",
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_REG_URL + '/',
+                  json=response_payload, status=200,
+                  content_type='application/json'
+    )
+    url_re = re.compile(testapp.ROVERCODE_WEB_REG_URL + r'\?name=' + testapp.rover_name)
+    response_list = [response_payload]
+    responses.add(responses.GET,
+                  url_re,
+                  json=response_list, status=200,
+                  content_type='application/json'
+    )
+    responses.add(responses.PUT, testapp.ROVERCODE_WEB_REG_URL+'/'+str(web_id)+'/',
                   json=response_payload, status=200,
                   content_type='application/json'
     )
 
-    heartbeat_manager = app.HeartBeatManager(id=web_id, payload=payload)
+    heartbeat_manager = testapp.HeartBeatManager(id=web_id, payload=payload)
+    heartbeat_manager.create()
     result = heartbeat_manager.thread_func(run_once=True)
     assert result.status_code == 200
-    assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == app.ROVERCODE_WEB_REG_URL+str(web_id)+"/"
-
-@responses.activate
-def test_heartbeat_thread_forgotten():
-    """Test the periodic heartbeat for a rover forgotten by the server."""
-    web_id = 555
-    payload = {'name': 'Chipy3', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
-    response_payload = payload.copy()
-    response_payload['id'] = web_id
-    heartbeat_manager = app.HeartBeatManager(id=web_id, payload=payload)
-
-    responses.add(responses.PUT, app.ROVERCODE_WEB_REG_URL+str(web_id)+"/",
-                  json=None, status=404,
-                  content_type='application/json')
-
-    responses.add(responses.POST, app.ROVERCODE_WEB_REG_URL,
-                  json=response_payload, status=200,
-                  content_type='application/json')
-
-    result = heartbeat_manager.thread_func(run_once=True)
-    assert result.status_code == 200
-    assert heartbeat_manager.web_id == web_id
+    assert len(responses.calls) == 5
+    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
+    assert responses.calls[3].request.url == testapp.ROVERCODE_WEB_REG_URL + '?name=' + testapp.rover_name
+    assert responses.calls[4].request.url == testapp.ROVERCODE_WEB_REG_URL + '/' + str(web_id)+'/'
