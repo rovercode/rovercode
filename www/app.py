@@ -22,7 +22,7 @@ binary_sensors = []
 ws_thread = None
 hb_thread = None
 payload = None
-rover_name = "Prototype2"
+rover_name = None
 try:
     pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
     gpio = gpioLib.get_platform_gpio()
@@ -79,7 +79,7 @@ class HeartBeatManager():
         The json-formatted information about the rover to send to rovercode-web.
     """
 
-    def __init__(self, payload, id=None):
+    def __init__(self, payload, user_name, user_pass, id=None):
         """Constructor for the HeartBeatManager."""
         self.run = True
         self.thread = None
@@ -96,8 +96,8 @@ class HeartBeatManager():
             csrftoken = ''
 
         login_data = {
-            'login':'person',
-            'password':'demodemo',
+            'login':user_name,
+            'password':user_pass,
             'csrfmiddlewaretoken':csrftoken,
         }
         self.session.post(ROVERCODE_WEB_LOGIN_URL + '/', data=login_data)
@@ -379,8 +379,18 @@ if __name__ == '__main__':
         rovercode_web_url += '/'
     set_rovercodeweb_url(rovercode_web_url)
 
+    user_name = os.getenv('ROVERCODE_WEB_USER_NAME', '')
+    if user_name == '':
+        raise NameError("Please add ROVERCODE_WEB_USER_NAME to your .env")
+    user_pass = os.getenv('ROVERCODE_WEB_USER_PASS', '')
+    if user_pass == '':
+        raise NameError("Please add ROVERCODE_WEB_USER_PASS to your .env")
+    rover_name = os.getenv('ROVER_NAME', 'curiosity-rover')
+
     heartbeat_manager = HeartBeatManager(
-            payload = {'name': rover_name, 'local_ip': get_local_ip()})
+            payload = {'name': rover_name, 'local_ip': get_local_ip()},
+            user_name = user_name,
+            user_pass = user_pass)
     if heartbeat_manager.thread is None:
         heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
 

@@ -18,6 +18,7 @@ def test_get_local_ip(testapp):
 def test_register_with_web_create(testapp):
     """Test the rover registering with rovercode-web."""
     testapp.set_rovercodeweb_url(TEST_URL)
+    testapp.rover_name = "curiosity"
     payload = {'name': 'Chipy', 'local_ip': '2.2.2.2'}
     web_id = 333
     response_payload = payload.copy()
@@ -35,7 +36,9 @@ def test_register_with_web_create(testapp):
                   json=response_payload, status=200,
                   content_type='application/json'
     )
-    heartbeat_manager = testapp.HeartBeatManager(payload=payload)
+    heartbeat_manager = testapp.HeartBeatManager(payload=payload,
+                                                 user_name='Bob',
+                                                 user_pass="asdf")
     result = heartbeat_manager.create()
     assert result.status_code == 200
     assert heartbeat_manager.web_id == web_id
@@ -48,6 +51,7 @@ def test_register_with_web_create(testapp):
 def test_register_with_web_update(testapp):
     """Test the periodic hearbeat for a rover that is already registered."""
     testapp.set_rovercodeweb_url(TEST_URL)
+    testapp.rover_name = "curiosity"
     payload = {'name': testapp.rover_name, 'local_ip': '2.2.2.2'}
     web_id = 444
     response_payload = payload.copy()
@@ -77,7 +81,10 @@ def test_register_with_web_update(testapp):
                   content_type='application/json'
     )
 
-    heartbeat_manager = testapp.HeartBeatManager(id=web_id, payload=payload)
+    heartbeat_manager = testapp.HeartBeatManager(id=web_id,
+                                                 payload=payload,
+                                                 user_name='Bob',
+                                                 user_pass="asdf")
     heartbeat_manager.create()
     result = heartbeat_manager.thread_func(run_once=True)
     assert result.status_code == 200
