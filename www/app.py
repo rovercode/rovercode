@@ -120,8 +120,7 @@ class HeartBeatManager():
         }
         self.session.post(ROVERCODE_WEB_LOGIN_URL, data=login_data)
 
-        # We have a new csrf token after loggin in
-        csrftoken = self.session.cookies['testcookie']
+        # We have a new csrf token after logging in
         csrftoken = self.session.cookies['csrftoken']
         self.payload['csrfmiddlewaretoken'] = csrftoken
         self.csrftoken = csrftoken
@@ -385,4 +384,4 @@ except NameError:
 motor_manager = MotorManager()
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', debug=True)
+    socketio.run(app, port=80, host='0.0.0.0')

@@ -14,35 +14,15 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 	exit 2
 fi
 
-apt-get install -y python python-dev python-pip python-smbus nginx build-essential git libssl-dev
+apt-get install -y python python-dev python-pip python-smbus
+pip install virtualenv && \
+virtualenv env && \
+. env/bin/activate && \
 pip install -r www/requirements.txt
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
 popd > /dev/null
-
-git clone -b uwsgi-2.0 https://github.com/unbit/uwsgi.git
-pushd ${UWSGI_DIR} > /dev/null
-python uwsgiconfig.py --build core
-python uwsgiconfig.py --plugin plugins/python core
-python uwsgiconfig.py --plugin plugins/corerouter core
-python uwsgiconfig.py --plugin plugins/http core
-python uwsgiconfig.py --plugin plugins/gevent core
-popd > /dev/null
-
-cp ${UWSGI_DIR}/uwsgi ${INI_DIR}
-cp ${UWSGI_DIR}/python_plugin.so ${INI_DIR}
-cp ${UWSGI_DIR}/corerouter_plugin.so ${INI_DIR}
-cp ${UWSGI_DIR}/http_plugin.so ${INI_DIR}
-cp ${UWSGI_DIR}/gevent_plugin.so ${INI_DIR}
-rm -rf ${UWSGI_DIR}
-
-rm -rf /var/www/rovercode > /dev/null
-mkdir -p /var/www/rovercode
-ln -s $(pwd)/www /var/www/rovercode/www
-ln -fs $(pwd)/nginx-site /etc/nginx/sites-enabled/rovercode
-rm -rf /etc/nginx/sites-enabled/default > /dev/null
-service nginx restart
 
 # Ask the user if they want to start automatically on boot
 ask() {
