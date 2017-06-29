@@ -6,8 +6,10 @@ TEST_URL = "http://a.com/"
 
 def test_sensor_init(testapp):
     """Test the initialization of the sensors."""
-    testapp.init_rover_service()
-    assert len(testapp.binary_sensors) > 0
+    testapp.init_input_gpio('Pin-A', 'Pin-B')
+    assert len(testapp.binary_sensors) == 2
+    assert testapp.binary_sensors[0].pin == 'Pin-A'
+    assert testapp.binary_sensors[1].pin == 'Pin-B'
 
 def test_get_local_ip(testapp):
     """Test that the rover can get its local ip address."""
@@ -19,8 +21,12 @@ def test_register_with_web_create(testapp):
     """Test the rover registering with rovercode-web."""
     testapp.set_rovercodeweb_url(TEST_URL)
     testapp.rover_name = "curiosity"
-    payload = {'name': 'Chipy', 'local_ip': '2.2.2.2'}
+    payload = {'name': 'Chipy',
+               'local_ip': '2.2.2.2',
+               'left_eye_pin': 'Pin-A',
+               'right_eye_pin': 'Pin-B'}
     web_id = 333
+    testapp.binary_sensors = []
     response_payload = payload.copy()
     response_payload['id'] = web_id
 
@@ -39,20 +45,39 @@ def test_register_with_web_create(testapp):
     heartbeat_manager = testapp.HeartBeatManager(payload=payload,
                                                  user_name='Bob',
                                                  user_pass="asdf")
+    #test create()
     result = heartbeat_manager.create()
     assert result.status_code == 200
     assert heartbeat_manager.web_id == web_id
+    assert len(testapp.binary_sensors) == 2
+    assert testapp.binary_sensors[0].pin == 'Pin-A'
+    assert testapp.binary_sensors[1].pin == 'Pin-B'
     assert len(responses.calls) == 3
     assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
     assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
     assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
+
+    #test read()
+    testapp.binary_sensors = []
+    heartbeat_manager.web_id = None
+    result = heartbeat_manager.create()
+    assert result.status_code == 200
+    assert heartbeat_manager.web_id == web_id
+    assert len(testapp.binary_sensors) == 2
+    assert testapp.binary_sensors[0].pin == 'Pin-A'
+    assert testapp.binary_sensors[1].pin == 'Pin-B'
+    assert len(responses.calls) == 4
+    assert responses.calls[3].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
 
 @responses.activate
 def test_register_with_web_update(testapp):
     """Test the periodic hearbeat for a rover that is already registered."""
     testapp.set_rovercodeweb_url(TEST_URL)
     testapp.rover_name = "curiosity"
-    payload = {'name': testapp.rover_name, 'local_ip': '2.2.2.2'}
+    payload = {'name': testapp.rover_name,
+               'local_ip': '2.2.2.2',
+               'left_eye_pin': 'Pin-A',
+               'right_eye_pin': 'Pin-B'}
     web_id = 444
     response_payload = payload.copy()
     response_payload['id'] = web_id

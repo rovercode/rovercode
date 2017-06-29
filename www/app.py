@@ -115,8 +115,13 @@ class HeartBeatManager():
     def create(self):
         """Register the rover initially with rovercode-web."""
         r = self.session.post(ROVERCODE_WEB_REG_URL + '/', self.payload)
-        self.web_id = json.loads(r.text)['id']
-        print "rovercode-web id is " + str(self.web_id)
+        info = json.loads(r.text)
+        try:
+            self.web_id = info['id']
+            init_input_gpio(info['left_eye_pin'], info['right_eye_pin'])
+            print "rovercode-web id is " + str(self.web_id)
+        except KeyError:
+            self.web_id = None
         return r
 
     def update(self):
@@ -130,9 +135,10 @@ class HeartBeatManager():
         """Look for our name on rovercode-web. Sets web_id if found."""
         global rover_name
         result = self.session.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name)
-        info = json.loads(result.text)
         try:
-            self.web_id = info[0]['id']
+            info = json.loads(result.text)[0]
+            self.web_id = info['id']
+            init_input_gpio(info['left_eye_pin'], info['right_eye_pin'])
         except (KeyError, IndexError):
             self.web_id = None
 
@@ -297,18 +303,18 @@ def send_command():
     run_command(request.form)
     return jsonify(request.form)
 
-def init_rover_service():
-    """Initialize hardware pins and motor speeds."""
+def init_input_gpio(left_eye_pin, right_eye_pin):
+    """Initialize input GPIO."""
     global gpio
     try:
         # set up IR sensor gpio
-        gpio.setup("XIO-P2", gpioLib.IN)
-        gpio.setup("XIO-P4", gpioLib.IN)
+        gpio.setup(right_eye_pin, gpioLib.IN)
+        gpio.setup(left_eye_pin, gpioLib.IN)
     except NameError:
         print "Adafruit_GPIO lib is unavailable"
     global binary_sensors
-    binary_sensors.append(BinarySensor("right_ir_sensor", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered'))
-    binary_sensors.append(BinarySensor("left_ir_sensor", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered'))
+    binary_sensors.append(BinarySensor("left_ir_sensor", left_eye_pin, 'leftEyeUncovered', 'leftEyeCovered'))
+    binary_sensors.append(BinarySensor("right_ir_sensor", right_eye_pin, 'rightEyeUncovered', 'rightEyeCovered'))
 
     # test adapter
     if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
@@ -394,8 +400,6 @@ if __name__ == '__main__':
             user_pass = user_pass)
     if heartbeat_manager.thread is None:
         heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
-
-    init_rover_service()
 
     motor_manager = MotorManager()
 
