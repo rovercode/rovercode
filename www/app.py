@@ -78,6 +78,10 @@ class HeartBeatManager():
     :param payload:
         The json-formatted information about the rover and the user to send
         to rovercode-web.
+    :param session:
+        A requests object to store session info.
+    :param csrftoken:
+        The csrftoken provided by rovercode-web.
     """
 
     def __init__(self, payload, user_name, user_pass, id=None):
