@@ -2,7 +2,6 @@
 
 INI_DIR=www/
 ADAFRUIT_DIR=www/Adafruit_Python_GPIO
-UWSGI_DIR=uwsgi/
 
 if [ "${EUID}" -ne 0 ]; then
 	echo "Error: This script must be run as root."

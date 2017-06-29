@@ -76,7 +76,8 @@ class HeartBeatManager():
     :param web_id:
         The rovercode-web id of this rover.
     :param payload:
-        The json-formatted information about the rover to send to rovercode-web.
+        The json-formatted information about the rover and the user to send
+        to rovercode-web.
     """
 
     def __init__(self, payload, user_name, user_pass, id=None):
