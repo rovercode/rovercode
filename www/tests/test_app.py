@@ -1,68 +1,121 @@
 """Test the app module."""
-import app
 import responses
+import re
 
-def test_sensor_init():
+TEST_URL = "http://a.com/"
+
+def test_sensor_init(testapp):
     """Test the initialization of the sensors."""
-    assert len(app.binary_sensors) > 0
+    testapp.init_input_gpio('Pin-A', 'Pin-B')
+    assert len(testapp.binary_sensors) == 2
+    assert testapp.binary_sensors[0].pin == 'Pin-A'
+    assert testapp.binary_sensors[1].pin == 'Pin-B'
 
-def test_get_local_ip():
+def test_get_local_ip(testapp):
     """Test that the rover can get its local ip address."""
     # quick and dirty test that it gets something of the form X.X.X.X
-    assert len(app.get_local_ip().split('.')) == 4
+    assert len(testapp.get_local_ip().split('.')) == 4
 
 @responses.activate
-def test_register_with_web():
+def test_register_with_web_create(testapp):
     """Test the rover registering with rovercode-web."""
-    payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
+    testapp.set_rovercodeweb_url(TEST_URL)
+    testapp.rover_name = "curiosity"
+    payload = {'name': 'Chipy',
+               'local_ip': '2.2.2.2',
+               'left_eye_pin': 'Pin-A',
+               'right_eye_pin': 'Pin-B'}
     web_id = 333
-    heartbeat_manager = app.HeartBeatManager(payload=payload)
+    testapp.binary_sensors = []
     response_payload = payload.copy()
     response_payload['id'] = web_id
-    responses.add(responses.POST, app.ROVERCODE_WEB_REG_URL,
+
+    responses.add(responses.GET, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
+                  content_type='application/json',
+    )
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
+                  content_type='application/json',
+    )
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_REG_URL + '/',
                   json=response_payload, status=200,
-                  content_type='application/json')
-    result = heartbeat_manager.register()
+                  content_type='application/json'
+    )
+    heartbeat_manager = testapp.HeartBeatManager(payload=payload,
+                                                 user_name='Bob',
+                                                 user_pass="asdf")
+    #test create()
+    result = heartbeat_manager.create()
     assert result.status_code == 200
     assert heartbeat_manager.web_id == web_id
-    assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == app.ROVERCODE_WEB_REG_URL
+    assert len(testapp.binary_sensors) == 2
+    assert testapp.binary_sensors[0].pin == 'Pin-A'
+    assert testapp.binary_sensors[1].pin == 'Pin-B'
+    assert len(responses.calls) == 3
+    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
+
+    #test read()
+    testapp.binary_sensors = []
+    heartbeat_manager.web_id = None
+    result = heartbeat_manager.create()
+    assert result.status_code == 200
+    assert heartbeat_manager.web_id == web_id
+    assert len(testapp.binary_sensors) == 2
+    assert testapp.binary_sensors[0].pin == 'Pin-A'
+    assert testapp.binary_sensors[1].pin == 'Pin-B'
+    assert len(responses.calls) == 4
+    assert responses.calls[3].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
 
 @responses.activate
-def test_heartbeat_thread():
+def test_register_with_web_update(testapp):
     """Test the periodic hearbeat for a rover that is already registered."""
-    payload = {'name': 'Chipy2', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
+    testapp.set_rovercodeweb_url(TEST_URL)
+    testapp.rover_name = "curiosity"
+    payload = {'name': testapp.rover_name,
+               'local_ip': '2.2.2.2',
+               'left_eye_pin': 'Pin-A',
+               'right_eye_pin': 'Pin-B'}
     web_id = 444
     response_payload = payload.copy()
     response_payload['id'] = web_id
-    heartbeat_manager = app.HeartBeatManager(id=web_id, payload=payload)
 
-    responses.add(responses.PUT, app.ROVERCODE_WEB_REG_URL+str(web_id)+"/",
+    responses.add(responses.GET, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
+                  content_type='application/json',
+    )
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+                  json='', status=200,
+                  content_type='application/json',
+    )
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_REG_URL + '/',
                   json=response_payload, status=200,
-                  content_type='application/json')
+                  content_type='application/json'
+    )
+    url_re = re.compile(testapp.ROVERCODE_WEB_REG_URL + r'\?name=' + testapp.rover_name)
+    response_list = [response_payload]
+    responses.add(responses.GET,
+                  url_re,
+                  json=response_list, status=200,
+                  content_type='application/json'
+    )
+    responses.add(responses.PUT, testapp.ROVERCODE_WEB_REG_URL+'/'+str(web_id)+'/',
+                  json=response_payload, status=200,
+                  content_type='application/json'
+    )
 
+    heartbeat_manager = testapp.HeartBeatManager(id=web_id,
+                                                 payload=payload,
+                                                 user_name='Bob',
+                                                 user_pass="asdf")
+    heartbeat_manager.create()
     result = heartbeat_manager.thread_func(run_once=True)
     assert result.status_code == 200
-    assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == app.ROVERCODE_WEB_REG_URL+str(web_id)+"/"
-
-@responses.activate
-def test_heartbeat_thread_forgotten():
-    """Test the periodic heartbeat for a rover forgotten by the server."""
-    web_id = 555
-    payload = {'name': 'Chipy3', 'owner': 'Mr. Hurlburt', 'local_ip': '2.2.2.2'}
-    response_payload = payload.copy()
-    response_payload['id'] = web_id
-    heartbeat_manager = app.HeartBeatManager(id=web_id, payload=payload)
-
-    responses.add(responses.PUT, app.ROVERCODE_WEB_REG_URL+str(web_id)+"/",
-                  json=None, status=404,
-                  content_type='application/json')
-
-    responses.add(responses.POST, app.ROVERCODE_WEB_REG_URL,
-                  json=response_payload, status=200,
-                  content_type='application/json')
-
-    result = heartbeat_manager.thread_func(run_once=True)
-    assert result.status_code == 200
-    assert heartbeat_manager.web_id == web_id
+    assert len(responses.calls) == 5
+    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
+    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
+    assert responses.calls[3].request.url == testapp.ROVERCODE_WEB_REG_URL + '?name=' + testapp.rover_name
+    assert responses.calls[4].request.url == testapp.ROVERCODE_WEB_REG_URL + '/' + str(web_id)+'/'

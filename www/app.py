@@ -14,45 +14,25 @@ try:
 except ImportError:
     print "Adafruit_GPIO lib unavailable"
 
-
-load_dotenv(find_dotenv())
-rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
-if rovercode_web_url[-1:] != '/':
-    rovercode_web_url += '/'
-
-ROVERCODE_WEB_REG_URL = rovercode_web_url + "mission-control/rovers/"
-
-# Let SocketIO choose the best async mode
-async_mode = 'gevent_uwsgi'
-
-def create_app():
-    """Creator of rovercode flask app."""
-    app = Flask(__name__)
-    CORS(app, resources={r'/api/*': {"origins": [".*rovercode.com", ".*localhost"]}})
-    return app
-
-app = create_app()
-
-create_app()
-try:
-    socketio = SocketIO(app, async_mode=async_mode)
-except:
-    # Needed for sphinx documentation
-    socketio = SocketIO(app)
-
+"""Globals"""
+ROVERCODE_WEB_REG_URL = ''
+ROVERCODE_WEB_LOGIN_URL = ''
+DEFAULT_SOFTPWM_FREQ = 100
+binary_sensors = []
 ws_thread = None
 hb_thread = None
 payload = None
-
+rover_name = None
 try:
     pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
     gpio = gpioLib.get_platform_gpio()
 except NameError:
     print "Adafruit_GPIO lib is unavailable"
 
-DEFAULT_SOFTPWM_FREQ = 100
-
-binary_sensors = []
+"""Create flask app"""
+app = Flask(__name__)
+CORS(app, resources={r'/api/*': {"origins": [".*rovercode.com", ".*localhost"]}})
+socketio = SocketIO(app )
 
 class BinarySensor:
     """
@@ -96,23 +76,75 @@ class HeartBeatManager():
     :param web_id:
         The rovercode-web id of this rover.
     :param payload:
-        The json-formatted information about the rover to send to rovercode-web.
+        The json-formatted information about the rover and the user to send
+        to rovercode-web.
+    :param session:
+        A requests object to store session info.
+    :param csrftoken:
+        The csrftoken provided by rovercode-web.
     """
 
-    def __init__(self, payload, id=None):
+    def __init__(self, payload, user_name, user_pass, id=None):
         """Constructor for the HeartBeatManager."""
         self.run = True
         self.thread = None
         self.web_id = id
         self.payload = payload
+        self.session = requests.session()
 
-    def register(self):
-        """Regiser the rover with rovercode-web."""
-        print "Registering with rovercode-web"
-        r = requests.post(ROVERCODE_WEB_REG_URL, self.payload)
-        self.web_id = json.loads(r.text)['id']
-        print "rovercode-web id is " + str(self.web_id)
+        # Log in to rovercode-web
+        self.session.get(ROVERCODE_WEB_LOGIN_URL + '/')
+        try:
+            csrftoken = self.session.cookies['csrftoken']
+        except KeyError:
+            # if the server doesn't provide a csrftoken, no problem
+            csrftoken = ''
+
+        login_data = {
+            'login':user_name,
+            'password':user_pass,
+            'csrfmiddlewaretoken':csrftoken,
+        }
+        self.session.post(ROVERCODE_WEB_LOGIN_URL + '/', data=login_data)
+
+        # We have a new csrf token after logging in
+        try:
+            csrftoken = self.session.cookies['csrftoken']
+        except KeyError:
+            # if the server doesn't provide a csrftoken, no problem
+            csrftoken = ''
+        self.payload['csrfmiddlewaretoken'] = csrftoken
+        self.csrftoken = csrftoken
+
+    def create(self):
+        """Register the rover initially with rovercode-web."""
+        r = self.session.post(ROVERCODE_WEB_REG_URL + '/', self.payload)
+        info = json.loads(r.text)
+        try:
+            self.web_id = info['id']
+            init_input_gpio(info['left_eye_pin'], info['right_eye_pin'])
+            print "rovercode-web id is " + str(self.web_id)
+        except KeyError:
+            self.web_id = None
         return r
+
+    def update(self):
+        """Check in with rovercode-web, updating our timestamp."""
+        headers = {'X-CSRFTOKEN':self.csrftoken}
+        return self.session.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
+                                data = self.payload,
+                                headers = headers)
+
+    def read(self):
+        """Look for our name on rovercode-web. Sets web_id if found."""
+        global rover_name
+        result = self.session.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name)
+        try:
+            info = json.loads(result.text)[0]
+            self.web_id = info['id']
+            init_input_gpio(info['left_eye_pin'], info['right_eye_pin'])
+        except (KeyError, IndexError):
+            self.web_id = None
 
     def stopThread(self):
         """Gracefully stop the periodic check-in thread."""
@@ -120,35 +152,29 @@ class HeartBeatManager():
 
     def thread_func(self, run_once=False):
         """Thread function that periodically checks in with rovercode-web."""
+        self.read()
         while self.run:
-            print "Checking in with rovercode-web"
-            # try:
-            print "ID is " + str(self.web_id)
-            r = requests.put(ROVERCODE_WEB_REG_URL+str(self.web_id)+"/", self.payload)
-            print r
-            if r.status_code in [200, 201]:
-                print "... success"
-            elif r.status_code in [404]:
-                #rovercode-web must have forgotten us. Reregister.
-                print "... reregistering"
-                r = self.register()
-                if r.status_code not in [200, 201]:
-                    print "... error in reregistering"
+            if self.web_id is not None:
+                print "Checking in with rovercode-web"
+                print "ID is " + str(self.web_id)
+                r = self.update()
+                if r.status_code in [200, 201]:
+                    print "... success"
+                else:
+                    #rovercode-web must have forgotten us. Reregister.
+                    self.web_id = None
+                    print "... must create again"
             else:
-                print "... error"
-            # except:
-                # print "Could not connect to rovercode-web"
+                #we are a new rover
+                print "Registering with rovercode-web"
+                self.create()
+                r = None
             if run_once:
                 break
             socketio.sleep(3)
         print "Exiting heartbeat thread"
         return r
 
-heartbeat_manager = HeartBeatManager(
-        payload = {'name': 'Chipy', 'owner': 'Mr. Hurlburt', 'local_ip': get_local_ip()})
-heartbeat_manager.register()
-if heartbeat_manager.thread is None:
-    heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
 
 def sensors_thread():
     """Scan each binary sensor and sends events based on changes."""
@@ -281,14 +307,18 @@ def send_command():
     run_command(request.form)
     return jsonify(request.form)
 
-def init_rover_service():
-    """Initialize hardware pins and motor speeds."""
-    # set up IR sensor gpio
-    gpio.setup("XIO-P2", gpioLib.IN)
-    gpio.setup("XIO-P4", gpioLib.IN)
+def init_input_gpio(left_eye_pin, right_eye_pin):
+    """Initialize input GPIO."""
+    global gpio
+    try:
+        # set up IR sensor gpio
+        gpio.setup(right_eye_pin, gpioLib.IN)
+        gpio.setup(left_eye_pin, gpioLib.IN)
+    except NameError:
+        print "Adafruit_GPIO lib is unavailable"
     global binary_sensors
-    binary_sensors.append(BinarySensor("right_ir_sensor", "XIO-P4", 'rightEyeUncovered', 'rightEyeCovered'))
-    binary_sensors.append(BinarySensor("left_ir_sensor", "XIO-P2", 'leftEyeUncovered', 'leftEyeCovered'))
+    binary_sensors.append(BinarySensor("left_ir_sensor", left_eye_pin, 'leftEyeUncovered', 'leftEyeCovered'))
+    binary_sensors.append(BinarySensor("right_ir_sensor", right_eye_pin, 'rightEyeUncovered', 'rightEyeCovered'))
 
     # test adapter
     if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
@@ -345,12 +375,36 @@ def run_command(decoded):
         print "Stopping motor"
         motor_manager.set_speed(decoded['pin'], 0)
 
-try:
-    init_rover_service()
-except NameError:
-    print "Adafruit_GPIO lib is unavailable"
-
-motor_manager = MotorManager()
+def set_rovercodeweb_url(base_url):
+    """Set the global URL variables for rovercodeweb."""
+    global ROVERCODE_WEB_LOGIN_URL
+    global ROVERCODE_WEB_REG_URL
+    ROVERCODE_WEB_REG_URL = base_url + "mission-control/rovers"
+    ROVERCODE_WEB_LOGIN_URL = base_url + "accounts/login"
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', debug=True)
+    print "Starting the rover service!"
+    load_dotenv(find_dotenv())
+    rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
+    if rovercode_web_url[-1:] != '/':
+        rovercode_web_url += '/'
+    set_rovercodeweb_url(rovercode_web_url)
+
+    user_name = os.getenv('ROVERCODE_WEB_USER_NAME', '')
+    if user_name == '':
+        raise NameError("Please add ROVERCODE_WEB_USER_NAME to your .env")
+    user_pass = os.getenv('ROVERCODE_WEB_USER_PASS', '')
+    if user_pass == '':
+        raise NameError("Please add ROVERCODE_WEB_USER_PASS to your .env")
+    rover_name = os.getenv('ROVER_NAME', 'curiosity-rover')
+
+    heartbeat_manager = HeartBeatManager(
+            payload = {'name': rover_name, 'local_ip': get_local_ip()},
+            user_name = user_name,
+            user_pass = user_pass)
+    if heartbeat_manager.thread is None:
+        heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
+
+    motor_manager = MotorManager()
+
+    socketio.run(app, port=80, host='0.0.0.0')

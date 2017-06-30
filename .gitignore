@@ -5,3 +5,9 @@ dist/
 setuptools*
 
 .idea
+.env
+.cache/
+env/
+htmlcov/
+www/docs/generated/
+.coverage

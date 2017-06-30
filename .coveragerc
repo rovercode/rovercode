@@ -1,3 +1,3 @@
 [run]
 source = www/
-omit = */tests/*, */conftest.py, */Adafruit_Python_GPIO/*, */closure-library/*, *wsgi*
+omit = */tests/*, */conftest.py, */Adafruit_Python_GPIO/*, */closure-library/*
