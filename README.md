@@ -12,7 +12,7 @@ rovercode is easy-to-use package for controlling robots (rovers) that can sense 
 
 rovercode runs on any single-board-computer supported by the [Adafruit Python GPIO wrapper library](https://github.com/adafruit/Adafruit_Python_GPIO), including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black. Once installed, head to to rovercode.com and connect to your rover.
 
-**rovercode is made up of two parts.** rovercode (this repo) is the service that runs on the rover. rovercode-web ([a different repo](https://github.com/aninterentof/rovercode)) is the web app that is hosted on the Internet.
+**rovercode is made up of two parts.** rovercode (this repo) is the service that runs on the rover. rovercode-web ([a different repo](https://github.com/aninternetof/rovercode-web)) is the web app that is hosted on the Internet.
 [Try a live demo.](https://rovercode.com/mission-control)
 ## Setup
 
