@@ -65,7 +65,7 @@ ROVER_NAME=Curiosity
 ```
 
 ## Play and Contribute
-rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing) then head over to the feature tracker to see if there's something fun to contribute.
+rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](http://rovercode.readthedocs.io/en/development/contribute.html) then head over to the feature tracker to see if there's something fun to contribute.
 
 ## Testing
 Run the tests like this:
