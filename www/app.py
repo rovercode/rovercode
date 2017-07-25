@@ -135,7 +135,7 @@ class HeartBeatManager():
     def read(self):
         """Look for our name on rovercode-web. Sets web_id if found."""
         global rover_name
-        result = self.session.get(ROVERCODE_WEB_REG_URL+'/?name='+rover_name)
+        result = self.session.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name)
         try:
             info = json.loads(result.text)[0]
             self.web_id = info['id']
