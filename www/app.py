@@ -1,10 +1,7 @@
 """Rovercode app."""
-from flask import Flask, jsonify, Response, request, send_from_directory
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests, json, socket
-from os import listdir
-from os.path import isfile, join
-import xml.etree.ElementTree
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -209,89 +206,10 @@ def test_message(message):
     """Send a debug test message when status is received from rovercode-web."""
     print "Got a status message: " + message['data']
 
-@app.route('/api/v1/blockdiagrams', methods=['GET'])
-def get_block_diagrams():
-    """
-    API: /blockdiagrams [GET].
-
-    Replies with a JSON formatted list of the block diagrams
-    """
-    names = []
-    for f in listdir('saved-bds'):
-        if isfile(join('saved-bds', f)) and f.endswith('.xml'):
-            names.append(xml.etree.ElementTree.parse(join('saved-bds', f)).getroot().find('designName').text)
-    return jsonify(result=names)
-
-@app.route('/api/v1/blockdiagrams', methods=['POST'])
-def save_block_diagram():
-    """
-    API: /blockdiagrams [POST].
-
-    Saves the posted block diagram
-    """
-    designName = request.form['designName'].replace(' ', '_').replace('.', '_')
-    bdString = request.form['bdString']
-    root = xml.etree.ElementTree.Element("root")
-
-    xml.etree.ElementTree.SubElement(root, 'designName').text = designName
-    xml.etree.ElementTree.SubElement(root, 'bd').text = bdString
-
-    tree = xml.etree.ElementTree.ElementTree(root)
-    tree.write('saved-bds/' + designName + '.xml')
-    return ('', 200)
-
-@app.route('/api/v1/blockdiagrams/<string:id>', methods=['GET'])
-def get_block_diagram(id):
-    """
-    API: /blockdiagrams/<id> [GET].
-
-    Replies with an XML formatted description of the block diagram specified by
-    `id`
-    """
-    id = id.replace(' ', '_').replace('.', '_')
-    bd = [f for f in listdir('saved-bds') if isfile(join('saved-bds', f)) and id in f]
-    with open(join('saved-bds',bd[0]), 'r') as content_file:
-        content = content_file.read()
-    return Response(content, mimetype='text/xml')
-
-@app.route('/api/v1/download/<string:id>', methods = ['GET'])
-def download_block_diagram(id):
-    """
-    API: /download/<id> [GET].
-
-    Starts a download of the block diagram specified by `id`
-    """
-    if isfile(join('saved-bds', id)):
-        return send_from_directory('saved-bds', id, mimetype='text/xml', as_attachment=True)
-    else:
-        return ('', 404)
-
-@app.route('/api/v1/upload', methods = ['POST'])
-def upload_block_diagram():
-    """
-    API: /upload [POST].
-
-    Adds the posted block diagram
-    """
-    if 'fileToUpload' not in request.files:
-        return ('', 400)
-    file = request.files['fileToUpload']
-    filename = file.filename.rsplit('.', 1)[0]
-    suffix = 0
-    # Check if there already is a design with this name
-    while isfile(join('saved-bds', filename + '.xml')):
-        suffix += 1
-        # Append _# to the design name to make it unique
-        if (suffix > 1):
-            filename = filename.rsplit('_', 1)[0]
-        filename += '_' + str(suffix)
-    # Ensure that the design name is the same as the file name
-    root = xml.etree.ElementTree.fromstring(file.read())
-    designName = root.find('designName')
-    designName.text = filename
-    tree = xml.etree.ElementTree.ElementTree(root)
-    tree.write(join('saved-bds', filename + '.xml'))
-    return ('', 200)
+@app.route('/', methods = ['GET'])
+def display_home_message():
+    """Display a message if someone points a browser at the root."""
+    return ("The rover {} is running its service at this address.".format(rover_name))
 
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():
