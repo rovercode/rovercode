@@ -6,7 +6,7 @@
 [![Mailinglist](https://img.shields.io/badge/join-mailing%20list-yellow.svg?style=flat)](https://1988.onlinegroups.net/groups/rovercode-developers/)
 [![](https://images.microbadger.com/badges/image/cabarnes/rovercode.svg)](https://microbadger.com/images/cabarnes/rovercode)
 [![Build Status](https://travis-ci.org/aninternetof/rovercode.svg?branch=development)](https://travis-ci.org/aninternetof/rovercode)
-[![Coverage Status](https://coveralls.io/repos/github/aninternetof/rovercode/badge.svg)](https://coveralls.io/github/aninternetof/rovercode)
+[![Coverage Status](https://coveralls.io/repos/github/rovercode/rovercode/badge.svg)](https://coveralls.io/github/rovercode/rovercode)
 
 rovercode is easy-to-use package for controlling robots (rovers) that can sense and react to their environment. The Blockly editor makes it easy to program and run your bot straight from your browser. Just drag and drop your commands to drive motors, read values from a variety of supported sensors, and see what your rover sees with the built in webcam viewer.
 
@@ -65,7 +65,7 @@ ROVER_NAME=Curiosity
 ```
 
 ## Play and Contribute
-rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://github.com/aninternetof/rovercode/wiki/Contributing) then head over to the feature tracker to see if there's something fun to contribute.
+rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](http://rovercode.readthedocs.io/en/development/contribute.html) then head over to the feature tracker to see if there's something fun to contribute.
 
 ## Testing
 Run the tests like this:
