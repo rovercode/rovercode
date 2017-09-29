@@ -13,3 +13,4 @@ pylint==1.6.5
 prospector==0.12.4
 flask-cors
 python-dotenv
+CHIP-IO
