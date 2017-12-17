@@ -13,7 +13,7 @@ except ImportError:
 
 """Globals"""
 ROVERCODE_WEB_REG_URL = ''
-ROVERCODE_WEB_LOGIN_URL = ''
+ROVERCODE_WEB_OAUTH2_URL = ''
 DEFAULT_SOFTPWM_FREQ = 100
 binary_sensors = []
 ws_thread = None
@@ -75,70 +75,47 @@ class HeartBeatManager():
     :param payload:
         The json-formatted information about the rover and the user to send
         to rovercode-web.
-    :param session:
-        A requests object to store session info.
-    :param csrftoken:
-        The csrftoken provided by rovercode-web.
+    :param access_token:
+        The oauth access token being used.
     """
 
-    def __init__(self, payload, user_name, user_pass, id=None):
+    def __init__(self, payload, client_id, client_secret, id=None):
         """Constructor for the HeartBeatManager."""
         self.run = True
         self.thread = None
         self.web_id = id
         self.payload = payload
-        self.session = requests.session()
+        self.client_id = client_id
 
-        # Log in to rovercode-web
-        self.session.get(ROVERCODE_WEB_LOGIN_URL + '/')
-        try:
-            csrftoken = self.session.cookies['csrftoken']
-        except KeyError:
-            # if the server doesn't provide a csrftoken, no problem
-            csrftoken = ''
-
+        # Log in to rovercode-web using oauth credentials
         login_data = {
-            'login':user_name,
-            'password':user_pass,
-            'csrfmiddlewaretoken':csrftoken,
+            'grant_type':'client_credentials',
+            'client_id':client_id,
+            'client_secret':client_secret,
         }
-        self.session.post(ROVERCODE_WEB_LOGIN_URL + '/', data=login_data)
-
-        # We have a new csrf token after logging in
-        try:
-            csrftoken = self.session.cookies['csrftoken']
-        except KeyError:
-            # if the server doesn't provide a csrftoken, no problem
-            csrftoken = ''
-        self.payload['csrfmiddlewaretoken'] = csrftoken
-        self.csrftoken = csrftoken
-
-    def create(self):
-        """Register the rover initially with rovercode-web."""
-        r = self.session.post(ROVERCODE_WEB_REG_URL + '/', self.payload)
-        info = json.loads(r.text)
-        try:
-            self.web_id = info['id']
-            init_input_gpio(info['left_eye_pin'], info['right_eye_pin'])
-            print "rovercode-web id is " + str(self.web_id)
-        except KeyError:
-            self.web_id = None
-        return r
+        r = requests.post(ROVERCODE_WEB_OAUTH2_URL + '/', data=login_data)
+        print r.text
+        self.access_token = r.json()['access_token']
+        print "Access token is: " + self.access_token
 
     def update(self):
         """Check in with rovercode-web, updating our timestamp."""
-        headers = {'X-CSRFTOKEN':self.csrftoken}
-        return self.session.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
-                                data = self.payload,
-                                headers = headers)
+        headers = {'Authorization':'Bearer '+self.access_token}
+        return requests.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
+                                data=self.payload,
+                                headers=headers)
 
     def read(self):
         """Look for our name on rovercode-web. Sets web_id if found."""
         global rover_name
-        result = self.session.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name)
+        headers = {'Authorization':'Bearer '+self.access_token}
+        # result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=headers)
+        result = requests.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name, headers=headers)
+        print result.text
         try:
             info = json.loads(result.text)[0]
             self.web_id = info['id']
+            self.name = info['name']
             init_input_gpio(info['left_eye_pin'], info['right_eye_pin'])
         except (KeyError, IndexError):
             self.web_id = None
@@ -152,20 +129,14 @@ class HeartBeatManager():
         self.read()
         while self.run:
             if self.web_id is not None:
-                print "Checking in with rovercode-web"
-                print "ID is " + str(self.web_id)
+                print "Checking in with rovercode-web with ID " + str(self.web_id)
                 r = self.update()
                 if r.status_code in [200, 201]:
                     print "... success"
                 else:
-                    #rovercode-web must have forgotten us. Reregister.
-                    self.web_id = None
-                    print "... must create again"
+                    print "... error while updating"
             else:
-                #we are a new rover
-                print "Registering with rovercode-web"
-                self.create()
-                r = None
+                print "No rover web-id found when trying to update!"
             if run_once:
                 break
             socketio.sleep(3)
@@ -295,10 +266,10 @@ def run_command(decoded):
 
 def set_rovercodeweb_url(base_url):
     """Set the global URL variables for rovercodeweb."""
-    global ROVERCODE_WEB_LOGIN_URL
+    global ROVERCODE_WEB_OAUTH2_URL
     global ROVERCODE_WEB_REG_URL
-    ROVERCODE_WEB_REG_URL = base_url + "mission-control/rovers"
-    ROVERCODE_WEB_LOGIN_URL = base_url + "accounts/login"
+    ROVERCODE_WEB_REG_URL = base_url + "api/v1/rovers"
+    ROVERCODE_WEB_OAUTH2_URL = base_url + "oauth2/token"
 
 if __name__ == '__main__':
     print "Starting the rover service!"
@@ -308,18 +279,18 @@ if __name__ == '__main__':
         rovercode_web_url += '/'
     set_rovercodeweb_url(rovercode_web_url)
 
-    user_name = os.getenv('ROVERCODE_WEB_USER_NAME', '')
-    if user_name == '':
-        raise NameError("Please add ROVERCODE_WEB_USER_NAME to your .env")
-    user_pass = os.getenv('ROVERCODE_WEB_USER_PASS', '')
-    if user_pass == '':
-        raise NameError("Please add ROVERCODE_WEB_USER_PASS to your .env")
+    client_id = os.getenv('CLIENT_ID', '')
+    if client_id == '':
+        raise NameError("Please add CLIENT_ID to your .env")
+    client_secret = os.getenv('CLIENT_SECRET', '')
+    if client_secret == '':
+        raise NameError("Please add CLIENT_SECRET to your .env")
     rover_name = os.getenv('ROVER_NAME', 'curiosity-rover')
 
     heartbeat_manager = HeartBeatManager(
             payload = {'name': rover_name, 'local_ip': get_local_ip()},
-            user_name = user_name,
-            user_pass = user_pass)
+            client_id= client_id,
+            client_secret= client_secret)
     if heartbeat_manager.thread is None:
         heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
 
