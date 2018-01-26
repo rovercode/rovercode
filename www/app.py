@@ -110,8 +110,6 @@ class HeartBeatManager():
         """Look for our name on rovercode-web. Sets web_id if found."""
         headers = {'Authorization':'Bearer '+self.access_token}
         result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=headers)
-        # result = requests.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name, headers=headers)
-        print result.text
         try:
             info = json.loads(result.text)[0]
             self.web_id = info['id']
@@ -141,7 +139,7 @@ class HeartBeatManager():
                 break
             socketio.sleep(3)
         print "Exiting heartbeat thread"
-        return r
+        return
 
 
 def sensors_thread():

@@ -22,19 +22,18 @@ def test_register_with_web_create(testapp):
     testapp.set_rovercodeweb_url(TEST_URL)
     testapp.rover_name = "curiosity"
     payload = {'name': 'Chipy',
-               'local_ip': '2.2.2.2',
-               'left_eye_pin': 'Pin-A',
-               'right_eye_pin': 'Pin-B'}
+               'local_ip': '2.2.2.2'}
     web_id = 333
+    access_token = '1234'
     testapp.binary_sensors = []
     response_payload = payload.copy()
     response_payload['id'] = web_id
 
-    responses.add(responses.GET, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
-                  json='', status=200,
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_OAUTH2_URL + '/',
+                  json={'access_token': access_token}, status=200,
                   content_type='application/json',
     )
-    responses.add(responses.POST, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_OAUTH2_URL + '/',
                   json='', status=200,
                   content_type='application/json',
     )
@@ -42,59 +41,40 @@ def test_register_with_web_create(testapp):
                   json=response_payload, status=200,
                   content_type='application/json'
     )
-    heartbeat_manager = testapp.HeartBeatManager(payload=payload,
-                                                 user_name='Bob',
-                                                 user_pass="asdf")
-    #test create()
-    result = heartbeat_manager.create()
-    assert result.status_code == 200
-    assert heartbeat_manager.web_id == web_id
-    assert len(testapp.binary_sensors) == 2
-    assert testapp.binary_sensors[0].pin == 'Pin-A'
-    assert testapp.binary_sensors[1].pin == 'Pin-B'
-    assert len(responses.calls) == 3
-    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
-    assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
-    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
 
-    #test read()
-    testapp.binary_sensors = []
-    heartbeat_manager.web_id = None
-    result = heartbeat_manager.create()
-    assert result.status_code == 200
-    assert heartbeat_manager.web_id == web_id
-    assert len(testapp.binary_sensors) == 2
-    assert testapp.binary_sensors[0].pin == 'Pin-A'
-    assert testapp.binary_sensors[1].pin == 'Pin-B'
-    assert len(responses.calls) == 4
-    assert responses.calls[3].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
+    #test init()
+    heartbeat_manager = testapp.HeartBeatManager(client_id='xxxx',
+                                                 client_secret="asdf")
+    assert heartbeat_manager.access_token == access_token
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_OAUTH2_URL + '/'
+
 
 @responses.activate
 def test_register_with_web_update(testapp):
     """Test the periodic hearbeat for a rover that is already registered."""
     testapp.set_rovercodeweb_url(TEST_URL)
     testapp.rover_name = "curiosity"
+    testapp.binary_sensors = []
+    web_id = '444'
     payload = {'name': testapp.rover_name,
-               'local_ip': '2.2.2.2',
+               'web_id': web_id,
                'left_eye_pin': 'Pin-A',
-               'right_eye_pin': 'Pin-B'}
-    web_id = 444
+               'right_eye_pin': 'Pin-B',
+               'local_ip': '2.2.2.2'}
+    access_token = '1234'
     response_payload = payload.copy()
     response_payload['id'] = web_id
 
-    responses.add(responses.GET, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
-                  json='', status=200,
-                  content_type='application/json',
-    )
-    responses.add(responses.POST, testapp.ROVERCODE_WEB_LOGIN_URL + '/',
-                  json='', status=200,
+    responses.add(responses.POST, testapp.ROVERCODE_WEB_OAUTH2_URL + '/',
+                  json={'access_token': access_token}, status=200,
                   content_type='application/json',
     )
     responses.add(responses.POST, testapp.ROVERCODE_WEB_REG_URL + '/',
                   json=response_payload, status=200,
                   content_type='application/json'
     )
-    url_re = re.compile(testapp.ROVERCODE_WEB_REG_URL + r'\?name=' + testapp.rover_name)
+    url_re = re.compile(testapp.ROVERCODE_WEB_REG_URL + r'\?client_id=xxxx')
     response_list = [response_payload]
     responses.add(responses.GET,
                   url_re,
@@ -106,16 +86,16 @@ def test_register_with_web_update(testapp):
                   content_type='application/json'
     )
 
-    heartbeat_manager = testapp.HeartBeatManager(id=web_id,
-                                                 payload=payload,
-                                                 user_name='Bob',
-                                                 user_pass="asdf")
-    heartbeat_manager.create()
-    result = heartbeat_manager.thread_func(run_once=True)
-    assert result.status_code == 200
-    assert len(responses.calls) == 5
-    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
-    assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_LOGIN_URL + '/'
-    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/'
-    assert responses.calls[3].request.url == testapp.ROVERCODE_WEB_REG_URL + '?name=' + testapp.rover_name
-    assert responses.calls[4].request.url == testapp.ROVERCODE_WEB_REG_URL + '/' + str(web_id)+'/'
+    heartbeat_manager = testapp.HeartBeatManager(client_id='xxxx',
+                                                 client_secret="asdf")
+    heartbeat_manager.thread_func(run_once=True)
+    # test the side-effects of read()
+    assert heartbeat_manager.web_id == web_id
+    assert len(testapp.binary_sensors) == 2
+    assert testapp.binary_sensors[0].pin == 'Pin-A'
+    assert testapp.binary_sensors[1].pin == 'Pin-B'
+    assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_OAUTH2_URL + '/'
+    assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_REG_URL + '?client_id=xxxx'
+    # test that the update happened
+    # assert len(responses.calls) == 4
+    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/' + str(web_id)+'/'
