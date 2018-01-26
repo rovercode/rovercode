@@ -18,8 +18,7 @@ DEFAULT_SOFTPWM_FREQ = 100
 binary_sensors = []
 ws_thread = None
 hb_thread = None
-payload = None
-rover_name = None
+
 try:
     pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
     gpio = gpioLib.get_platform_gpio()
@@ -79,13 +78,14 @@ class HeartBeatManager():
         The oauth access token being used.
     """
 
-    def __init__(self, payload, client_id, client_secret, id=None):
+    def __init__(self, client_id, client_secret, id=None):
         """Constructor for the HeartBeatManager."""
         self.run = True
         self.thread = None
         self.web_id = id
-        self.payload = payload
         self.client_id = client_id
+        self.name = None
+        self.local_ip = get_local_ip()
 
         # Log in to rovercode-web using oauth credentials
         login_data = {
@@ -101,16 +101,16 @@ class HeartBeatManager():
     def update(self):
         """Check in with rovercode-web, updating our timestamp."""
         headers = {'Authorization':'Bearer '+self.access_token}
+        payload = {'name': self.name, 'local_ip': self.local_ip}
         return requests.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
-                                data=self.payload,
+                                data=payload,
                                 headers=headers)
 
     def read(self):
         """Look for our name on rovercode-web. Sets web_id if found."""
-        global rover_name
         headers = {'Authorization':'Bearer '+self.access_token}
-        # result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=headers)
-        result = requests.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name, headers=headers)
+        result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=headers)
+        # result = requests.get(ROVERCODE_WEB_REG_URL+'?name='+rover_name, headers=headers)
         print result.text
         try:
             info = json.loads(result.text)[0]
@@ -180,7 +180,7 @@ def test_message(message):
 @app.route('/', methods = ['GET'])
 def display_home_message():
     """Display a message if someone points a browser at the root."""
-    return ("The rover {} is running its service at this address.".format(rover_name))
+    return ("The rover is running its service at this address.")
 
 @app.route('/api/v1/sendcommand', methods = ['POST'])
 def send_command():
@@ -285,10 +285,8 @@ if __name__ == '__main__':
     client_secret = os.getenv('CLIENT_SECRET', '')
     if client_secret == '':
         raise NameError("Please add CLIENT_SECRET to your .env")
-    rover_name = os.getenv('ROVER_NAME', 'curiosity-rover')
 
     heartbeat_manager = HeartBeatManager(
-            payload = {'name': rover_name, 'local_ip': get_local_ip()},
             client_id= client_id,
             client_secret= client_secret)
     if heartbeat_manager.thread is None:
