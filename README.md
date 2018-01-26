@@ -54,15 +54,7 @@ $ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d roverc
 Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
 
 ### Creating Your .env
-Create a .env file at the root of the project (at the same level as setup.sh and start.sh). In that file, you'll
-add your rovercode.com credentials and the name of your rover.
-
-First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, add your credentials and a name for your rover to the .env so that it looks like this:
-```
-ROVERCODE_WEB_USER_NAME=myawesomeusername
-ROVERCODE_WEB_USER_PASS=mysupersecurepassword
-ROVER_NAME=Curiosity
-```
+First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, navigate to the "My Rovers" section and create a new rover. Once it is created, click the "Download Credentials" button at the bottom of the rover's detail page. Save the credentials file as `.env` in the same directory as this README.
 
 ## Play and Contribute
 rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](http://rovercode.readthedocs.io/en/development/contribute.html) then head over to the feature tracker to see if there's something fun to contribute.
