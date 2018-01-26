@@ -45,7 +45,7 @@ def test_register_with_web_create(testapp):
     #test init()
     heartbeat_manager = testapp.HeartBeatManager(client_id='xxxx',
                                                  client_secret="asdf")
-    assert heartbeat_manager.access_token == access_token
+    assert access_token in heartbeat_manager.auth_header['Authorization']
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_OAUTH2_URL + '/'
 
@@ -94,8 +94,8 @@ def test_register_with_web_update(testapp):
     assert len(testapp.binary_sensors) == 2
     assert testapp.binary_sensors[0].pin == 'Pin-A'
     assert testapp.binary_sensors[1].pin == 'Pin-B'
+    assert len(responses.calls) == 3
     assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_OAUTH2_URL + '/'
     assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_REG_URL + '?client_id=xxxx'
     # test that the update happened
-    # assert len(responses.calls) == 4
     assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/' + str(web_id)+'/'

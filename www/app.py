@@ -64,18 +64,10 @@ class HeartBeatManager():
     """
     A manager to register the rover with rovercode-web and periodically check in.
 
-    :param run:
-        A flag for the state of the thread. Set to false to gracefully stop
-        the thread.
-    :param thread:
-        The Thread object that performs the periodic check-in.
-    :param web_id:
-        The rovercode-web id of this rover.
-    :param payload:
-        The json-formatted information about the rover and the user to send
-        to rovercode-web.
-    :param access_token:
-        The oauth access token being used.
+    :param client_id:
+        The Oauth2 client id for this rover.
+    :param client_secret:
+        The Oauth2 client secret for this rover.
     """
 
     def __init__(self, client_id, client_secret, id=None):
@@ -86,6 +78,7 @@ class HeartBeatManager():
         self.client_id = client_id
         self.name = None
         self.local_ip = get_local_ip()
+        self.auth_header = None
 
         # Log in to rovercode-web using oauth credentials
         login_data = {
@@ -94,22 +87,18 @@ class HeartBeatManager():
             'client_secret':client_secret,
         }
         r = requests.post(ROVERCODE_WEB_OAUTH2_URL + '/', data=login_data)
-        print r.text
-        self.access_token = r.json()['access_token']
-        print "Access token is: " + self.access_token
+        self.auth_header = {'Authorization':'Bearer '+r.json()['access_token']}
 
     def update(self):
         """Check in with rovercode-web, updating our timestamp."""
-        headers = {'Authorization':'Bearer '+self.access_token}
         payload = {'name': self.name, 'local_ip': self.local_ip}
         return requests.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
                                 data=payload,
-                                headers=headers)
+                                headers=self.auth_header)
 
     def read(self):
         """Look for our name on rovercode-web. Sets web_id if found."""
-        headers = {'Authorization':'Bearer '+self.access_token}
-        result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=headers)
+        result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=self.auth_header)
         try:
             info = json.loads(result.text)[0]
             self.web_id = info['id']
