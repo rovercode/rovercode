@@ -107,12 +107,22 @@ class HeartBeatManager():
             self.web_id = info['id']
             self.name = info['name']
             init_inputs(
+<<<<<<< HEAD
+                int(info['left_eye_i2c_port']),
+                int(info['left_eye_i2c_addr']),
+                int(info['right_eye_i2c_port']),
+                int(info['right_eye_i2c_addr'])
+            )
+        except (KeyError, IndexError) as e:
+            print "Missing something important from the rover payload: " + str(e)
+=======
                 info['left_eye_i2c_port'],
                 info['left_eye_i2c_addr'],
                 info['right_eye_i2c_port'],
                 info['right_eye_i2c_addr']
             )
         except (KeyError, IndexError):
+>>>>>>> 25b278ab5094930358e2b3f17e2c941fcd1edf84
             self.web_id = None
 
     def stopThread(self):
@@ -195,18 +205,14 @@ def send_command():
 def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
     """Initialize input GPIO."""
     global binary_sensors
-    left_eye_led_current = os.getenv('LEFT_EYE_LED_CURRENT', None)
-    left_eye_threshold = os.getenv('LEFT_EYE_THRESHOLD', None)
-    right_eye_led_current = os.getenv('RIGHT_EYE_LED_CURRENT', None)
-    right_eye_threshold = os.getenv('LEFT_EYE_THRESHOLD', None)
     binary_sensors.append(BinarySensor(
         "left_ir_sensor",
-        VCNL4010(left_eye_port, left_eye_addr, left_eye_led_current, left_eye_threshold),
+        VCNL4010(left_eye_port, left_eye_addr),
         'leftEyeUncovered',
         'leftEyeCovered'))
     binary_sensors.append(BinarySensor(
         "right_ir_sensor",
-        VCNL4010(right_eye_port, right_eye_addr, left_eye_led_current, right_eye_threshold),
+        VCNL4010(right_eye_port, right_eye_addr),
         'rightEyeUncovered',
         'rightEyeCovered'))
 
@@ -286,7 +292,7 @@ if __name__ == '__main__':
     client_secret = os.getenv('CLIENT_SECRET', '')
     if client_secret == '':
         raise NameError("Please add CLIENT_SECRET to your .env")
-        
+
     heartbeat_manager = HeartBeatManager(
             client_id= client_id,
             client_secret= client_secret)
