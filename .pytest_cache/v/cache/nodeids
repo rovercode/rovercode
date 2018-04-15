@@ -1,6 +1,0 @@
-[
-  "www/tests/test_app.py::test_sensor_init", 
-  "www/tests/test_app.py::test_get_local_ip", 
-  "www/tests/test_app.py::test_register_with_web_create", 
-  "www/tests/test_app.py::test_register_with_web_update"
-]
