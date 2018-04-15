@@ -5,7 +5,10 @@ Adapted from:
 https://www.controleverything.com/content/Light?sku=VCNL4010_I2CS#tabs-0-product_tabset-2
 """
 
-import smbus
+try:
+    import smbus
+except ImportError:
+    pass
 
 from MockSmbus import MockSmbus
 
@@ -26,7 +29,7 @@ class VCNL4010:
 
         try:
             self.bus = smbus.SMBus(i2c_port)
-        except IOError:
+        except (IOError, NameError):
             print "VCNL4010 was unable to connect to I2C bus {}. " \
                   "Mocking out the bus".format(i2c_port)
             self.bus = MockSmbus()
