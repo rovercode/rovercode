@@ -124,11 +124,10 @@ class HeartBeatManager():
         self.read()
         while self.run:
             if self.web_id is not None:
-                # print "Checking in with rovercode-web with ID " + str(self.web_id)
+                print "Checking in with rovercode-web with ID " + str(self.web_id)
                 r = self.update()
                 if r.status_code in [200, 201]:
-                    # print "... success"
-                    pass
+                    print "... success"
                 else:
                     print "... error while updating"
             else:
