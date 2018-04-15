@@ -141,11 +141,11 @@ def sensors_thread():
             if (s.old_val == False) and (new_val == True):
                 print s.rising_event
                 socketio.emit('binary_sensors', {'data': s.rising_event},
-                    namespace='/api/v1')
+                    namespace='/api/v1/')
             elif (s.old_val == True) and (new_val == False):
                 print s.falling_event
                 socketio.emit('binary_sensors', {'data': s.falling_event},
-                    namespace='/api/v1')
+                    namespace='/api/v1/')
             else:
                 pass
             s.old_val = new_val
