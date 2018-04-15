@@ -13,7 +13,10 @@ class VCNL4010:
 
         if not (led_current and binary_threshold):
             led_current = 0x0A
-            self.binary_threshold = 2150
+            binary_threshold = 2150
+        self.binary_threshold = binary_threshold
+
+        print "Setting up VCNL4010 with LED current {} and threshold {}".format(led_current, self.binary_threshold)
 
         try:
             self.bus = smbus.SMBus(i2c_port)
@@ -51,7 +54,6 @@ class VCNL4010:
 
     def is_high(self):
         prox, lux = self.get_values()
-        print prox, lux
         # to match the old GPIO sensors, we'll make this sensor active low, so a binary LOW output means object detected
         # larger integer means object is closer
         # so a smaller integer means no object detected and a binary HIGH output. 

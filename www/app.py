@@ -144,7 +144,7 @@ def sensors_thread():
     """Scan each binary sensor and sends events based on changes."""
     while True:
         global binary_sensors
-        socketio.sleep(0.8)
+        socketio.sleep(0.3)
         for s in binary_sensors:
             new_val = s.sensor.is_high()
             if (s.old_val == False) and (new_val == True):
@@ -195,10 +195,17 @@ def send_command():
 def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
     """Initialize input GPIO."""
     global binary_sensors
-    left_eye_led_current = os.getenv('LEFT_EYE_LED_CURRENT', None)
-    left_eye_threshold = os.getenv('LEFT_EYE_THRESHOLD', None)
-    right_eye_led_current = os.getenv('RIGHT_EYE_LED_CURRENT', None)
-    right_eye_threshold = os.getenv('LEFT_EYE_THRESHOLD', None)
+
+    def get_env_int(name):
+        try:
+            return int(os.getenv(name, None))
+        except Exception as e:
+            return None
+
+    left_eye_led_current = get_env_int('LEFT_EYE_LED_CURRENT')
+    left_eye_threshold = get_env_int('LEFT_EYE_THRESHOLD')
+    right_eye_led_current = get_env_int('RIGHT_EYE_LED_CURRENT')
+    right_eye_threshold = get_env_int('RIGHT_EYE_THRESHOLD')
     binary_sensors.append(BinarySensor(
         "left_ir_sensor",
         VCNL4010(left_eye_port, left_eye_addr, left_eye_led_current, left_eye_threshold),
