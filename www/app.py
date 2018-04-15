@@ -112,7 +112,8 @@ class HeartBeatManager():
                 info['right_eye_i2c_port'],
                 info['right_eye_i2c_addr']
             )
-        except (KeyError, IndexError):
+        except (KeyError, IndexError) as e:
+            print "Missing something important from rover payload: " + str(e)
             self.web_id = None
 
     def stopThread(self):
@@ -198,7 +199,7 @@ def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
     def get_env_int(name):
         try:
             return int(os.getenv(name, None))
-        except Exception as e:
+        except Exception:
             return None
 
     left_eye_led_current = get_env_int('LEFT_EYE_LED_CURRENT')
@@ -212,7 +213,7 @@ def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
         'leftEyeCovered'))
     binary_sensors.append(BinarySensor(
         "right_ir_sensor",
-        VCNL4010(right_eye_port, right_eye_addr, left_eye_led_current, right_eye_threshold),
+        VCNL4010(right_eye_port, right_eye_addr, right_eye_led_current, right_eye_threshold),
         'rightEyeUncovered',
         'rightEyeCovered'))
 
@@ -292,7 +293,7 @@ if __name__ == '__main__':
     client_secret = os.getenv('CLIENT_SECRET', '')
     if client_secret == '':
         raise NameError("Please add CLIENT_SECRET to your .env")
-        
+
     heartbeat_manager = HeartBeatManager(
             client_id= client_id,
             client_secret= client_secret)
