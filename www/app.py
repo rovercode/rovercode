@@ -103,7 +103,6 @@ class HeartBeatManager():
         result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=self.auth_header)
         try:
             info = json.loads(result.text)[0]
-            print info
             self.web_id = info['id']
             self.name = info['name']
             init_inputs(
