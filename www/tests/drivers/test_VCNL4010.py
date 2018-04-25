@@ -29,3 +29,14 @@ def test_get_is_high():
         mockbus.read_i2c_block_data.return_value = [0, 0, 1, 1]  # lux MSB, lux LSB, prox MSB, prox LSB
         assert driver.is_high()
         # value equal to threshold doesn't really concern us
+
+
+def test_get_values():
+    """Test the binary interpretation of the proximity value."""
+    mockbus = MagicMock()
+    with patch('smbus.SMBus', return_value=mockbus):
+        driver = VCNL4010(1, 2, 3, 258)
+        mockbus.read_i2c_block_data.return_value = [1, 2, 3, 4]  # lux MSB, lux LSB, prox MSB, prox LSB
+        prox, lux = driver.get_values()
+        assert prox == 3 * 256 + 4
+        assert lux == 1 * 256 + 2
