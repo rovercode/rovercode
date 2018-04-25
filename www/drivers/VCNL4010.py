@@ -36,27 +36,35 @@ class VCNL4010:
 
         self.i2c_addr = i2c_addr
 
-        # command register, 0x80
-        # 0xFF(255) Enable ALS and proximity measurement, LP oscillator
-        self.bus.write_byte_data(i2c_addr, 0x80, 0xFF)
+        try:
+            # command register, 0x80
+            # 0xFF(255) Enable ALS and proximity measurement, LP oscillator
+            self.bus.write_byte_data(i2c_addr, 0x80, 0xFF)
 
-        # proximity rate register, 0x82
-        # 0x00(00) 1.95 proximity measeurements/sec
-        self.bus.write_byte_data(i2c_addr, 0x82, 0x00)
+            # proximity rate register, 0x82
+            # 0x00(00) 1.95 proximity measeurements/sec
+            self.bus.write_byte_data(i2c_addr, 0x82, 0x00)
 
-        # LED current register, 0x83
-        # variable led_current*10 mA
-        self.bus.write_byte_data(i2c_addr, 0x83, led_current)
+            # LED current register, 0x83
+            # variable led_current*10 mA
+            self.bus.write_byte_data(i2c_addr, 0x83, led_current)
 
-        # ambient light register, 0x84(132)^M
-        # 0x9D Continuos conversion mode, ALS rate 2 samples/sec
-        self.bus.write_byte_data(i2c_addr, 0x84, 0x9D)
+            # ambient light register, 0x84(132)^M
+            # 0x9D Continuos conversion mode, ALS rate 2 samples/sec
+            self.bus.write_byte_data(i2c_addr, 0x84, 0x9D)
+        except IOError:
+            print 'Failed to init VCNL4010 at port {}, address {}'\
+                .format(i2c_port, i2c_addr)
 
     def get_values(self):
         """Return the proximity and luminance."""
         # Read data back from 0x85, 4 bytes
         # luminance MSB, luminance LSB, Proximity MSB, Proximity LSB
-        data = self.bus.read_i2c_block_data(self.i2c_addr, 0x85, 4)
+        try:
+            data = self.bus.read_i2c_block_data(self.i2c_addr, 0x85, 4)
+        except IOError:
+            print 'Failed to read VCNL4010 at address {} register 0x85'\
+                .format(self.i2c_addr)
 
         # Convert the data
         luminance = data[0] * 256 + data[1]  # lux
