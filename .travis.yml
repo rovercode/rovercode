@@ -18,6 +18,8 @@ script:
 after_success:
   - coveralls
 language: python
+virtualenv:
+  - system_site_packages: true
 python:
 - "2.7"
 notifications:
