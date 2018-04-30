@@ -141,16 +141,16 @@ def sensors_thread():
             if (s.old_val == False) and (new_val == True):
                 print s.rising_event
                 socketio.emit('binary_sensors', {'data': s.rising_event},
-                    namespace='/api/v1')
+                    namespace='/api/v1/')
             elif (s.old_val == True) and (new_val == False):
                 print s.falling_event
                 socketio.emit('binary_sensors', {'data': s.falling_event},
-                    namespace='/api/v1')
+                    namespace='/api/v1/')
             else:
                 pass
             s.old_val = new_val
 
-@socketio.on('connect', namespace='/api/v1')
+@socketio.on('connect', namespace='/api/v1/')
 def connect():
     """Connect to the rovercode-web websocket."""
     global ws_thread
@@ -159,7 +159,7 @@ def connect():
         ws_thread = socketio.start_background_task(target=sensors_thread)
     emit('status', {'data': 'Connected'})
 
-@socketio.on('status', namespace='/api/v1')
+@socketio.on('status', namespace='/api/v1/')
 def test_message(message):
     """Send a debug test message when status is received from rovercode-web."""
     print "Got a status message: " + message['data']
