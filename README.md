@@ -14,6 +14,10 @@ rovercode runs on any single-board-computer supported by the [Adafruit Python GP
 
 **rovercode is made up of two parts.** rovercode (this repo) is the service that runs on the rover. rovercode-web ([a different repo](https://github.com/aninternetof/rovercode-web)) is the web app that is hosted on the Internet.
 [Try a live demo.](https://rovercode.com/mission-control)
+
+## Contributing
+Check out our [contributing page](http://rovercode.readthedocs.io/en/latest/contribute.html) to get started.
+
 ## Setup
 
 ### Standard Setup
