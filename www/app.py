@@ -143,8 +143,8 @@ def sensors_thread():
     """Scan each binary sensor and sends events based on changes."""
     while True:
         global binary_sensors
-        socketio.sleep(0.3)
         for s in binary_sensors:
+            socketio.sleep(0.4)
             try:
                 new_val = s.sensor.is_high()
             except IOError:
