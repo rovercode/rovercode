@@ -12,7 +12,7 @@ rovercode is easy-to-use package for controlling robots (rovers) that can sense 
 
 rovercode runs on any single-board-computer supported by the [Adafruit Python GPIO wrapper library](https://github.com/adafruit/Adafruit_Python_GPIO), including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black. Once installed, head to to rovercode.com and connect to your rover.
 
-**rovercode is made up of two parts.** rovercode (this repo) is the service that runs on the rover. rovercode-web ([a different repo](https://github.com/aninternetof/rovercode-web)) is the web app that is hosted on the Internet.
+**rovercode is made up of two parts.** rovercode (this repo) is the service that runs on the rover. rovercode-web ([a different repo](https://github.com/rovercode/rovercode-web)) is the web app that is hosted on the Internet.
 [Try a live demo.](https://rovercode.com/mission-control)
 
 ## Contributing
@@ -24,7 +24,7 @@ Check out our [contributing page](http://rovercode.readthedocs.io/en/latest/cont
 First, on your rover (CHIP, Raspberry Pi, BeagleBone, etc):
 ```bash
 $ sudo apt install git
-$ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
+$ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
 $ sudo bash setup.sh #run this only once -- it will take some time
 $ # create your .env, as described in the section below
 $ sudo bash start.sh #run this each time you boot the rover (or automatically start if chosen in setup)
@@ -38,7 +38,7 @@ When developing rovercode, you may want to run rovercode on your PC instead of a
 First, on your development PC:
 ```bash
 $ sudo apt install git
-$ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
+$ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
 $ sudo bash setup.sh #run this only once -- it will take some time
 $ # create your .env, as described in the section below
 $ sudo bash start.sh #run this each time
@@ -49,7 +49,7 @@ Then, still on your development PC, head to rovercode.com and connect to your "r
 Rather use Docker? First, on your development PC:
 ```bash
 $ sudo apt install git docker.io
-$ git clone --recursive https://github.com/aninternetof/rovercode.git && cd rovercode
+$ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
 $ sudo docker build -t rovercode .
 $ # create your .env, as described in the section below
 $ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d rovercode
