@@ -38,7 +38,7 @@ rovercode is made up of two parts:
 - rovercode-web (a separate repo `documented here <http://rovercode-web.readthedocs.io/>`_) is the web app running at `rovercode.com <https://rovercode.com>`_.
 
 rovercode runs on the rover. The rover can be
-any single-board-computer supported by the Adafruit Python GPIO wrapper library,
+any single-board-computer supported by the `Adafruit Python GPIO <https://github.com/adafruit/Adafruit_Python_GPIO>`_ wrapper library,
 including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black.
 
 rovercode-web is hosted on the Internet at `rovercode.com <https://rovercode.com>`_.
