@@ -8,7 +8,6 @@ ignore-paths:
   - www/closure-library/
   - www/htmlcov/
   - www/docs/
-  - www/wsgi.py
 
 pep8:
   full: true

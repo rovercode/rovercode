@@ -1,6 +1,15 @@
 detailed usage
 ===============
 
+getting a bash shell inside the Docker container
+-------------------------------------------------
+If you're using Docker to develop, and you'd like to try out some
+commands within the Docker container, get a bash shell like this:
+
+.. code-block:: bash
+
+    sudo docker exec -it rovercode bash
+
 using rovercode with a rovercode-web hosted somewhere other than rovercode.com
 -------------------------------------------------------------------------------
 By default, when rovercode runs, it registers itself with

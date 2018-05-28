@@ -5,3 +5,11 @@ dist/
 setuptools*
 
 .idea
+.vscode/
+.env
+.cache/
+.pytest_cache/
+env/
+htmlcov/
+www/docs/generated/
+.coverage

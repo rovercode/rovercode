@@ -77,6 +77,8 @@ Contents
    detailed-usage
    contribute
    api
+   build-a-rover
+   
 
 Indices and tables
 ==================
