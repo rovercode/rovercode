@@ -34,7 +34,6 @@ Below are instructions for how to install and run rovercode on your PC. Don't wo
 like I2C: rovercode will automatically detect that it is not running on target hardware and will stub out the calls to the motors 
 and sensors.
 
-#### Development PC Setup
 First, on your development PC:
 ```bash
 $ sudo apt install git docker.io

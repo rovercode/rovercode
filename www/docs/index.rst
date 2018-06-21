@@ -34,6 +34,6 @@ You can also email developers@rovercode.com.
    :maxdepth: 1
    :caption: Contents:
 
+   setup
    detailed-usage
-   contribute
    api
