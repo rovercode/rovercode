@@ -54,7 +54,7 @@ If something in these instructions is not working right for you, you can get hel
 
 
 ## Docs
-More detailed usage instructions can be found [here](https://contributor-docs.rovercode.com/rovercode/development/setup.html).
+More detailed usage instructions can be found [here](https://contributor-docs.rovercode.com/rovercode/master/setup.html).
 
 Read the complete docs [here](https://contributor-docs.rovercode.com).
 
@@ -64,23 +64,6 @@ Help make rovercode better! Check out the [contributing guide](https://contribut
 We'd love to chat with you! Say hello in [our Gitter room](https://gitter.im/rovercode/Lobby).
 
 You can also email developers@rovercode.com.
-
-TODO: Move this to docs
-## Testing and Linting
-Run the tests like this:
-```bash
-$ pwd
-> ~/rovercode
-$ py.test
-```
-Or, if you're using Docker, make sure the container is running (the `sudo docker run ...` command above), then do:
-```bash
-$ sudo docker exec -it rovercode bash -c "cd ../; py.test"  # run the tests
-$ sudo docker exec -it rovercode bash -c "cd ../; prospector" # run the linter
-```
-
-sudo docker exec -it rovercode bash -c "cd docs; make html"
-
 
 ## Docs
 Read the complete docs [here](http://rovercode.readthedocs.io/en/latest).
