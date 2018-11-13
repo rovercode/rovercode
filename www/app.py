@@ -1,8 +1,10 @@
 """Rovercode app."""
+import websocket
+import thread
+import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests, json, socket
-from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv, find_dotenv
 import os
 try:
@@ -30,7 +32,6 @@ except NameError:
 """Create flask app"""
 app = Flask(__name__)
 CORS(app, resources={r'/api/*': {"origins": [".*rovercode.com", ".*localhost"]}})
-socketio = SocketIO(app )
 
 class BinarySensor:
     """
@@ -134,7 +135,7 @@ class HeartBeatManager():
                 print "No rover web-id found when trying to update!"
             if run_once:
                 break
-            socketio.sleep(3)
+            time.sleep(3)
         print "Exiting heartbeat thread"
         return
 
@@ -162,7 +163,6 @@ def sensors_thread():
                 pass
             s.old_val = new_val
 
-@socketio.on('connect', namespace='/api/v1/')
 def connect():
     """Connect to the rovercode-web websocket."""
     global ws_thread
@@ -171,7 +171,6 @@ def connect():
         ws_thread = socketio.start_background_task(target=sensors_thread)
     emit('status', {'data': 'Connected'})
 
-@socketio.on('status', namespace='/api/v1/')
 def test_message(message):
     """Send a debug test message when status is received from rovercode-web."""
     print "Got a status message: " + message['data']
@@ -282,9 +281,29 @@ def set_rovercodeweb_url(base_url):
     ROVERCODE_WEB_REG_URL = base_url + "api/v1/rovers"
     ROVERCODE_WEB_OAUTH2_URL = base_url + "oauth2/token"
 
+
+def on_message(ws, message):
+    print(message)
+
+def on_error(ws, error):
+    print(error)
+
+def on_close(ws):
+    print("### closed ###")
+
+def on_open(ws):
+    def run(*args):
+        for i in range(3):
+            time.sleep(1)
+            ws.send(json.dumps({'message': "Hello"}))
+        time.sleep(1)
+        ws.close()
+        print("thread terminating...")
+    thread.start_new_thread(run, ())
+
 if __name__ == '__main__':
     print "Starting the rover service!"
-    load_dotenv(find_dotenv())
+    load_dotenv('./.env')
     rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
     if rovercode_web_url[-1:] != '/':
         rovercode_web_url += '/'
@@ -301,8 +320,16 @@ if __name__ == '__main__':
             client_id= client_id,
             client_secret= client_secret)
     if heartbeat_manager.thread is None:
-        heartbeat_manager.thread = socketio.start_background_task(target=heartbeat_manager.thread_func)
+        heartbeat_manager.thread = thread.start_new_thread(heartbeat_manager.thread_func, ())
 
     motor_manager = MotorManager()
 
-    socketio.run(app, port=80, host='0.0.0.0')
+    websocket.enableTrace(True)
+    ws = websocket.WebSocketApp("ws://rovercodeweb:8000/ws/realtime/asdf/",
+                              on_message=on_message,
+                              on_error=on_error,
+                              on_close=on_close)
+    ws.on_open = on_open
+    ws.run_forever()
+
+
