@@ -90,7 +90,8 @@ class HeartBeatManager():
             'client_secret':client_secret,
         }
         r = requests.post(ROVERCODE_WEB_OAUTH2_URL + '/', data=login_data)
-        self.auth_header = {'Authorization':'Bearer '+r.json()['access_token']}
+        self.access_token = r.json()['access_token']
+        self.auth_header = {'Authorization':'Bearer ' + self.access_token}
 
     def update(self):
         """Check in with rovercode-web, updating our timestamp."""
@@ -309,6 +310,8 @@ if __name__ == '__main__':
         rovercode_web_url += '/'
     set_rovercodeweb_url(rovercode_web_url)
 
+    print(rovercode_web_url)
+
     client_id = os.getenv('CLIENT_ID', '')
     if client_id == '':
         raise NameError("Please add CLIENT_ID to your .env")
@@ -325,10 +328,15 @@ if __name__ == '__main__':
     motor_manager = MotorManager()
 
     websocket.enableTrace(True)
-    ws = websocket.WebSocketApp("ws://rovercodeweb:8000/ws/realtime/asdf/",
+    ws_url = "wss://beta.rovercode.com/ws/realtime/{}/".format(client_id)
+    print(ws_url)
+    auth_string = "Authorization: Bearer {}".format(heartbeat_manager.access_token)
+    print(auth_string)
+    ws = websocket.WebSocketApp(ws_url,
                               on_message=on_message,
                               on_error=on_error,
-                              on_close=on_close)
+                              on_close=on_close,
+                              header=[auth_string])
     ws.on_open = on_open
     ws.run_forever()
 
