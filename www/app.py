@@ -303,11 +303,13 @@ def on_open(ws):
     thread.start_new_thread(run, ())
 
 if __name__ == '__main__':
-    print "Starting the rover service!"
-    load_dotenv('./.env')
-    rovercode_web_url = os.getenv("ROVERCODE_WEB_URL", "https://rovercode.com/")
-    if rovercode_web_url[-1:] != '/':
-        rovercode_web_url += '/'
+    print("Starting the rover service!")
+    load_dotenv('../.env')
+    rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
+    rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", True)
+    if rovercode_web_host[-1:] == '/':
+        rovercode_web_host = rovercode_web_host[:-1]
+    rovercode_web_url = "{}://{}/".format("https" if rovercode_web_host_secure else "http", rovercode_web_host)
     set_rovercodeweb_url(rovercode_web_url)
 
     print(rovercode_web_url)
@@ -328,7 +330,7 @@ if __name__ == '__main__':
     motor_manager = MotorManager()
 
     websocket.enableTrace(True)
-    ws_url = "wss://beta.rovercode.com/ws/realtime/{}/".format(client_id)
+    ws_url = "{}://{}/ws/realtime/{}/".format("wss" if rovercode_web_host_secure else "ws", rovercode_web_host, client_id)
     print(ws_url)
     auth_string = "Authorization: Bearer {}".format(heartbeat_manager.access_token)
     print(auth_string)
