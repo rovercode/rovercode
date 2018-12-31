@@ -13,3 +13,5 @@ env/
 htmlcov/
 www/docs/generated/
 .coverage
+.DS_Store
+*/.DS_Store

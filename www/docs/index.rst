@@ -78,6 +78,7 @@ Contents
    contribute
    api
    build-a-rover
+   websocket-protocol
    
 
 Indices and tables
