@@ -284,6 +284,7 @@ def set_rovercodeweb_url(base_url):
 
 
 def on_message(ws, message):
+    print(time.time())
     print(message)
 
 def on_error(ws, error):
@@ -296,6 +297,7 @@ def on_open(ws):
     def run(*args):
         for i in range(3):
             time.sleep(1)
+            print(time.time())
             ws.send(json.dumps({'message': "Hello"}))
         time.sleep(1)
         ws.close()
@@ -306,7 +308,7 @@ if __name__ == '__main__':
     print("Starting the rover service!")
     load_dotenv('../.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
-    rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", True)
+    rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True') == 'True'
     if rovercode_web_host[-1:] == '/':
         rovercode_web_host = rovercode_web_host[:-1]
     rovercode_web_url = "{}://{}/".format("https" if rovercode_web_host_secure else "http", rovercode_web_host)
@@ -329,7 +331,7 @@ if __name__ == '__main__':
 
     motor_manager = MotorManager()
 
-    websocket.enableTrace(True)
+    # websocket.enableTrace(True)
     ws_url = "{}://{}/ws/realtime/{}/".format("wss" if rovercode_web_host_secure else "ws", rovercode_web_host, client_id)
     print(ws_url)
     auth_string = "Authorization: Bearer {}".format(heartbeat_manager.access_token)
