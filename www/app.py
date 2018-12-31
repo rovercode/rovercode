@@ -5,6 +5,8 @@ import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests, json, socket
+from oauthlib.oauth2 import BackendApplicationClient
+from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv, find_dotenv
 import os
 try:
@@ -308,7 +310,7 @@ if __name__ == '__main__':
     print("Starting the rover service!")
     load_dotenv('../.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
-    rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True') == 'True'
+    rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
     if rovercode_web_host[-1:] == '/':
         rovercode_web_host = rovercode_web_host[:-1]
     rovercode_web_url = "{}://{}/".format("https" if rovercode_web_host_secure else "http", rovercode_web_host)
@@ -323,18 +325,28 @@ if __name__ == '__main__':
     if client_secret == '':
         raise NameError("Please add CLIENT_SECRET to your .env")
 
-    heartbeat_manager = HeartBeatManager(
-            client_id= client_id,
-            client_secret= client_secret)
-    if heartbeat_manager.thread is None:
-        heartbeat_manager.thread = thread.start_new_thread(heartbeat_manager.thread_func, ())
+    if not rovercode_web_host_secure:
+        os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
+    client = BackendApplicationClient(client_id=client_id)
+    session = OAuth2Session(client=client)
+    session.fetch_token(token_url='{}://{}/oauth2/token/'
+                            .format('https' if rovercode_web_host_secure else 'http', rovercode_web_host),
+                        client_id=client_id,
+                        client_secret=client_secret)
+    print(session.access_token)
+
+    # heartbeat_manager = HeartBeatManager(
+    #         client_id= client_id,
+    #         client_secret= client_secret)
+    # if heartbeat_manager.thread is None:
+    #     heartbeat_manager.thread = thread.start_new_thread(heartbeat_manager.thread_func, ())
 
     motor_manager = MotorManager()
 
     # websocket.enableTrace(True)
     ws_url = "{}://{}/ws/realtime/{}/".format("wss" if rovercode_web_host_secure else "ws", rovercode_web_host, client_id)
     print(ws_url)
-    auth_string = "Authorization: Bearer {}".format(heartbeat_manager.access_token)
+    auth_string = "Authorization: Bearer {}".format(session.access_token)
     print(auth_string)
     ws = websocket.WebSocketApp(ws_url,
                               on_message=on_message,
