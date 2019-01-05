@@ -300,7 +300,7 @@ def on_open(ws):
         for i in range(3):
             time.sleep(1)
             print(time.time())
-            ws.send(json.dumps({'message': "Hello"}))
+            ws.send(json.dumps({"type": "heartbeat"}))
         time.sleep(1)
         ws.close()
         print("thread terminating...")
