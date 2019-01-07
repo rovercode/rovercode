@@ -1,13 +1,18 @@
 [Unit]
-Description=Rovercode robotics application
-After=network.target
+Description=rovercode Daemon Service
+After=network.target syslog.target
 
 [Service]
 Type=simple
 Restart=always
 RestartSec=1
 User=root
-ExecStart=/bin/bash /home/chip/rovercode/start.sh
+Group=root
+WorkingDirectory=/opt/rovercode/
+ExecStart=/bin/bash /opt/rovercode/start.sh
+StandardOutput=syslog
+StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
+Alias=rovercode.service
