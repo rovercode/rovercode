@@ -143,9 +143,9 @@ def sensors_thread():
         for s in binary_sensors:
             socketio.sleep(0.4)
             try:
-                # new_val = grovepi.ultrasonicRead(int(s.sensor)) < 20
-                new_val = False
-                print "Ultrasound %s: %s" % (s.name, new_val)
+                ultrasound_value = grovepi.ultrasonicRead(int(s.sensor))
+                new_val = ultrasound_value > 30
+                print "Ultrasound %s: %s is %s" % (s.name, ultrasound_value, new_val)
             except IOError:
                 # Skip it and try again later
                 continue
