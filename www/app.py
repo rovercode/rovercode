@@ -5,27 +5,24 @@ import requests, json, socket
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv, find_dotenv
 import os
-try:
-    import Adafruit_GPIO.PWM as pwmLib
-    import Adafruit_GPIO.GPIO as gpioLib
-except ImportError:
-    print "Adafruit_GPIO lib unavailable"
 
-from drivers.VCNL4010 import VCNL4010
+try:
+    import grovepi
+except ImportError:
+    print "GrovePi lib unavailable"
+
+try:
+    from grove_mini_motor_driver import MiniMotorDriver
+    from grove_mini_motor_driver import left_channel, right_channel
+except ImportError:
+    print "Grove Mini Motor Driver lib unavailable"
 
 """Globals"""
 ROVERCODE_WEB_REG_URL = ''
 ROVERCODE_WEB_OAUTH2_URL = ''
-DEFAULT_SOFTPWM_FREQ = 100
 binary_sensors = []
 ws_thread = None
 hb_thread = None
-
-try:
-    pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
-    gpio = gpioLib.get_platform_gpio()
-except NameError:
-    print "Adafruit_GPIO lib is unavailable"
 
 """Create flask app"""
 app = Flask(__name__)
@@ -49,7 +46,7 @@ class BinarySensor:
     def __init__(self, name, sensor, rising_event, falling_event):
         """Constructor for BinarySensor object."""
         self.name = name
-        self.sensor = sensor 
+        self.sensor = sensor
         self.rising_event = rising_event
         self.falling_event = falling_event
         self.old_val = False
@@ -146,7 +143,9 @@ def sensors_thread():
         for s in binary_sensors:
             socketio.sleep(0.4)
             try:
-                new_val = s.sensor.is_high()
+                # new_val = grovepi.ultrasonicRead(int(s.sensor)) < 20
+                new_val = False
+                print "Ultrasound %s: %s" % (s.name, new_val)
             except IOError:
                 # Skip it and try again later
                 continue
@@ -211,20 +210,20 @@ def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
     right_eye_threshold = get_env_int('RIGHT_EYE_THRESHOLD')
     binary_sensors.append(BinarySensor(
         "left_ir_sensor",
-        VCNL4010(left_eye_port, left_eye_addr, left_eye_led_current, left_eye_threshold),
+        4,
         'leftEyeUncovered',
         'leftEyeCovered'))
     binary_sensors.append(BinarySensor(
         "right_ir_sensor",
-        VCNL4010(right_eye_port, right_eye_addr, right_eye_led_current, right_eye_threshold),
+        8,
         'rightEyeUncovered',
         'rightEyeCovered'))
 
     # test adapter
-    if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
-        def mock_set_duty_cycle(pin, speed):
-            print "Setting pin " + pin + " to speed " + str(speed)
-        pwm.set_duty_cycle = mock_set_duty_cycle
+    # if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
+    #     def mock_set_duty_cycle(pin, speed):
+    #         print "Setting pin " + pin + " to speed " + str(speed)
+    #     pwm.set_duty_cycle = mock_set_duty_cycle
 
 def singleton(class_):
     """Helper class for creating a singleton."""
@@ -242,19 +241,42 @@ class MotorManager:
     """Object to manage the motor PWM states."""
 
     started_motors = []
+    motors = []
 
     def __init__(self):
         """Contruct a MotorManager."""
+        self.motors = MiniMotorDriver(0x60, 0x65)
+        self.motors.setDisplayFaults()
         print "Starting motor manager"
 
     def set_speed(self, pin, speed):
         """Set the speed of a motor pin."""
-        global pwm
-        if pin in self.started_motors:
-            pwm.set_duty_cycle(pin, speed)
+        if pin == 'XIO-P0':
+            print "motor - left:"
+            if (speed == 0):
+                self.motors.stopLeftMotor()
+                print "    stop!"
+            else:
+                if speed < 0:
+                    self.motors.setLeftMotor('REVERSE', abs(speed))
+                    print "    reverse %s" % (speed)
+                else:
+                    self.motors.setLeftMotor('FORWARD', speed)
+                    print "    forward %s" % (speed)
+        elif pin == 'XIO-P6':
+            print "motor - right:"
+            if (speed == 0):
+                self.motors.stopRightMotor()
+                print "    stop!"
+            else:
+                if speed < 0:
+                    self.motors.setRightMotor('REVERSE', abs(speed))
+                    print "    reverse %s" % (speed)
+                else:
+                    self.motors.setRightMotor('FORWARD', speed)
+                    print "    forward %s" % (speed)
         else:
-            pwm.start(pin, speed, DEFAULT_SOFTPWM_FREQ)
-            self.started_motors.append(pin)
+            print "Couldn't find pin: %s for speed %s" % (pin, speed)
 
 def run_command(decoded):
     """
