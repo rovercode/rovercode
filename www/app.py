@@ -210,12 +210,12 @@ def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
     right_eye_threshold = get_env_int('RIGHT_EYE_THRESHOLD')
     binary_sensors.append(BinarySensor(
         "left_ir_sensor",
-        4,
+        8,
         'leftEyeUncovered',
         'leftEyeCovered'))
     binary_sensors.append(BinarySensor(
         "right_ir_sensor",
-        8,
+        4,
         'rightEyeUncovered',
         'rightEyeCovered'))
 
@@ -257,11 +257,12 @@ class MotorManager:
                 self.motors.stopLeftMotor()
                 print "    stop!"
             else:
+                """ NOTE! The left motor is "backwards so invert the direction """
                 if speed < 0:
-                    self.motors.setLeftMotor('REVERSE', abs(speed))
+                    self.motors.setLeftMotor('FORWARD', abs(speed))
                     print "    reverse %s" % (speed)
                 else:
-                    self.motors.setLeftMotor('FORWARD', speed)
+                    self.motors.setLeftMotor('REVERSE', speed)
                     print "    forward %s" % (speed)
         elif pin == 'XIO-P6':
             print "motor - right:"
