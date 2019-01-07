@@ -6,7 +6,7 @@ setuptools*
 
 .idea
 .vscode/
-.env
+.env*
 .cache/
 .pytest_cache/
 env/
