@@ -2,6 +2,7 @@
 
 INI_DIR=www/
 ADAFRUIT_DIR=www/Adafruit_Python_GPIO
+GROVEPI_DIR=www/GrovePi/Software/Python
 
 if [ "${EUID}" -ne 0 ]; then
 	echo "Error: This script must be run as root."
@@ -13,13 +14,23 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 	exit 2
 fi
 
-apt-get install -y python python-dev python-pip python-smbus
+if [ ! -e ${GROVEPI_DIR} ]; then
+    echo "Error: GrovePi directory not found."
+    exit 3
+fi
+
+apt-get install -y python python-dev python-pip python-smbus python3 python3-dev python3-pip python3-smbus
 pip install virtualenv && \
 virtualenv --system-site-packages env && \
 . env/bin/activate && \
 pip install -r www/requirements.txt
+pip install -r ${GROVEPI_DIR}/requirements.txt
 
 pushd ${ADAFRUIT_DIR} > /dev/null
+python setup.py install
+popd > /dev/null
+
+pushd ${GROVEPI_DIR} > /dev/null
 python setup.py install
 popd > /dev/null
 

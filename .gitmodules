@@ -10,3 +10,6 @@
 [submodule "Adafruit_Python_GPIO"]
 	path = www/Adafruit_Python_GPIO
 	url = https://github.com/aninternetof/Adafruit_Python_GPIO
+[submodule "www/GrovePi"]
+	path = www/GrovePi
+	url = https://github.com/DexterInd/GrovePi.git
