@@ -57,6 +57,21 @@ class BinarySensor:
         self.sensor = sensor
         self.old_val = False
 
+    def get_change(self):
+        try:
+            new_val = self.sensor.is_high()
+        except IOError:
+            # Skip it and try again later
+            return None
+        if not self.old_val and new_val:
+            ret = True
+        elif self.old_val and not new_val:
+            ret = False
+        else:
+            ret = None
+        self.old_val = new_val
+        return ret
+
 
 def get_local_ip():
     """Get the local area network IP address of the rover."""
@@ -213,27 +228,15 @@ def on_open(ws):
             sensor_message = {
                 "type": "sensor-reading",
                 "sensor-type": "binary",
-                "sensor-id": None,
-                "sensor-value": None,
                 "unit": "active-high"
             }
-            for s in binary_sensors:
+            for sensor in binary_sensors:
                 time.sleep(0.4)
-                sensor_message['sensor-id'] = s.name
-                try:
-                    new_val = s.sensor.is_high()
-                except IOError:
-                    # Skip it and try again later
-                    continue
-                if not s.old_val and new_val:
-                    sensor_message['sensor-value'] = True
+                sensor_message['sensor-id'] = sensor.name
+                changed_value = sensor.get_change()
+                if changed_value is not None:
+                    sensor_message['sensor-value'] = changed_value
                     ws.send(json.dumps(sensor_message))
-                elif s.old_val and not new_val:
-                    sensor_message['sensor-value'] = False
-                    ws.send(json.dumps(sensor_message))
-                else:
-                    pass
-                s.old_val = new_val
 
     thread.start_new_thread(send_heartbeat, ())
     LOGGER.info("Heartbeat thread started")
