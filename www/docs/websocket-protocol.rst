@@ -9,7 +9,7 @@ Heartbeat
        "type": "heartbeat",
     }
 
-Motors Commands
+Motor Commands
 -----------------
 
 .. code-block:: json
@@ -18,6 +18,7 @@ Motors Commands
        "type": "motor-command",
        "motor-id": "motor-left",
        "motor-value": 84
+       "unit": "percent"
     }
 
 Sensor Readings
@@ -30,6 +31,7 @@ Sensor Readings
        "sensor-type": "distance",
        "sensor-id": "ultrasonic-left",
        "sensor-value": 42
+       "unit": "cm"
     }
 
 .. code-block:: json
@@ -38,5 +40,6 @@ Sensor Readings
        "type": "sensor-reading",
        "sensor-type": "binary",
        "sensor-id": "bumper-front",
-       "sensor-value": false
+       "sensor-value": false,
+       "unit": "active-high"
     }
