@@ -28,7 +28,6 @@ from drivers.DummyBinarySensor import DummyBinarySensor
 ROVERCODE_WEB_REG_URL = ''
 ROVERCODE_WEB_OAUTH2_URL = ''
 DEFAULT_SOFTPWM_FREQ = 100
-binary_sensors = []
 ws_thread = None
 hb_thread = None
 
@@ -58,6 +57,7 @@ class BinarySensor:
         self.sensor = sensor
         self.old_val = False
 
+
 def get_local_ip():
     """Get the local area network IP address of the rover."""
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -65,84 +65,6 @@ def get_local_ip():
     ip = s.getsockname()[0]
     s.close()
     return ip
-
-class HeartBeatManager():
-    """
-    A manager to register the rover with rovercode-web and periodically check in.
-
-    :param client_id:
-        The Oauth2 client id for this rover.
-    :param client_secret:
-        The Oauth2 client secret for this rover.
-    """
-
-    def __init__(self, client_id, client_secret, id=None):
-        """Constructor for the HeartBeatManager."""
-        self.run = True
-        self.thread = None
-        self.web_id = id
-        self.client_id = client_id
-        self.name = None
-        self.local_ip = get_local_ip()
-        self.auth_header = None
-
-        # Log in to rovercode-web using oauth credentials
-        login_data = {
-            'grant_type':'client_credentials',
-            'client_id':client_id,
-            'client_secret':client_secret,
-        }
-        r = requests.post(ROVERCODE_WEB_OAUTH2_URL + '/', data=login_data)
-        self.access_token = r.json()['access_token']
-        self.auth_header = {'Authorization':'Bearer ' + self.access_token}
-
-    def update(self):
-        """Check in with rovercode-web, updating our timestamp."""
-        payload = {'name': self.name, 'local_ip': self.local_ip}
-        return requests.put(ROVERCODE_WEB_REG_URL+"/"+str(self.web_id)+"/",
-                                data=payload,
-                                headers=self.auth_header)
-
-    def read(self):
-        """Look for our name on rovercode-web. Sets web_id if found."""
-        result = requests.get(ROVERCODE_WEB_REG_URL+'?client_id='+self.client_id, headers=self.auth_header)
-        try:
-            info = json.loads(result.text)[0]
-            self.web_id = info['id']
-            self.name = info['name']
-            init_inputs(
-                info['left_eye_i2c_port'],
-                info['left_eye_i2c_addr'],
-                info['right_eye_i2c_port'],
-                info['right_eye_i2c_addr']
-            )
-        except (KeyError, IndexError) as e:
-            LOGGER.error("Missing something important from rover payload: %s", e)
-            self.web_id = None
-
-    def stopThread(self):
-        """Gracefully stop the periodic check-in thread."""
-        self.run = False
-
-    def thread_func(self, run_once=False):
-        """Thread function that periodically checks in with rovercode-web."""
-        self.read()
-        while self.run:
-            if self.web_id is not None:
-                print "Checking in with rovercode-web with ID " + str(self.web_id)
-                r = self.update()
-                if r.status_code in [200, 201]:
-                    print "... success"
-                else:
-                    print "... error while updating"
-            else:
-                print "No rover web-id found when trying to update!"
-            if run_once:
-                break
-            time.sleep(3)
-        print "Exiting heartbeat thread"
-        return
-
 
 
 def connect():
@@ -179,7 +101,7 @@ def send_command():
 
 def init_inputs(rover_params, dummy=False):
     """Initialize input GPIO."""
-    global binary_sensors
+    binary_sensors = []
 
     def get_env_int(name):
         try:
@@ -199,20 +121,17 @@ def init_inputs(rover_params, dummy=False):
             "right_ir_sensor",
             VCNL4010(rover_params['right_eye_port'], rover_params['right_eye_addr'], right_eye_led_current, right_eye_threshold)))
     else:
-        binary_sensors.append(BinarySensor(
-            "left_dummy_sensor",
-            DummyBinarySensor()
-        ))
-        binary_sensors.append(BinarySensor(
-            "right_dummy_sensor",
-            DummyBinarySensor()
-        ))
+        binary_sensors.append(BinarySensor("left_dummy_sensor", DummyBinarySensor()))
+        binary_sensors.append(BinarySensor("right_dummy_sensor",DummyBinarySensor()))
 
     # test adapter
     if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
         def mock_set_duty_cycle(pin, speed):
             print "Setting pin " + pin + " to speed " + str(speed)
         pwm.set_duty_cycle = mock_set_duty_cycle
+
+    return binary_sensors
+
 
 def singleton(class_):
     """Helper class for creating a singleton."""
@@ -244,6 +163,7 @@ class MotorManager:
             pwm.start(pin, speed, DEFAULT_SOFTPWM_FREQ)
             self.started_motors.append(pin)
 
+
 def run_command(decoded):
     """
     Run the command specified by `decoded`.
@@ -262,13 +182,6 @@ def run_command(decoded):
         print decoded['pin']
         print "Stopping motor"
         motor_manager.set_speed(decoded['pin'], 0)
-
-def set_rovercodeweb_url(base_url):
-    """Set the global URL variables for rovercodeweb."""
-    global ROVERCODE_WEB_OAUTH2_URL
-    global ROVERCODE_WEB_REG_URL
-    ROVERCODE_WEB_REG_URL = base_url + "api/v1/rovers"
-    ROVERCODE_WEB_OAUTH2_URL = base_url + "oauth2/token"
 
 
 def on_message(ws, message):
@@ -292,6 +205,10 @@ def on_open(ws):
 
     def poll_sensors(*args):
         """Scan each binary sensor and sends events based on changes."""
+        info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
+        LOGGER.info("Found myself - I am %s, with id %s", info['name'], info['id'])
+        binary_sensors = init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
+
         while True:
             sensor_message = {
                 "type": "sensor-reading",
@@ -300,7 +217,6 @@ def on_open(ws):
                 "sensor-value": None,
                 "unit": "active-high"
             }
-            global binary_sensors
             for s in binary_sensors:
                 time.sleep(0.4)
                 sensor_message['sensor-id'] = s.name
@@ -335,7 +251,6 @@ if __name__ == '__main__':
     if rovercode_web_host[-1:] == '/':
         rovercode_web_host = rovercode_web_host[:-1]
     rovercode_web_url = "{}://{}".format("https" if rovercode_web_host_secure else "http", rovercode_web_host)
-    set_rovercodeweb_url(rovercode_web_url)
 
     client_id = os.getenv('CLIENT_ID', '')
     if client_id == '':
@@ -354,9 +269,9 @@ if __name__ == '__main__':
                         client_id=client_id,
                         client_secret=client_secret)
 
-    info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
-    LOGGER.info("Found myself - I am %s, with id %s", info['name'], info['id'])
-    init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
+    # info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
+    # LOGGER.info("Found myself - I am %s, with id %s", info['name'], info['id'])
+    # init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
 
     motor_manager = MotorManager()
 
