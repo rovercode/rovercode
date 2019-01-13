@@ -1,6 +1,7 @@
 """Rovercode app."""
 import websocket
 import thread
+import logging
 import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -9,11 +10,16 @@ from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv, find_dotenv
 import os
+
+logging.basicConfig()
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.getLevelName('INFO'))
+
 try:
     import Adafruit_GPIO.PWM as pwmLib
     import Adafruit_GPIO.GPIO as gpioLib
 except ImportError:
-    print "Adafruit_GPIO lib unavailable"
+    print LOGGER.warn("Adafruit_GPIO lib unavailable")
 
 from drivers.VCNL4010 import VCNL4010
 
@@ -29,7 +35,7 @@ try:
     pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
     gpio = gpioLib.get_platform_gpio()
 except NameError:
-    print "Adafruit_GPIO lib is unavailable"
+    LOGGER.warn("Adafruit_GPIO lib is unavailable")
 
 """Create flask app"""
 app = Flask(__name__)
@@ -116,7 +122,7 @@ class HeartBeatManager():
                 info['right_eye_i2c_addr']
             )
         except (KeyError, IndexError) as e:
-            print "Missing something important from rover payload: " + str(e)
+            LOGGER.error("Missing something important from rover payload: %s", e)
             self.web_id = None
 
     def stopThread(self):
@@ -247,7 +253,7 @@ class MotorManager:
 
     def __init__(self):
         """Contruct a MotorManager."""
-        print "Starting motor manager"
+        LOGGER.info("Starting motor manager")
 
     def set_speed(self, pin, speed):
         """Set the speed of a motor pin."""
@@ -286,37 +292,40 @@ def set_rovercodeweb_url(base_url):
 
 
 def on_message(ws, message):
-    print(time.time())
-    print(message)
+    LOGGER.info(message)
+
 
 def on_error(ws, error):
-    print(error)
+    LOGGER.error(error)
+
 
 def on_close(ws):
-    print("### closed ###")
+    LOGGER.warn("Websocket connection closed")
+
 
 def on_open(ws):
-    def run(*args):
+    def send_heartbeat(*args):
         for i in range(3):
             time.sleep(1)
-            print(time.time())
             ws.send(json.dumps({"type": "heartbeat"}))
         time.sleep(1)
         ws.close()
-        print("thread terminating...")
-    thread.start_new_thread(run, ())
+
+    thread.start_new_thread(send_heartbeat, ())
+    LOGGER.info("Heartbeat thread started.")
+
+
 
 if __name__ == '__main__':
-    print("Starting the rover service!")
+    LOGGER.info("Starting the rover service!")
     load_dotenv('../.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
+
     rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
     if rovercode_web_host[-1:] == '/':
         rovercode_web_host = rovercode_web_host[:-1]
     rovercode_web_url = "{}://{}/".format("https" if rovercode_web_host_secure else "http", rovercode_web_host)
     set_rovercodeweb_url(rovercode_web_url)
-
-    print(rovercode_web_url)
 
     client_id = os.getenv('CLIENT_ID', '')
     if client_id == '':
@@ -324,6 +333,8 @@ if __name__ == '__main__':
     client_secret = os.getenv('CLIENT_SECRET', '')
     if client_secret == '':
         raise NameError("Please add CLIENT_SECRET to your .env")
+
+    LOGGER.info("Targeting host %s. My client id is %s", rovercode_web_url, client_id)
 
     if not rovercode_web_host_secure:
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
@@ -333,7 +344,6 @@ if __name__ == '__main__':
                             .format('https' if rovercode_web_host_secure else 'http', rovercode_web_host),
                         client_id=client_id,
                         client_secret=client_secret)
-    print(session.access_token)
 
     # heartbeat_manager = HeartBeatManager(
     #         client_id= client_id,
@@ -345,9 +355,7 @@ if __name__ == '__main__':
 
     # websocket.enableTrace(True)
     ws_url = "{}://{}/ws/realtime/{}/".format("wss" if rovercode_web_host_secure else "ws", rovercode_web_host, client_id)
-    print(ws_url)
     auth_string = "Authorization: Bearer {}".format(session.access_token)
-    print(auth_string)
     ws = websocket.WebSocketApp(ws_url,
                               on_message=on_message,
                               on_error=on_error,
