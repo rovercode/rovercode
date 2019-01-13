@@ -22,6 +22,7 @@ except ImportError:
     print LOGGER.warn("Adafruit_GPIO lib unavailable")
 
 from drivers.VCNL4010 import VCNL4010
+from drivers.DummyBinarySensor import DummyBinarySensor
 
 """Globals"""
 ROVERCODE_WEB_REG_URL = ''
@@ -49,18 +50,12 @@ class BinarySensor:
         The human readable name of the sensor
     :param sensor:
         The object representing the hardware sensor
-    :param rising_event:
-        The event name associated with a signal changing from low to high
-    :param falling_event:
-        The event name associated with a signal changing from high to low
     """
 
-    def __init__(self, name, sensor, rising_event, falling_event):
+    def __init__(self, name, sensor):
         """Constructor for BinarySensor object."""
         self.name = name
-        self.sensor = sensor 
-        self.rising_event = rising_event
-        self.falling_event = falling_event
+        self.sensor = sensor
         self.old_val = False
 
 def get_local_ip():
@@ -149,28 +144,6 @@ class HeartBeatManager():
         return
 
 
-def sensors_thread():
-    """Scan each binary sensor and sends events based on changes."""
-    while True:
-        global binary_sensors
-        for s in binary_sensors:
-            socketio.sleep(0.4)
-            try:
-                new_val = s.sensor.is_high()
-            except IOError:
-                # Skip it and try again later
-                continue
-            if (s.old_val == False) and (new_val == True):
-                print s.rising_event
-                socketio.emit('binary_sensors', {'data': s.rising_event},
-                    namespace='/api/v1/')
-            elif (s.old_val == True) and (new_val == False):
-                print s.falling_event
-                socketio.emit('binary_sensors', {'data': s.falling_event},
-                    namespace='/api/v1/')
-            else:
-                pass
-            s.old_val = new_val
 
 def connect():
     """Connect to the rovercode-web websocket."""
@@ -203,7 +176,8 @@ def send_command():
     run_command(request.form)
     return jsonify(request.form)
 
-def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
+
+def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr, dummy=False):
     """Initialize input GPIO."""
     global binary_sensors
 
@@ -217,16 +191,22 @@ def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr):
     left_eye_threshold = get_env_int('LEFT_EYE_THRESHOLD')
     right_eye_led_current = get_env_int('RIGHT_EYE_LED_CURRENT')
     right_eye_threshold = get_env_int('RIGHT_EYE_THRESHOLD')
-    binary_sensors.append(BinarySensor(
-        "left_ir_sensor",
-        VCNL4010(left_eye_port, left_eye_addr, left_eye_led_current, left_eye_threshold),
-        'leftEyeUncovered',
-        'leftEyeCovered'))
-    binary_sensors.append(BinarySensor(
-        "right_ir_sensor",
-        VCNL4010(right_eye_port, right_eye_addr, right_eye_led_current, right_eye_threshold),
-        'rightEyeUncovered',
-        'rightEyeCovered'))
+    if not dummy:
+        binary_sensors.append(BinarySensor(
+            "left_ir_sensor",
+            VCNL4010(left_eye_port, left_eye_addr, left_eye_led_current, left_eye_threshold)))
+        binary_sensors.append(BinarySensor(
+            "right_ir_sensor",
+            VCNL4010(right_eye_port, right_eye_addr, right_eye_led_current, right_eye_threshold)))
+    else:
+        binary_sensors.append(BinarySensor(
+            "left_dummy_sensor",
+            DummyBinarySensor()
+        ))
+        binary_sensors.append(BinarySensor(
+            "right_dummy_sensor",
+            DummyBinarySensor()
+        ))
 
     # test adapter
     if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
@@ -305,19 +285,49 @@ def on_close(ws):
 
 def on_open(ws):
     def send_heartbeat(*args):
-        for i in range(3):
-            time.sleep(1)
+        """Send a periodic message to the websocket server."""
+        while True:
+            time.sleep(3)
             ws.send(json.dumps({"type": "heartbeat"}))
-        time.sleep(1)
-        ws.close()
+
+    def poll_sensors(*args):
+        """Scan each binary sensor and sends events based on changes."""
+        while True:
+            sensor_message = {
+                "type": "sensor-reading",
+                "sensor-type": "binary",
+                "sensor-id": None,
+                "sensor-value": None,
+                "unit": "active-high"
+            }
+            global binary_sensors
+            for s in binary_sensors:
+                time.sleep(0.4)
+                sensor_message['sensor-id'] = s.name
+                try:
+                    new_val = s.sensor.is_high()
+                except IOError:
+                    # Skip it and try again later
+                    continue
+                if not s.old_val and new_val:
+                    sensor_message['sensor-value'] = True
+                    ws.send(json.dumps(sensor_message))
+                elif s.old_val and not new_val:
+                    sensor_message['sensor-value'] = False
+                    ws.send(json.dumps(sensor_message))
+                else:
+                    pass
+                s.old_val = new_val
 
     thread.start_new_thread(send_heartbeat, ())
-    LOGGER.info("Heartbeat thread started.")
+    LOGGER.info("Heartbeat thread started")
 
+    thread.start_new_thread(poll_sensors, ())
+    LOGGER.info("Sensors thread started")
 
 
 if __name__ == '__main__':
-    LOGGER.info("Starting the rover service!")
+    LOGGER.info("Starting the Rovercode service!")
     load_dotenv('../.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
 
@@ -344,6 +354,8 @@ if __name__ == '__main__':
                             .format('https' if rovercode_web_host_secure else 'http', rovercode_web_host),
                         client_id=client_id,
                         client_secret=client_secret)
+
+    init_inputs(None, None, None, None, dummy=True)
 
     # heartbeat_manager = HeartBeatManager(
     #         client_id= client_id,
