@@ -177,7 +177,7 @@ def send_command():
     return jsonify(request.form)
 
 
-def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr, dummy=False):
+def init_inputs(rover_params, dummy=False):
     """Initialize input GPIO."""
     global binary_sensors
 
@@ -194,10 +194,10 @@ def init_inputs(left_eye_port, left_eye_addr, right_eye_port, right_eye_addr, du
     if not dummy:
         binary_sensors.append(BinarySensor(
             "left_ir_sensor",
-            VCNL4010(left_eye_port, left_eye_addr, left_eye_led_current, left_eye_threshold)))
+            VCNL4010(rover_params['left_eye_I2C_port'], rover_params['left_eye_i2c_addr'], left_eye_led_current, left_eye_threshold)))
         binary_sensors.append(BinarySensor(
             "right_ir_sensor",
-            VCNL4010(right_eye_port, right_eye_addr, right_eye_led_current, right_eye_threshold)))
+            VCNL4010(rover_params['right_eye_port'], rover_params['right_eye_addr'], right_eye_led_current, right_eye_threshold)))
     else:
         binary_sensors.append(BinarySensor(
             "left_dummy_sensor",
@@ -334,7 +334,7 @@ if __name__ == '__main__':
     rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
     if rovercode_web_host[-1:] == '/':
         rovercode_web_host = rovercode_web_host[:-1]
-    rovercode_web_url = "{}://{}/".format("https" if rovercode_web_host_secure else "http", rovercode_web_host)
+    rovercode_web_url = "{}://{}".format("https" if rovercode_web_host_secure else "http", rovercode_web_host)
     set_rovercodeweb_url(rovercode_web_url)
 
     client_id = os.getenv('CLIENT_ID', '')
@@ -350,29 +350,19 @@ if __name__ == '__main__':
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
     client = BackendApplicationClient(client_id=client_id)
     session = OAuth2Session(client=client)
-    session.fetch_token(token_url='{}://{}/oauth2/token/'
-                            .format('https' if rovercode_web_host_secure else 'http', rovercode_web_host),
+    session.fetch_token(token_url='{}/oauth2/token/'.format(rovercode_web_url),
                         client_id=client_id,
                         client_secret=client_secret)
 
-    init_inputs(None, None, None, None, dummy=True)
-
-    # heartbeat_manager = HeartBeatManager(
-    #         client_id= client_id,
-    #         client_secret= client_secret)
-    # if heartbeat_manager.thread is None:
-    #     heartbeat_manager.thread = thread.start_new_thread(heartbeat_manager.thread_func, ())
+    info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
+    LOGGER.info("Found myself - I am %s, with id %s", info['name'], info['id'])
+    init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
 
     motor_manager = MotorManager()
 
-    # websocket.enableTrace(True)
     ws_url = "{}://{}/ws/realtime/{}/".format("wss" if rovercode_web_host_secure else "ws", rovercode_web_host, client_id)
     auth_string = "Authorization: Bearer {}".format(session.access_token)
-    ws = websocket.WebSocketApp(ws_url,
-                              on_message=on_message,
-                              on_error=on_error,
-                              on_close=on_close,
-                              header=[auth_string])
+    ws = websocket.WebSocketApp(ws_url, on_message=on_message, on_error=on_error, on_close=on_close, header=[auth_string])
     ws.on_open = on_open
     ws.run_forever()
 
