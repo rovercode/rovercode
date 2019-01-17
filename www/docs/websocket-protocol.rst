@@ -17,7 +17,7 @@ Motor Commands
     {
        "type": "motor-command",
        "motor-id": "motor-left",
-       "motor-value": 84
+       "motor-value": 84,
        "unit": "percent"
     }
 

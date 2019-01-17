@@ -17,10 +17,11 @@ LOGGER.setLevel(logging.getLevelName('INFO'))
 
 from drivers.VCNL4010 import VCNL4010
 from drivers.DummyBinarySensor import DummyBinarySensor
-from motor_manager import MotorManager
+from drivers.adafruit_pwm_manager import AdafruitPwmManager
 from binary_sensor import BinarySensor
 
 """Globals"""
+adafruit_motor_manager = None
 ROVERCODE_WEB_REG_URL = ''
 ROVERCODE_WEB_OAUTH2_URL = ''
 ws_thread = None
@@ -108,20 +109,24 @@ def run_command(decoded):
         The command to run
     """
     print decoded['command']
-    global motor_manager
+    global adafruit_motor_manager
     if decoded['command'] == 'START_MOTOR':
         print decoded['pin']
         print decoded['speed']
         print "Starting motor"
-        motor_manager.set_speed(decoded['pin'], float(decoded['speed']))
+        adafruit_motor_manager.set_speed(decoded['pin'], float(decoded['speed']))
     elif decoded['command'] == 'STOP_MOTOR':
         print decoded['pin']
         print "Stopping motor"
-        motor_manager.set_speed(decoded['pin'], 0)
+        adafruit_motor_manager.set_speed(decoded['pin'], 0)
 
 
-def on_message(ws, message):
-    LOGGER.info(message)
+def on_message(ws, raw_message):
+    global adafruit_motor_manager
+    message = json.loads(raw_message)
+    type = message['type']
+    if type == 'motor-command':
+        adafruit_motor_manager.set_speed(message['motor-id'], message['motor-value'])
 
 
 def on_error(ws, error):
@@ -139,12 +144,8 @@ def on_open(ws):
             time.sleep(3)
             ws.send(json.dumps({"type": "heartbeat"}))
 
-    def poll_sensors(*args):
+    def poll_sensors(binary_sensors):
         """Scan each binary sensor and sends events based on changes."""
-        info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
-        LOGGER.info("Found myself - I am %s, with id %s", info['name'], info['id'])
-        binary_sensors = init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
-
         while True:
             time.sleep(0.2)
             sensor_message = {
@@ -160,10 +161,21 @@ def on_open(ws):
                     sensor_message['sensor-value'] = changed_value
                     ws.send(json.dumps(sensor_message))
 
+    info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
+    LOGGER.info("Found myself - I am %s, with id %s", info['name'], info['id'])
+
+    # Create motor manager
+    global adafruit_motor_manager
+    adafruit_motor_manager = AdafruitPwmManager(info['left_forward_pin'], info['left_backward_pin'],
+                                                info['right_forward_pin'], info['right_backward_pin'])
+
+    # Start heartbeat thread
     thread.start_new_thread(send_heartbeat, ())
     LOGGER.info("Heartbeat thread started")
 
-    thread.start_new_thread(poll_sensors, ())
+    # Start inputs thread
+    binary_sensors = init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
+    thread.start_new_thread(poll_sensors, (binary_sensors,))
     LOGGER.info("Sensors thread started")
 
 
@@ -193,8 +205,6 @@ if __name__ == '__main__':
     session.fetch_token(token_url='{}/oauth2/token/'.format(rovercode_web_url),
                         client_id=client_id,
                         client_secret=client_secret)
-
-    motor_manager = MotorManager()
 
     ws_url = "{}://{}/ws/realtime/{}/".format("wss" if rovercode_web_host_secure else "ws", rovercode_web_host, client_id)
     auth_string = "Authorization: Bearer {}".format(session.access_token)
