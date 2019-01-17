@@ -225,13 +225,14 @@ def on_open(ws):
         binary_sensors = init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
 
         while True:
+            time.sleep(0.2)
             sensor_message = {
                 "type": "sensor-reading",
                 "sensor-type": "binary",
                 "unit": "active-high"
             }
             for sensor in binary_sensors:
-                time.sleep(0.4)
+                time.sleep(0.2)
                 sensor_message['sensor-id'] = sensor.name
                 changed_value = sensor.get_change()
                 if changed_value is not None:
@@ -271,10 +272,6 @@ if __name__ == '__main__':
     session.fetch_token(token_url='{}/oauth2/token/'.format(rovercode_web_url),
                         client_id=client_id,
                         client_secret=client_secret)
-
-    # info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
-    # LOGGER.info("Found myself - I am %s, with id %s", info['name'], info['id'])
-    # init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
 
     motor_manager = MotorManager()
 
