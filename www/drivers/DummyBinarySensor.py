@@ -9,6 +9,7 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
 
+
 class DummyBinarySensor:
     """A sensor that returns random values"""
 
