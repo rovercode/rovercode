@@ -5,37 +5,26 @@ import logging
 import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import requests, json, socket
+import json, socket
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 import os
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
 
-try:
-    import Adafruit_GPIO.PWM as pwmLib
-    import Adafruit_GPIO.GPIO as gpioLib
-except ImportError:
-    print LOGGER.warn("Adafruit_GPIO lib unavailable")
-
 from drivers.VCNL4010 import VCNL4010
 from drivers.DummyBinarySensor import DummyBinarySensor
+from motor_manager import MotorManager
 
 """Globals"""
 ROVERCODE_WEB_REG_URL = ''
 ROVERCODE_WEB_OAUTH2_URL = ''
-DEFAULT_SOFTPWM_FREQ = 100
 ws_thread = None
 hb_thread = None
 
-try:
-    pwm = pwmLib.get_platform_pwm(pwmtype="softpwm")
-    gpio = gpioLib.get_platform_gpio()
-except NameError:
-    LOGGER.warn("Adafruit_GPIO lib is unavailable")
 
 """Create flask app"""
 app = Flask(__name__)
@@ -139,44 +128,7 @@ def init_inputs(rover_params, dummy=False):
         binary_sensors.append(BinarySensor("left_dummy_sensor", DummyBinarySensor()))
         binary_sensors.append(BinarySensor("right_dummy_sensor",DummyBinarySensor()))
 
-    # test adapter
-    if pwm.__class__.__name__ == 'DUMMY_PWM_Adapter':
-        def mock_set_duty_cycle(pin, speed):
-            print "Setting pin " + pin + " to speed " + str(speed)
-        pwm.set_duty_cycle = mock_set_duty_cycle
-
     return binary_sensors
-
-
-def singleton(class_):
-    """Helper class for creating a singleton."""
-    instances = {}
-    def getInstance(*args, **kwargs):
-        if class_ not in instances:
-            instances[class_] = class_(*args, **kwargs)
-        else:
-            print "Warning: tried to create multiple instances of singleton " + class_.__name__
-        return instances[class_]
-    return getInstance
-
-@singleton
-class MotorManager:
-    """Object to manage the motor PWM states."""
-
-    started_motors = []
-
-    def __init__(self):
-        """Contruct a MotorManager."""
-        LOGGER.info("Starting motor manager")
-
-    def set_speed(self, pin, speed):
-        """Set the speed of a motor pin."""
-        global pwm
-        if pin in self.started_motors:
-            pwm.set_duty_cycle(pin, speed)
-        else:
-            pwm.start(pin, speed, DEFAULT_SOFTPWM_FREQ)
-            self.started_motors.append(pin)
 
 
 def run_command(decoded):
