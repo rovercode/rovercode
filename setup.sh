@@ -1,7 +1,7 @@
 #! /bin/bash
 
-INI_DIR=www/
-ADAFRUIT_DIR=www/Adafruit_Python_GPIO
+INI_DIR=rovercode/
+ADAFRUIT_DIR=rovercode/Adafruit_Python_GPIO
 
 if [ "${EUID}" -ne 0 ]; then
 	echo "Error: This script must be run as root."
@@ -31,7 +31,7 @@ python3 setup.py install
 pip install virtualenv && \
 virtualenv --system-site-packages env && \
 . env/bin/activate && \
-pip install -r www/requirements.txt
+pip install -r requirements.txt
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install

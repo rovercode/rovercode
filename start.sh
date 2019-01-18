@@ -1,6 +1,6 @@
 #! /bin/bash
 
-APP_DIR=www/
+APP_DIR=rovercode/
 
 if [ "${EUID}" -ne 0 ]; then
 	echo "Error: This script must be run as root."
