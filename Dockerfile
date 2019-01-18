@@ -16,13 +16,15 @@ RUN wget https://gist.githubusercontent.com/sebastianludwig/c648a9e06c0dc2264fbd
 RUN python3 setup.py build
 RUN python3 setup.py install
 
-ADD www /var/www/rovercode/www
+ADD .env /var/rovercode/.env
+ADD requirements.txt /var/rovercode/requirements.txt
+ADD rovercode /var/rovercode/rovercode
 
-WORKDIR /var/www/rovercode/www
+WORKDIR /var/rovercode
 RUN pip install -r requirements.txt
 
-WORKDIR /var/www/rovercode/www/Adafruit_Python_GPIO
+WORKDIR /var/rovercode/rovercode/Adafruit_Python_GPIO
 RUN python setup.py install
-WORKDIR /var/www/rovercode/www
+WORKDIR /var/rovercode/rovercode
 RUN echo 'python3.6 app.py' > /usr/bin/run.sh
 ENTRYPOINT ["bash", "/usr/bin/run.sh"]
