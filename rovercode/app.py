@@ -13,7 +13,7 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
 
-from binary_sensor import BinarySensor
+from drivers.binary_sensor import BinarySensor
 from drivers.dummy_binary_sensor import DummyBinarySensor
 from drivers.adafruit_pwm_manager import AdafruitPwmManager
 from drivers.VCNL4010 import VCNL4010
@@ -111,8 +111,8 @@ def on_open(ws):
 
 
 if __name__ == '__main__':
-    LOGGER.info("Starting the Rovercode service!")
-    load_dotenv('../.env')
+    LOGGER.info("Starting the Rovercode service!!!!")
+    load_dotenv('.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
 
     rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
