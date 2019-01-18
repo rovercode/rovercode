@@ -1,6 +1,6 @@
 """Base classes for pytest."""
 import pytest
-import app
+import rovercode.app as app
 
 @pytest.fixture
 def testapp():

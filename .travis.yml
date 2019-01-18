@@ -11,14 +11,14 @@ before_install:
   libreadline-dev
 - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev
   wget curl llvm
-- cd www/Adafruit_Python_GPIO/
+- cd Adafruit_Python_GPIO/
 - python setup.py install
 - cd ../../
 install:
-- pip install -r www/requirements.txt
+- pip install -r requirements.txt
 - pip install coveralls
 script:
-- pushd www/docs
+- pushd docs
 - make html
 - popd
 after_success:
@@ -34,7 +34,7 @@ deploy:
   secret_access_key:
     secure: Lq6DttSkL5KvXxibAbiAPeyGEH+8K7VWZNQRJD8XJIqBkd+yhlO1rldehN8IVKpM6iCaWRrwSPh/XAgKP6SZE89AgIDtNmlvIa+pMvGucp3VmkK90e6XA/bkiUGyax8hFniXBAYHKFScPIe+T1SJ8c67ABqjOXeq98pK3ejD5aEvXPpLrWdT88wMleqGZ/EIJmgFoAHInCmKzi+Zoc3sf4Q/tFrKHtAYwn1bgCkuIz9VluFDhF2VT5z5yUoOBXae6IVj+jNcOxZRXb8a0vZwcMpz0TndznkdnTgFiObU5hxtGtpTppPikNxgM3CY7tj/AyFdk/C3oS4Q6tmxzBJKbDqKlqukeFnsbU0PyfwOCW+YFPKCyrRuJUooHVqp8qS71bxBqOFX/picnulzMhwGoJAUFJiWlKpTSuruGFDxNZw0gA01IDYcbsws+FCvsOij3veC9RdU34q3qXEEeXTlWpDGj76X1fteA9YSkhoHnDwbNQ+bJqabi8NBD6Dilzgtbci3BN1orZ/pqSxbTlUMMJpoj2i12W1fVWUF344dIVbZdxhe4e8HezsWIiUcBR+fgfT/ecwt4CvcC6VDA0QDWt5ZoRHIT5CDMcc0zKfWhyQpAFAoTAIkm/BYfzGG+LV15miRxH36GL04f/FdaCSRgJMNEovuSY8UN6WDW3Jr0MI=
   bucket: rovercode-contrib-docs
-  local_dir: www/docs/_build/html
+  local_dir: docs/_build/html
   upload-dir: rovercode/development
   acl: public_read
   skip_cleanup: true
@@ -47,7 +47,7 @@ deploy:
   secret_access_key:
     secure: Lq6DttSkL5KvXxibAbiAPeyGEH+8K7VWZNQRJD8XJIqBkd+yhlO1rldehN8IVKpM6iCaWRrwSPh/XAgKP6SZE89AgIDtNmlvIa+pMvGucp3VmkK90e6XA/bkiUGyax8hFniXBAYHKFScPIe+T1SJ8c67ABqjOXeq98pK3ejD5aEvXPpLrWdT88wMleqGZ/EIJmgFoAHInCmKzi+Zoc3sf4Q/tFrKHtAYwn1bgCkuIz9VluFDhF2VT5z5yUoOBXae6IVj+jNcOxZRXb8a0vZwcMpz0TndznkdnTgFiObU5hxtGtpTppPikNxgM3CY7tj/AyFdk/C3oS4Q6tmxzBJKbDqKlqukeFnsbU0PyfwOCW+YFPKCyrRuJUooHVqp8qS71bxBqOFX/picnulzMhwGoJAUFJiWlKpTSuruGFDxNZw0gA01IDYcbsws+FCvsOij3veC9RdU34q3qXEEeXTlWpDGj76X1fteA9YSkhoHnDwbNQ+bJqabi8NBD6Dilzgtbci3BN1orZ/pqSxbTlUMMJpoj2i12W1fVWUF344dIVbZdxhe4e8HezsWIiUcBR+fgfT/ecwt4CvcC6VDA0QDWt5ZoRHIT5CDMcc0zKfWhyQpAFAoTAIkm/BYfzGG+LV15miRxH36GL04f/FdaCSRgJMNEovuSY8UN6WDW3Jr0MI=
   bucket: rovercode-contrib-docs
-  local_dir: www/docs/_build/html
+  local_dir: docs/_build/html
   upload-dir: rovercode/master
   acl: public_read
   skip_cleanup: true
