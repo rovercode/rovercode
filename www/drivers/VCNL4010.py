@@ -10,7 +10,7 @@ try:
 except ImportError:
     pass
 
-from MockSmbus import MockSmbus
+from drivers.mock_smbus import MockSmbus
 
 
 class VCNL4010:
@@ -24,14 +24,14 @@ class VCNL4010:
             binary_threshold = 2150
         self.binary_threshold = binary_threshold
 
-        print "Setting up VCNL4010 with LED current {} and threshold {}"\
-            .format(led_current, self.binary_threshold)
+        print("Setting up VCNL4010 with LED current {} and threshold {}"\
+            .format(led_current, self.binary_threshold))
 
         try:
             self.bus = smbus.SMBus(i2c_port)
         except (IOError, NameError):
-            print "VCNL4010 was unable to connect to I2C bus {}. " \
-                  "Mocking out the bus".format(i2c_port)
+            print("VCNL4010 was unable to connect to I2C bus {}. " \
+                  "Mocking out the bus".format(i2c_port))
             self.bus = MockSmbus()
 
         self.i2c_addr = i2c_addr
@@ -53,8 +53,8 @@ class VCNL4010:
             # 0x9D Continuos conversion mode, ALS rate 2 samples/sec
             self.bus.write_byte_data(i2c_addr, 0x84, 0x9D)
         except IOError:
-            print 'Failed to init VCNL4010 at port {}, address {}'\
-                .format(i2c_port, i2c_addr)
+            print('Failed to init VCNL4010 at port {}, address {}'\
+                .format(i2c_port, i2c_addr))
 
     def get_values(self):
         """Return the proximity and luminance."""
@@ -63,8 +63,8 @@ class VCNL4010:
         try:
             data = self.bus.read_i2c_block_data(self.i2c_addr, 0x85, 4)
         except IOError:
-            print 'Failed to read VCNL4010 at address {} register 0x85'\
-                .format(self.i2c_addr)
+            print('Failed to read VCNL4010 at address {} register 0x85'\
+                .format(self.i2c_addr))
             raise
 
         # Convert the data

@@ -8,7 +8,7 @@ try:
     import Adafruit_GPIO.PWM as pwmLib
     import Adafruit_GPIO.GPIO as gpioLib
 except ImportError:
-    print LOGGER.warn("Adafruit_GPIO lib unavailable")
+    LOGGER.warn("Adafruit_GPIO lib unavailable")
 
 
 def singleton(class_):
@@ -19,7 +19,7 @@ def singleton(class_):
         if class_ not in instances:
             instances[class_] = class_(*args, **kwargs)
         else:
-            print "Warning: tried to create multiple instances of singleton " + class_.__name__
+            LOGGER.warn("Warning: tried to create multiple instances of singleton " + class_.__name__)
         return instances[class_]
     return get_instance
 

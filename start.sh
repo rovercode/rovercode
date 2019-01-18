@@ -11,6 +11,6 @@ fi
 
 pushd ${APP_DIR} > /dev/null
 echo "rovercode service starting"
-python app.py
+python3.6 app.py
 popd > /dev/null
 echo "rovercode service stopped"

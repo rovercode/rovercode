@@ -1,6 +1,6 @@
 """Rovercode app."""
 import websocket
-import thread
+from threading import Thread
 import logging
 import time
 import json
@@ -13,10 +13,10 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
 
-from drivers.VCNL4010 import VCNL4010
-from drivers.DummyBinarySensor import DummyBinarySensor
-from drivers.adafruit_pwm_manager import AdafruitPwmManager
 from binary_sensor import BinarySensor
+from drivers.dummy_binary_sensor import DummyBinarySensor
+from drivers.adafruit_pwm_manager import AdafruitPwmManager
+from drivers.VCNL4010 import VCNL4010
 
 """Globals"""
 adafruit_motor_manager = None
@@ -48,26 +48,6 @@ def init_inputs(rover_params, dummy=False):
         binary_sensors.append(BinarySensor("right_dummy_sensor",DummyBinarySensor()))
 
     return binary_sensors
-
-
-def run_command(decoded):
-    """
-    Run the command specified by `decoded`.
-
-    :param decoded:
-        The command to run
-    """
-    print decoded['command']
-    global adafruit_motor_manager
-    if decoded['command'] == 'START_MOTOR':
-        print decoded['pin']
-        print decoded['speed']
-        print "Starting motor"
-        adafruit_motor_manager.set_speed(decoded['pin'], float(decoded['speed']))
-    elif decoded['command'] == 'STOP_MOTOR':
-        print decoded['pin']
-        print "Stopping motor"
-        adafruit_motor_manager.set_speed(decoded['pin'], 0)
 
 
 def on_message(ws, raw_message):
@@ -119,12 +99,14 @@ def on_open(ws):
                                                 info['right_forward_pin'], info['right_backward_pin'])
 
     # Start heartbeat thread
-    thread.start_new_thread(send_heartbeat, ())
+    t = Thread(target=send_heartbeat)
+    t.start()
     LOGGER.info("Heartbeat thread started")
 
     # Start inputs thread
     binary_sensors = init_inputs(info, dummy='rovercode.com' not in rovercode_web_host)
-    thread.start_new_thread(poll_sensors, (binary_sensors,))
+    t = Thread(target=poll_sensors, args=(binary_sensors,))
+    t.start()
     LOGGER.info("Sensors thread started")
 
 
