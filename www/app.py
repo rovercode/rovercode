@@ -3,9 +3,7 @@ import websocket
 import thread
 import logging
 import time
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-import json, socket
+import json
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
@@ -22,55 +20,6 @@ from binary_sensor import BinarySensor
 
 """Globals"""
 adafruit_motor_manager = None
-ROVERCODE_WEB_REG_URL = ''
-ROVERCODE_WEB_OAUTH2_URL = ''
-ws_thread = None
-hb_thread = None
-
-
-"""Create flask app"""
-app = Flask(__name__)
-CORS(app, resources={r'/api/*': {"origins": [".*rovercode.com", ".*localhost"]}})
-
-def get_local_ip():
-    """Get the local area network IP address of the rover."""
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    ip = s.getsockname()[0]
-    s.close()
-    return ip
-
-
-def connect():
-    """Connect to the rovercode-web websocket."""
-    global ws_thread
-    print 'Websocket connected'
-    if ws_thread is None:
-        ws_thread = socketio.start_background_task(target=sensors_thread)
-    emit('status', {'data': 'Connected'})
-
-def test_message(message):
-    """Send a debug test message when status is received from rovercode-web."""
-    print "Got a status message: " + message['data']
-
-@app.route('/', methods = ['GET'])
-def display_home_message():
-    """Display a message if someone points a browser at the root."""
-    return ("The rover is running its service at this address.")
-
-@app.route('/api/v1/sendcommand', methods = ['POST'])
-def send_command():
-    """
-    API: /sendcommand [POST].
-
-    Executes the posted command
-
-    **Available Commands:**::
-        START_MOTOR
-        STOP_MOTOR
-    """
-    run_command(request.form)
-    return jsonify(request.form)
 
 
 def init_inputs(rover_params, dummy=False):
