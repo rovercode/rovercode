@@ -17,7 +17,6 @@ RUN python3 setup.py build
 RUN python3 setup.py install
 
 ADD .env /var/rovercode/.env
-ADD conftest.py /var/rovercode/conftest.py
 ADD pytest.ini /var/rovercode/pytest.ini
 ADD .coveragerc /var/rovercode/.coveragerc
 ADD requirements.txt /var/rovercode/requirements.txt
@@ -29,6 +28,6 @@ RUN pip install -r requirements.txt
 
 WORKDIR /var/rovercode/Adafruit_Python_GPIO
 RUN python setup.py install
-WORKDIR /var/rovercode
-RUN echo 'python3.6 rovercode/app.py' > /usr/bin/run.sh
+WORKDIR /var/rovercode/rovercode
+RUN echo 'python3.6 app.py' > /usr/bin/run.sh
 ENTRYPOINT ["bash", "/usr/bin/run.sh"]
