@@ -64,26 +64,18 @@ rovercode is usable now, but we have lots of great features left to be added. Ch
 
 ## Testing
 Run the tests like this:
-```bash
-$ pwd
-> ~/rovercode
-$ py.test
-```
-Or, if you're using Docker, make sure the container is running (the `sudo docker run ...` command above), then do:
+Make sure the container is running (the `sudo docker run ...` command above), then do:
 ```bash
 $ sudo docker exec -it rovercode bash -c "cd ../; py.test"
+$ sudo docker exec -it rovercode bash -c "python -m pytest"
 ```
 
 ## Docs
 Read the complete docs [here](http://rovercode.readthedocs.io/en/latest).
 
 ## Contact
-Please join the rovercode developer mailing list! [Go here](https://1988.onlinegroups.net/groups/rovercode-developers/), then
-click "register".
 
-Also, we'd love to chat with you! Join the [the rovercode Slack channel](http://chat.rovercode.com).
-
-You can also email brady@rovercode.com.
+We'd love to chat with you! Join the [our chat!](https://rovercode.zulipchat.com).
 
 ## License
-[GNU GPLv3](license) © Brady L. Hurlburt and rovercode contributors
+[GNU GPLv3](license) © Rovercode LLC and Rovercode contributors

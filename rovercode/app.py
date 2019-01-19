@@ -111,8 +111,8 @@ def on_open(ws):
 
 
 if __name__ == '__main__':
-    LOGGER.info("Starting the Rovercode service!!!!")
-    load_dotenv('.env')
+    LOGGER.info("Starting the Rovercode service!")
+    load_dotenv('../.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
 
     rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
