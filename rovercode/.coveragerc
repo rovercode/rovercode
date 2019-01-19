@@ -1,2 +1,2 @@
 [run]
-omit = */tests/*, */conftest.py, drivers/*
+omit = */tests/*, */conftest.py, drivers/*, /home/travis/virtualenv/*
