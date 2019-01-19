@@ -1,3 +1,0 @@
-[run]
-source = rovercode/
-omit = */tests/*, */conftest.py, */Adafruit_Python_GPIO/*, */closure-library/*
