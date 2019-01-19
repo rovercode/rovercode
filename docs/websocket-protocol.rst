@@ -30,7 +30,7 @@ Sensor Readings
        "type": "sensor-reading",
        "sensor-type": "distance",
        "sensor-id": "ultrasonic-left",
-       "sensor-value": 42
+       "sensor-value": 42,
        "unit": "cm"
     }
 
