@@ -2,13 +2,6 @@ strictness: veryhigh
 doc-warnings: true
 test-warnings: true
 
-ignore-paths:
-  - www/Adafruit_Python_GPIO/
-  - www/blockly/
-  - www/closure-library/
-  - www/htmlcov/
-  - www/docs/
-
 pep8:
   full: true
 
