@@ -1,6 +1,4 @@
-"""
-A dummy binary sensor that returns random values with no hardware dependency.
-"""
+"""A dummy binary sensor that returns random values with no hardware dependency."""
 
 import random
 import logging
@@ -11,9 +9,10 @@ LOGGER.setLevel(logging.getLevelName('INFO'))
 
 
 class DummyBinarySensor:
-    """A sensor that returns random values"""
+    """A sensor that returns random values."""
 
     def __init__(self):
+        """Create the dummy sensor."""
         LOGGER.info("Created dummy binary sensor")
 
     def is_high(self):

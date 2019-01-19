@@ -16,7 +16,9 @@ class BinarySensor:
         self.sensor = sensor
         self.old_val = False
 
+
     def get_change(self):
+        """Return the current value if it differs from the previous one."""
         try:
             new_val = self.sensor.is_high()
         except IOError:
@@ -30,5 +32,3 @@ class BinarySensor:
             ret = None
         self.old_val = new_val
         return ret
-
-
