@@ -29,8 +29,13 @@ def init_inputs(rover_params, dummy=False):
     def get_env_int(name):
         try:
             return int(os.getenv(name, None))
-        except Exception:
-            LOGGER.warning("Unknown env variable {}".format(name))
+        except TypeError:
+            LOGGER.warning("Missing env variable {}".format(name))
+            return None
+        except ValueError:
+            LOGGER.warning(
+                "The value for env variable {} was {}, which is not an integer".format(
+                    name, os.getenv(name)))
             return None
 
     left_eye_led_current = get_env_int('LEFT_EYE_LED_CURRENT')
