@@ -100,4 +100,4 @@ def test_register_with_web_update(testapp):
     assert responses.calls[0].request.url == testapp.ROVERCODE_WEB_OAUTH2_URL + '/'
     assert responses.calls[1].request.url == testapp.ROVERCODE_WEB_REG_URL + '?client_id=xxxx'
     # test that the update happened
-    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/' + str(web_id)+'/'
+    assert responses.calls[2].request.url == testapp.ROVERCODE_WEB_REG_URL + '/' + str(web_id) + '/'

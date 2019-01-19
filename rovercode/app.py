@@ -51,6 +51,7 @@ def init_inputs(rover_params, dummy=False):
 
 
 def on_message(ws, raw_message):
+    """Handle incoming websocket message."""
     global adafruit_motor_manager
     message = json.loads(raw_message)
     type = message['type']
@@ -59,14 +60,17 @@ def on_message(ws, raw_message):
 
 
 def on_error(ws, error):
+    """Handle error from websocket connection."""
     LOGGER.error(error)
 
 
 def on_close(ws):
+    """Handle closing of websocket connection."""
     LOGGER.warn("Websocket connection closed")
 
 
 def on_open(ws):
+    """Start up threads upon opening websocket connections."""
     def send_heartbeat(*args):
         """Send a periodic message to the websocket server."""
         while True:

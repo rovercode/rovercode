@@ -60,14 +60,15 @@ Then, still on your development PC, head to rovercode.com and connect to your "r
 First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, navigate to the "My Rovers" section and create a new rover. Once it is created, click the "Download Credentials" button at the bottom of the rover's detail page. Save the credentials file as `.env` in the same directory as this README.
 
 ## Play and Contribute
-rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](http://rovercode.readthedocs.io/en/development/contribute.html) then head over to the feature tracker to see if there's something fun to contribute.
+rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://contributor-docs.rovercode.com) then head over to the feature tracker to see if there's something fun to contribute.
 
 ## Testing
 Run the tests like this:
-Make sure the container is running (the `sudo docker run ...` command above), then do:
+Make sure the container is running (the `sudo docker run ...` command above), then in another terminal, do:
 ```bash
-$ sudo docker exec -it rovercode bash -c "cd ../; py.test"
 $ sudo docker exec -it rovercode bash -c "python -m pytest"
+$ sudo docker exec -it rovercode bash -c prospector
+
 ```
 
 ## Docs
