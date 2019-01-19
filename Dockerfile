@@ -18,7 +18,6 @@ RUN python3 setup.py install
 
 ADD .env /var/rovercode/.env
 ADD pytest.ini /var/rovercode/pytest.ini
-ADD .coveragerc /var/rovercode/.coveragerc
 ADD requirements.txt /var/rovercode/requirements.txt
 ADD Adafruit_Python_GPIO /var/rovercode/Adafruit_Python_GPIO
 ADD rovercode /var/rovercode/rovercode
