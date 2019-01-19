@@ -4,8 +4,6 @@ sphinx_rtd_theme
 pytest-cov
 pytest-env
 mock
-requests
-responses
 pylint==1.6.5
 prospector==0.12.4
 python-dotenv

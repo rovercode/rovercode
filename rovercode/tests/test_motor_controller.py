@@ -1,6 +1,5 @@
 """Test the motor controller abstraction."""
 
-import pytest
 from mock import MagicMock, call
 
 from constants import LEFT_MOTOR, RIGHT_MOTOR
@@ -8,6 +7,7 @@ from motor_controller import MotorController
 
 
 def test_motor_controller():
+    """Test starting the motors."""
     motor_driver = MagicMock()
     motor_controller = MotorController('1', '2', '3', '4', motor_driver)
     motor_controller.set_speed(LEFT_MOTOR, 80)
@@ -19,7 +19,9 @@ def test_motor_controller():
     motor_controller.set_speed(RIGHT_MOTOR, -83)
     motor_driver.set_speed.assert_called_with('4', 83)
 
+
 def test_motor_controller_left_stop():
+    """Test stopping the left motor."""
     motor_driver = MagicMock()
     motor_controller = MotorController('1', '2', '3', '4', motor_driver)
     motor_controller.set_speed(LEFT_MOTOR, 0)
@@ -27,9 +29,8 @@ def test_motor_controller_left_stop():
 
 
 def test_motor_controller_right_stop():
+    """Test stopping the right motor."""
     motor_driver = MagicMock()
     motor_controller = MotorController('1', '2', '3', '4', motor_driver)
     motor_controller.set_speed(RIGHT_MOTOR, 0)
     motor_driver.set_speed.assert_has_calls([call('3', 0), call('4', 0)])
-
-

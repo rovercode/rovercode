@@ -5,6 +5,7 @@ from binary_sensor import BinarySensor
 
 
 def test_binary_sensor_change():
+    """Test when the sensor value has changed."""
     sensor = MagicMock()
     binary_sensor = BinarySensor('test-sensor', sensor)
 
@@ -16,6 +17,7 @@ def test_binary_sensor_change():
 
 
 def test_binary_sensor_no_change():
+    """Test when the sensor value hasn't changed."""
     sensor = MagicMock()
     binary_sensor = BinarySensor('test-sensor', sensor)
 
@@ -24,10 +26,11 @@ def test_binary_sensor_no_change():
 
     sensor.is_high.return_value = True
     binary_sensor.get_change()
-    assert binary_sensor.get_change() == None
+    assert binary_sensor.get_change() is None
 
 
 def test_binary_sensor_error():
+    """Test a hardware error communicating with the sensor."""
     sensor = MagicMock()
     binary_sensor = BinarySensor('test-sensor', sensor)
 

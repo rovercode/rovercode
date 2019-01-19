@@ -28,7 +28,8 @@ class AdafruitPwmManager:
             self.pwm.set_duty_cycle = mock_set_duty_cycle
 
             def mock_start(pin, speed, frequency):
-                LOGGER.info("Starting pin %s at speed %s and frequency %s", pin, speed, frequency)
+                LOGGER.info("Starting pin %s at speed %s and frequency %s",
+                            pin, speed, frequency)
             self.pwm.start = mock_start
 
         LOGGER.info("Adafruit PWM manager started")
