@@ -29,10 +29,10 @@ def init_inputs(rover_params, dummy=False):
     def get_env_int(name):
         try:
             return int(os.getenv(name, None))
-        except TypeError:
+        except TypeError:  # pragma: no cover
             LOGGER.warning("Missing env variable {}".format(name))
             return None
-        except ValueError:
+        except ValueError:  # pragma: no cover
             LOGGER.warning(
                 "The value for env variable {} was {}, which is not an integer".format(
                     name, os.getenv(name)))
