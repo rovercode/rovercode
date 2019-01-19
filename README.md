@@ -18,13 +18,18 @@ Check out our [contributing page](http://rovercode.readthedocs.io/en/latest/cont
 
 ## Setup
 
+### Creating Your .env
+First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, navigate to the "My Rovers" section and
+create a new rover. Once it is created, click the "Download Credentials" button at the bottom of the rover's detail page. The file
+will download as something like `rovercode_yourrovername.env`. Rename the file as only `.env` (nothing before the dot) and save it in the same directory as this README.
+
 ### Rover Setup
 First, on your rover (CHIP, Raspberry Pi, etc.):
 ```bash
+$ # create your .env, as described in the section below
 $ sudo apt install git
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
 $ sudo bash setup.sh #run this only once -- it will take some time
-$ # create your .env, as described in the section below
 $ sudo bash start.sh #run this each time you boot the rover (or automatically start if chosen in setup)
 ```
 Then, on any PC or tablet, head to rovercode.com to connect to your rover.
@@ -33,19 +38,14 @@ Then, on any PC or tablet, head to rovercode.com to connect to your rover.
 When developing rovercode, you may want to run Rovercode on your PC instead of a CHIP/Raspberry Pi. Below are instructions for how to install and run rovercode on your PC. Everything should work fine: rovercode will automatically detect that it is not running on target hardware and will stub out the calls to the motors and sensors.
 
 ```bash
+$ # create your .env, as described in the section below
 $ sudo apt install git docker.io
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
 $ sudo docker build -t rovercode .
-$ # create your .env, as described in the section below
 $ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d rovercode
 
 ```
 Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
-
-### Creating Your .env
-First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, navigate to the "My Rovers" section and
-create a new rover. Once it is created, click the "Download Credentials" button at the bottom of the rover's detail page. The file
-will download as something like `rovercode_yourrovername.env`. Rename the file as only `.env` (nothing before the dot) and save it in the same directory as this README.
 
 ## Testing
 Run the tests like this:
