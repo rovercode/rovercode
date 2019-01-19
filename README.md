@@ -11,16 +11,15 @@ Rovercode is easy-to-use package for controlling robots (rovers) that can sense 
 
 Rovercode runs on any single-board-computer supported by the [Adafruit Python GPIO wrapper library](https://github.com/adafruit/Adafruit_Python_GPIO), including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black. Once installed, head to to rovercode.com and connect to your rover.
 
-**rovercode is made up of two parts.** rovercode (this repo) is the service that runs on the rover. rovercode-web ([a different repo](https://github.com/rovercode/rovercode-web)) is the web app that is hosted on the Internet.
-[Try a live demo.](https://rovercode.com/mission-control)
+To learn about the other pieces of rovercode, visit our [architecture documentation](https://contributor-docs.rovercode.com/architecture.html), or start at [the root of rovercode's documentation](https://contributor-docs.rovercode.com).k
 
 ## Contributing
 Check out our [contributing page](http://rovercode.readthedocs.io/en/latest/contribute.html) to get started.
 
 ## Setup
 
-### Standard Setup
-First, on your rover (CHIP, Raspberry Pi, BeagleBone, etc):
+### Rover Setup
+First, on your rover (CHIP, Raspberry Pi, etc.):
 ```bash
 $ sudo apt install git
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
@@ -28,24 +27,11 @@ $ sudo bash setup.sh #run this only once -- it will take some time
 $ # create your .env, as described in the section below
 $ sudo bash start.sh #run this each time you boot the rover (or automatically start if chosen in setup)
 ```
-Then, on any PC or tablet, head to rovercode.com to connect to your rover. Start playing!
+Then, on any PC or tablet, head to rovercode.com to connect to your rover.
 
 ### Development PC Setup
-When developing rovercode, you may want to run rovercode on your PC instead of a CHIP/Raspberry Pi/Beaglebone. Below are instructions for how to install and run rovercode on your PC. Everything should work fine: rovercode will automatically detect that it is not running on target hardware and will stub out the calls to the motors and sensors.
+When developing rovercode, you may want to run Rovercode on your PC instead of a CHIP/Raspberry Pi. Below are instructions for how to install and run rovercode on your PC. Everything should work fine: rovercode will automatically detect that it is not running on target hardware and will stub out the calls to the motors and sensors.
 
-#### Development PC Standard Setup
-First, on your development PC:
-```bash
-$ sudo apt install git
-$ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
-$ sudo bash setup.sh #run this only once -- it will take some time
-$ # create your .env, as described in the section below
-$ sudo bash start.sh #run this each time
-```
-Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
-
-#### Development PC Alternate Setup (Docker)
-Rather use Docker? First, on your development PC:
 ```bash
 $ sudo apt install git docker.io
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
@@ -57,10 +43,9 @@ $ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d roverc
 Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
 
 ### Creating Your .env
-First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, navigate to the "My Rovers" section and create a new rover. Once it is created, click the "Download Credentials" button at the bottom of the rover's detail page. Save the credentials file as `.env` in the same directory as this README.
-
-## Play and Contribute
-rovercode is usable now, but we have lots of great features left to be added. Check out the [contributing instructions](https://contributor-docs.rovercode.com) then head over to the feature tracker to see if there's something fun to contribute.
+First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, navigate to the "My Rovers" section and
+create a new rover. Once it is created, click the "Download Credentials" button at the bottom of the rover's detail page. The file
+will download as something like `rovercode_yourrovername.env`. Rename the file as only `.env` (nothing before the dot) and save it in the same directory as this README.
 
 ## Testing
 Run the tests like this:
@@ -72,7 +57,9 @@ $ sudo docker exec -it rovercode bash -c prospector
 ```
 
 ## Docs
-Read the complete docs [here](http://rovercode.readthedocs.io/en/latest).
+More detailed usage instructions can be found [here](https://contributor-docs.rovercode.com/rovercode/master/setup.html).
+
+Read the complete docs [here](https://contributor-docs.rovercode.com).
 
 ## Contact
 
