@@ -6,6 +6,7 @@ RUN apt-get update
 RUN apt-get install -y python3-dev libi2c-dev
 
 # https://www.linuxcircle.com/2015/05/03/how-to-install-smbus-i2c-module-for-python-3/
+# TODO: Remove this build once python3-smbus is not needed
 WORKDIR /tmp
 RUN wget http://ftp.de.debian.org/debian/pool/main/i/i2c-tools/i2c-tools_3.1.0.orig.tar.bz2
 RUN tar xavf i2c-tools_3.1.0.orig.tar.bz2
@@ -17,6 +18,7 @@ RUN python3 setup.py install
 
 ADD .env /var/rovercode/.env
 ADD pytest.ini /var/rovercode/pytest.ini
+ADD .coveragerc /var/rovercode/.coveragerc
 ADD requirements.txt /var/rovercode/requirements.txt
 ADD Adafruit_Python_GPIO /var/rovercode/Adafruit_Python_GPIO
 ADD rovercode /var/rovercode/rovercode
