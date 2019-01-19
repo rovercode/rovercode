@@ -1,3 +1,2 @@
 [run]
-source = ./
-omit = */tests/*, */conftest.py, */Adafruit_Python_GPIO/*
+omit = */tests/*, */conftest.py, drivers/*
