@@ -1,4 +1,4 @@
-"""A dummy binary sensor that returns random values with no hardware dependency."""
+"""A dummy binary sensor that returns random values."""
 
 import random
 import logging

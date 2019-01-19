@@ -134,6 +134,7 @@ def on_open(ws):
 
 
 def run_service(run_forever=True):
+    """Kick off the service."""
     global session
     global motor_controller
     global rovercode_web_url
