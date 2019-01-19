@@ -134,6 +134,10 @@ def on_open(ws):
 
 
 def run_service(run_forever=True):
+    global session
+    global motor_controller
+    global rovercode_web_url
+    global client_id
     LOGGER.info("Starting the Rovercode service!")
     load_dotenv('../.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
