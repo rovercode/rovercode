@@ -133,14 +133,15 @@ def on_open(ws):
     LOGGER.info("Sensors thread started")
 
 
-def run_service(run_forever=True):
+def run_service(run_forever=True, use_dotenv=True):
     """Kick off the service."""
     global session
     global motor_controller
     global rovercode_web_url
     global client_id
     LOGGER.info("Starting the Rovercode service!")
-    load_dotenv('../.env')
+    if use_dotenv:  # pragma: no cover
+        load_dotenv('../.env')
     rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
 
     rovercode_web_host_secure = os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
@@ -157,7 +158,7 @@ def run_service(run_forever=True):
 
     LOGGER.info("Targeting host %s. My client id is %s", rovercode_web_url, client_id)
 
-    if not rovercode_web_host_secure:
+    if not rovercode_web_host_secure:  # pragma: no cover
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
     client = BackendApplicationClient(client_id=client_id)
     global session

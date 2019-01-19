@@ -1,6 +1,7 @@
 """Test the app module."""
 import json
-from mock import MagicMock
+import os
+from mock import MagicMock, patch
 
 import constants
 
@@ -110,4 +111,11 @@ def test_app_on_open(testapp):
 
 def test_app_main(testapp):
     """Smoke test of the main function."""
-    testapp.run_service(run_forever=False)
+    env_values = {'CLIENT_ID': 'foo',
+                  'CLIENT_SECRET': 'bar',
+                  'ROVERCODE_WEB_HOST': 'qux'}
+    session = MagicMock()
+    session.fetch_token.return_value = 'baz'
+    with patch.dict(os.environ, env_values):
+        with patch.object(testapp, 'OAuth2Session', session):
+            testapp.run_service(run_forever=False, use_dotenv=False)
