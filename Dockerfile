@@ -1,19 +1,21 @@
-FROM debian:stable
+FROM python:3.6-slim-stretch
 
-MAINTAINER Clifton Barnes <clifton.a.barnes@gmail.com>
+MAINTAINER Clifton Barnes <clifton.barnes@rovercode.com>
 
 RUN apt-get update
-RUN apt-get install -y python python-dev python-pip python-smbus
+RUN apt-get install -y build-essential python3-dev libi2c-dev python3-smbus
 
-EXPOSE 80
+ADD .env /var/rovercode/.env
+ADD pytest.ini /var/rovercode/pytest.ini
+ADD requirements.txt /var/rovercode/requirements.txt
+ADD Adafruit_Python_GPIO /var/rovercode/Adafruit_Python_GPIO
+ADD rovercode /var/rovercode/rovercode
 
-ADD www /var/www/rovercode/www
-
-WORKDIR /var/www/rovercode/www
+WORKDIR /var/rovercode
 RUN pip install -r requirements.txt
 
-WORKDIR /var/www/rovercode/www/Adafruit_Python_GPIO
+WORKDIR /var/rovercode/Adafruit_Python_GPIO
 RUN python setup.py install
-WORKDIR /var/www/rovercode/www
-RUN echo 'python app.py' > /usr/bin/run.sh
+WORKDIR /var/rovercode/rovercode
+RUN echo 'python3.6 app.py' > /usr/bin/run.sh
 ENTRYPOINT ["bash", "/usr/bin/run.sh"]

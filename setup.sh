@@ -1,7 +1,7 @@
 #! /bin/bash
 
-INI_DIR=www/
-ADAFRUIT_DIR=www/Adafruit_Python_GPIO
+INI_DIR=rovercode/
+ADAFRUIT_DIR=rovercode/Adafruit_Python_GPIO
 
 if [ "${EUID}" -ne 0 ]; then
 	echo "Error: This script must be run as root."
@@ -13,11 +13,25 @@ if [ ! -e ${ADAFRUIT_DIR} ]; then
 	exit 2
 fi
 
-apt-get install -y python python-dev python-pip python-smbus
+apt-get install -y python3 python3-dev python3-pip libi2c-dev
+
+# https://www.linuxcircle.com/2015/05/03/how-to-install-smbus-i2c-module-for-python-3/
+# TODO: Remove this build once python3-smbus is not needed
+apt-get install python3-dev
+apt-get install libi2c-dev
+cd /tmp
+wget http://ftp.de.debian.org/debian/pool/main/i/i2c-tools/i2c-tools_3.1.0.orig.tar.bz2 # download Python 2 source
+tar xavf i2c-tools_3.1.0.orig.tar.bz2
+cd i2c-tools-3.1.0/py-smbus
+mv smbusmodule.c smbusmodule.c.orig # backup
+wget https://gist.githubusercontent.com/sebastianludwig/c648a9e06c0dc2264fbd/raw/2b74f9e72bbdffe298ce02214be8ea1c20aa290f/smbusmodule.c # download patched (Python 3) source
+python3 setup.py build
+python3 setup.py install
+
 pip install virtualenv && \
 virtualenv --system-site-packages env && \
 . env/bin/activate && \
-pip install -r www/requirements.txt
+pip install -r requirements.txt
 
 pushd ${ADAFRUIT_DIR} > /dev/null
 python setup.py install
