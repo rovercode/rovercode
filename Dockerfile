@@ -3,7 +3,7 @@ FROM python:3.6-slim-stretch
 MAINTAINER Clifton Barnes <clifton.barnes@rovercode.com>
 
 RUN apt-get update
-RUN apt-get install -y python3-dev libi2c-dev python3-smbus
+RUN apt-get install -y build-essential python3-dev libi2c-dev python3-smbus
 
 ADD .env /var/rovercode/.env
 ADD pytest.ini /var/rovercode/pytest.ini

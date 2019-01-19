@@ -1,17 +1,14 @@
 """Rovercode app."""
-import websocket
 from threading import Thread
 import logging
 import time
 import json
-from oauthlib.oauth2 import BackendApplicationClient
-from requests_oauthlib import OAuth2Session
-from dotenv import load_dotenv
 import os
 
-logging.basicConfig()
-LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.getLevelName('INFO'))
+from dotenv import load_dotenv
+import websocket
+from oauthlib.oauth2 import BackendApplicationClient
+from requests_oauthlib import OAuth2Session
 
 import constants
 from binary_sensor import BinarySensor
@@ -19,6 +16,10 @@ from motor_controller import MotorController
 from drivers.dummy_binary_sensor import DummyBinarySensor
 from drivers.adafruit_pwm_manager import AdafruitPwmManager
 from drivers.VCNL4010 import VCNL4010
+
+logging.basicConfig()
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.getLevelName('INFO'))
 
 
 def init_inputs(rover_params, dummy=False):
@@ -29,6 +30,7 @@ def init_inputs(rover_params, dummy=False):
         try:
             return int(os.getenv(name, None))
         except Exception:
+            LOGGER.warning("Unknown env variable {}".format(name))
             return None
 
     left_eye_led_current = get_env_int('LEFT_EYE_LED_CURRENT')
