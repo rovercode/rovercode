@@ -6,7 +6,7 @@ before_install:
 - sudo apt-get install -qq libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev
   libwebp-dev
 - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv
-  python-pip python-smbus
+  python-pip python3-smbus
 - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev
   libreadline-dev
 - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev
@@ -28,8 +28,10 @@ script:
 after_success:
 - coveralls
 language: python
+virtualenv:
+  system_site_packages: true
 python:
-- '3.6'
+- '3.5'
 deploy:
 - provider: s3
   access_key_id: AKIAIIORSR4VN3YQY2YQ
