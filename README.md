@@ -1,8 +1,9 @@
-![screenshot](https://rovercode.com/static/images/screenshot.jpg)
+![screenshot](https://i.imgur.com/BSzTTkF.png)
 
 # Rovercode
 
 [![Chat](https://img.shields.io/badge/chat-developer-brightgreen.svg?style=flat)](https://rovercode.zulip.com)
+[![Zenhub Board](https://img.shields.io/badge/board-zenhub-purple.svg?style=flat)](https://app.zenhub.com/workspaces/rovercode-development-5c7e819df524621425116d03/boards)
 [![](https://images.microbadger.com/badges/image/cabarnes/rovercode.svg)](https://microbadger.com/images/cabarnes/rovercode)
 [![Build Status](https://travis-ci.org/rovercode/rovercode.svg?branch=development)](https://travis-ci.org/rovercode/rovercode)
 [![Coverage Status](https://coveralls.io/repos/github/rovercode/rovercode/badge.svg)](https://coveralls.io/github/rovercode/rovercode)
@@ -57,7 +58,7 @@ $ sudo docker exec -it rovercode bash -c prospector
 ```
 
 ## Docs
-More detailed usage instructions can be found [here](https://contributor-docs.rovercode.com/rovercode/master/setup.html).
+More detailed usage instructions can be found [here](https://contributor-docs.rovercode.com/rovercode/development/index.html).
 
 Read the complete docs [here](https://contributor-docs.rovercode.com).
 
