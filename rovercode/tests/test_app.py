@@ -1,5 +1,6 @@
 """Test the app module."""
 import json
+import pytest
 import os
 from mock import MagicMock, patch
 
@@ -8,20 +9,22 @@ import constants
 ROVER_PARAMS = {
     constants.ROVER_NAME: 'rovy mcroverface',
     constants.ROVER_ID: 42,
-    constants.LEFT_EYE_I2C_PORT: 1,
-    constants.RIGHT_EYE_I2C_PORT: 2,
-    constants.LEFT_EYE_I2C_ADDR: 3,
-    constants.RIGHT_EYE_I2C_ADDR: 4,
-    constants.LEFT_FORWARD_PIN: 5,
-    constants.LEFT_BACKWARD_PIN: 5,
-    constants.RIGHT_FORWARD_PIN: 6,
-    constants.RIGHT_BACKWARD_PIN: 7
+    constants.ROVER_CONFIG: {
+        constants.LEFT_EYE_I2C_PORT: 1,
+        constants.RIGHT_EYE_I2C_PORT: 2,
+        constants.LEFT_EYE_I2C_ADDR: 3,
+        constants.RIGHT_EYE_I2C_ADDR: 4,
+        constants.LEFT_FORWARD_PIN: 5,
+        constants.LEFT_BACKWARD_PIN: 5,
+        constants.RIGHT_FORWARD_PIN: 6,
+        constants.RIGHT_BACKWARD_PIN: 7
+    }
 }
 
 
 def test_app_init_inputs(testapp):
     """Test the initialization of the sensors."""
-    binary_sensors = testapp.init_inputs(ROVER_PARAMS)
+    binary_sensors = testapp.init_inputs(ROVER_PARAMS[constants.ROVER_CONFIG])
     assert len(binary_sensors) == 2
     assert binary_sensors[0].sensor.i2c_addr == 3
     assert binary_sensors[1].sensor.i2c_addr == 4
@@ -91,7 +94,7 @@ def test_app_on_open(testapp):
     """Test that the threads are started on websocket open."""
     ws = MagicMock()
     response = MagicMock()
-    response.text = json.dumps([ROVER_PARAMS])
+    response.text = json.dumps({'results': [ROVER_PARAMS]})
     mock_session = MagicMock()
     mock_session.get.return_value = response
     testapp.session = mock_session
@@ -107,6 +110,22 @@ def test_app_on_open(testapp):
     heartbeat_function.assert_called()
     polling_function.assert_called()
     assert testapp.motor_controller is not None
+
+
+def test_app_on_open_missing_config(testapp):
+    """Test that the threads are started on websocket open."""
+    ws = MagicMock()
+    response = MagicMock()
+    ROVER_PARAMS[constants.ROVER_CONFIG] = {}
+    response.text = json.dumps({'results': [ROVER_PARAMS]})
+    mock_session = MagicMock()
+    mock_session.get.return_value = response
+    testapp.session = mock_session
+    testapp.rovercode_web_url = 'foo'
+    testapp.client_id = 'bar'
+
+    with pytest.raises(ValueError):
+        testapp.on_open(ws)
 
 
 def test_app_main(testapp):
