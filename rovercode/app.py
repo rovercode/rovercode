@@ -120,13 +120,16 @@ def on_open(ws):
     global rovercode_web_url
     global client_id
 
-    info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)[0]
+    info = json.loads(session.get('{}/api/v1/rovers?client_id={}'.format(rovercode_web_url, client_id)).text)['results'][0]
     LOGGER.info("Found myself - I am %s, with id %s", info[constants.ROVER_NAME], info[constants.ROVER_ID])
+    rover_config = info[constants.ROVER_CONFIG]
 
     # Create motor manager
-    motor_controller = MotorController(info['left_forward_pin'], info['left_backward_pin'],
-                                       info['right_forward_pin'], info['right_backward_pin'],
-                                       AdafruitPwmManager())
+    pins = tuple(rover_config.get(pin_name) for pin_name in
+            ['left_forward_pin', 'left_backward_pin', 'right_forward_pin', 'right_backward_pin'])
+    if any(map(lambda x: x is None, pins)):
+        raise ValueError('Required pin configuration not present in Rover config')
+    motor_controller = MotorController(*pins, AdafruitPwmManager())
 
     # Start heartbeat thread
     t = Thread(target=send_heartbeat, args=(ws,))
@@ -134,7 +137,7 @@ def on_open(ws):
     LOGGER.info("Heartbeat thread started")
 
     # Start inputs thread
-    binary_sensors = init_inputs(info, dummy='rovercode.com' not in rovercode_web_url)
+    binary_sensors = init_inputs(rover_config, dummy='rovercode.com' not in rovercode_web_url)
     t = Thread(target=poll_sensors, args=(ws, binary_sensors))
     t.start()
     LOGGER.info("Sensors thread started")
