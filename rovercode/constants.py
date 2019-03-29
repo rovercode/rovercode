@@ -23,6 +23,7 @@ SENSOR_VALUE_FIELD = 'sensor-value'
 # API constants
 ROVER_NAME = 'name'
 ROVER_ID = 'id'
+ROVER_CONFIG = 'config'
 LEFT_EYE_I2C_PORT = 'left_eye_i2c_port'
 LEFT_EYE_I2C_ADDR = 'left_eye_i2c_addr'
 RIGHT_EYE_I2C_PORT = 'right_eye_i2c_port'
