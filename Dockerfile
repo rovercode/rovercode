@@ -9,12 +9,15 @@ ADD .env /var/rovercode/.env
 ADD pytest.ini /var/rovercode/pytest.ini
 ADD requirements.txt /var/rovercode/requirements.txt
 ADD Adafruit_Python_GPIO /var/rovercode/Adafruit_Python_GPIO
+ADD GrovePi /var/rovercode/GrovePi
 ADD rovercode /var/rovercode/rovercode
 
 WORKDIR /var/rovercode
 RUN pip install -r requirements.txt
 
 WORKDIR /var/rovercode/Adafruit_Python_GPIO
+RUN python setup.py install
+WORKDIR /var/rovercode/GrovePi/Software/Python
 RUN python setup.py install
 WORKDIR /var/rovercode/rovercode
 RUN echo 'python3.6 app.py' > /usr/bin/run.sh
