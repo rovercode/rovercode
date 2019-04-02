@@ -16,7 +16,7 @@ fi
 
 if [ ! -e ${GROVEPI_DIR} ]; then
 	echo "Error: GrovePi directory not found."
-	exit 2
+	exit 3
 fi
 
 apt-get install -y python3 python3-dev python3-pip libi2c-dev
