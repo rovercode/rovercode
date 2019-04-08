@@ -6,7 +6,7 @@ Heartbeat
 .. code-block:: json
 
     {
-       "type": "heartbeat",
+       "type": "heartbeat"
     }
 
 Motor Commands
@@ -18,6 +18,7 @@ Motor Commands
        "type": "motor-command",
        "motor-id": "motor-left",
        "motor-value": 84,
+       "direction": "forward",
        "unit": "percent"
     }
 

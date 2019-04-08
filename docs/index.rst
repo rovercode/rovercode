@@ -6,17 +6,15 @@
 rovercode
 ============
 :License: GPLv3
-:Source: `<https://github.com/aninternetof/rovercode>`_
+:Source: `<https://github.com/rovercode/rovercode>`_
 :Hosted at: `<https://rovercode.com>`_ (master) and `<https://beta.rovercode.com>`_ (development)
 
-.. image:: https://img.shields.io/badge/chat-on%20Slack-41AB8C.svg?style=flat
-      :target: http://chat.rovercode.com/
-.. image:: https://img.shields.io/badge/join-mailing%20list-yellow.svg?style=flat
-      :target: https://1988.onlinegroups.net/groups/rovercode-developers/
-.. image:: https://api.travis-ci.org/aninternetof/rovercode.svg
-      :target: https://travis-ci.org/aninternetof/rovercode
-.. image:: https://coveralls.io/repos/github/aninternetof/rovercode/badge.svg?branch=development
-      :target: https://coveralls.io/github/aninternetof/rovercode?branch=deveopment
+.. image:: https://img.shields.io/badge/chat-developer-brightgreen.svg?style=flat
+      :target: http://rovercode.zulip.com/
+.. image:: https://api.travis-ci.org/rovercode/rovercode.svg
+      :target: https://travis-ci.org/rovercode/rovercode
+.. image:: https://coveralls.io/repos/github/rovercode/rovercode/badge.svg?branch=development
+      :target: https://coveralls.io/github/rovercode/rovercode?branch=deveopment
 
 Welcome!
 #########
@@ -37,18 +35,7 @@ rovercode is made up of two parts:
 - rovercode (the docs you're reading right now) is the service that runs on the rover.
 - rovercode-web (a separate repo `documented here <http://rovercode-web.readthedocs.io/>`_) is the web app running at `rovercode.com <https://rovercode.com>`_.
 
-rovercode runs on the rover. The rover can be
-any single-board-computer supported by the Adafruit Python GPIO wrapper library,
-including the NextThingCo CHIP, Raspberry Pi, and BeagleBone Black.
-
-rovercode-web is hosted on the Internet at `rovercode.com <https://rovercode.com>`_.
-It has a Blockly-based editor (which we call Mission Control) for creating a
-routine. The routine executes in the browser (sandboxed, of course), and commands
-are sent to the rover for rovercode to execute (e.g. "stop motor, turn on light").
-Events on the rover ("right eye detects something") are sent to the browser via
-a WebSocket connection.
-
-The rover and the device running the browser must be on the same local network.
+Rovercode runs on a Raspberry Pi 3 with the [GrovePi+ sensor board](https://www.seeedstudio.com/GrovePi-p-2241.html) and the [Grove I2C motor controller board](https://www.seeedstudio.com/Grove-I2C-Motor-Driver-p-907.html).
 
 Get Started
 ############
@@ -57,14 +44,9 @@ contribute <contribute.html>`_.
 
 Contact
 ########
-Please join the rovercode developer mailing list! `Go here
-<https://1988.onlinegroups.net/groups/rovercode-developers/>`_, then
-click "register".
+Also, we'd love to chat with you! Join `our chat
+<http://rovercode.zulipchat.com>`_.
 
-Also, we'd love to chat with you! Join the `the rovercode Slack channel
-<http://chat.rovercode.com>`_.
-
-You can also email brady@rovercode.com.
 
 Contents
 ########
