@@ -18,8 +18,8 @@ class GrovePiMotors:
 
     PORT_A = 'a'
     PORT_B = 'b'
-    DIRECTION_FORWARD = 'forward'
-    DIRECTION_BACKWARD = 'backward'
+    DIRECTION_FORWARD = 0b10
+    DIRECTION_BACKWARD = 0b01
 
     def __init__(self):
         """Create an instance of motor interface."""
@@ -38,9 +38,6 @@ class GrovePiMotors:
                                        self.speeds[self.PORT_B])
 
         direction_bits = \
-            (self._direction_bits(self.directions[self.PORT_A]) << 2) + \
-            (self._direction_bits(self.directions[self.PORT_B]))
+            (self.directions[self.PORT_A] << 2) + \
+            (self.directions[self.PORT_B])
         self.interface.DirectionSet(direction_bits)
-
-    def _direction_bits(self, direction):
-        return 0b10 if direction == self.DIRECTION_FORWARD else 0b01
