@@ -14,7 +14,7 @@ import constants
 from binary_sensor import BinarySensor
 from motor_controller import MotorController
 from drivers.dummy_binary_sensor import DummyBinarySensor
-from drivers.adafruit_pwm_manager import AdafruitPwmManager
+from drivers.grovepi_motors import GrovePiMotors
 from drivers.VCNL4010 import VCNL4010
 
 logging.basicConfig()
@@ -100,7 +100,8 @@ def on_message(ws, raw_message):
                 "Invalid motor {}".format(message[constants.MOTOR_ID_FIELD]))
             return
         motor_controller.set_speed(message[constants.MOTOR_ID_FIELD],
-                                   message[constants.MOTOR_VALUE_FIELD])
+                                   message[constants.MOTOR_VALUE_FIELD],
+                                   message[constants.MOTOR_DIRECTION_FIELD])
 
 
 def on_error(ws, error):  # pragma: no cover
@@ -125,11 +126,11 @@ def on_open(ws):
     rover_config = info[constants.ROVER_CONFIG]
 
     # Create motor manager
-    pins = tuple(rover_config.get(pin_name) for pin_name in
-            ['left_forward_pin', 'left_backward_pin', 'right_forward_pin', 'right_backward_pin'])
-    if any(map(lambda x: x is None, pins)):
-        raise ValueError('Required pin configuration not present in Rover config')
-    motor_controller = MotorController(*pins, AdafruitPwmManager())
+    left_motor_port, right_motor_port =\
+        rover_config.get(constants.LEFT_MOTOR_PORT), rover_config.get(constants.RIGHT_MOTOR_PORT)
+    if any((left_motor_port is None, right_motor_port is None)):
+        raise ValueError('Required motor port configuration not present in Rover config')
+    motor_controller = MotorController(left_motor_port, right_motor_port, GrovePiMotors())
 
     # Start heartbeat thread
     t = Thread(target=send_heartbeat, args=(ws,))

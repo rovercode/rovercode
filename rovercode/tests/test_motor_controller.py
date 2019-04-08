@@ -1,36 +1,53 @@
 """Test the motor controller abstraction."""
 
-from mock import MagicMock, call
+import pytest
+from mock import MagicMock
 
-from constants import LEFT_MOTOR, RIGHT_MOTOR
+from constants import LEFT_MOTOR, RIGHT_MOTOR,\
+    MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_BACKWARD
 from motor_controller import MotorController
 
 
-def test_motor_controller():
+@pytest.fixture
+def driver_mock():
+    """Set up mock of the motor driver."""
+    motor_driver = MagicMock()
+    motor_driver.DIRECTION_FORWARD = 'driver_forward'
+    motor_driver.DIRECTION_BACKWARD = 'driver_backward'
+    return motor_driver
+
+
+def test_motor_controller(driver_mock):
     """Test starting the motors."""
-    motor_driver = MagicMock()
-    motor_controller = MotorController('1', '2', '3', '4', motor_driver)
-    motor_controller.set_speed(LEFT_MOTOR, 80)
-    motor_driver.set_speed.assert_called_with('1', 80)
-    motor_controller.set_speed(LEFT_MOTOR, -81)
-    motor_driver.set_speed.assert_called_with('2', 81)
-    motor_controller.set_speed(RIGHT_MOTOR, 82)
-    motor_driver.set_speed.assert_called_with('3', 82)
-    motor_controller.set_speed(RIGHT_MOTOR, -83)
-    motor_driver.set_speed.assert_called_with('4', 83)
+    motor_controller = MotorController('a', 'b', driver_mock)
+    motor_controller.set_speed(LEFT_MOTOR, 80, MOTOR_DIRECTION_FORWARD)
+    driver_mock.set_speed.assert_called_with('a', 80, 'driver_forward')
+    motor_controller.set_speed(LEFT_MOTOR, 81, MOTOR_DIRECTION_BACKWARD)
+    driver_mock.set_speed.assert_called_with('a', 81, 'driver_backward')
+    motor_controller.set_speed(RIGHT_MOTOR, 82, MOTOR_DIRECTION_FORWARD)
+    driver_mock.set_speed.assert_called_with('b', 82, 'driver_forward')
+    motor_controller.set_speed(RIGHT_MOTOR, 83, MOTOR_DIRECTION_BACKWARD)
+    driver_mock.set_speed.assert_called_with('b', 83, 'driver_backward')
 
 
-def test_motor_controller_left_stop():
-    """Test stopping the left motor."""
-    motor_driver = MagicMock()
-    motor_controller = MotorController('1', '2', '3', '4', motor_driver)
-    motor_controller.set_speed(LEFT_MOTOR, 0)
-    motor_driver.set_speed.assert_has_calls([call('1', 0), call('2', 0)])
+def test_motor_controller_negative_value(driver_mock):
+    """Test inverting negative speed value."""
+    motor_controller = MotorController('a', 'b', driver_mock)
+    motor_controller.set_speed(LEFT_MOTOR, -50, MOTOR_DIRECTION_FORWARD)
+    driver_mock.set_speed.assert_called_with('a', 50, 'driver_backward')
+    motor_controller.set_speed(RIGHT_MOTOR, -40, MOTOR_DIRECTION_BACKWARD)
+    driver_mock.set_speed.assert_called_with('b', 40, 'driver_forward')
 
 
-def test_motor_controller_right_stop():
-    """Test stopping the right motor."""
-    motor_driver = MagicMock()
-    motor_controller = MotorController('1', '2', '3', '4', motor_driver)
-    motor_controller.set_speed(RIGHT_MOTOR, 0)
-    motor_driver.set_speed.assert_has_calls([call('3', 0), call('4', 0)])
+def test_motor_controller_bad_motor_name(driver_mock):
+    """Test bad motor name."""
+    motor_controller = MotorController('a', 'b', driver_mock)
+    motor_controller.set_speed('not a real motor', 50, MOTOR_DIRECTION_FORWARD)
+    driver_mock.set_speed.assert_not_called()
+
+
+def test_motor_controller_bad_direction(driver_mock):
+    """Test bad direction value."""
+    motor_controller = MotorController('a', 'b', driver_mock)
+    motor_controller.set_speed(LEFT_MOTOR, 50, 'not a good direction')
+    driver_mock.set_speed.assert_not_called()
