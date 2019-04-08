@@ -13,7 +13,7 @@ before_install:
   wget curl llvm
 - cd GrovePi/Software/Python
 - python setup.py install
-- cd ../
+- cd ../../../
 install:
 - pip install -r requirements.txt
 - pip install coveralls
