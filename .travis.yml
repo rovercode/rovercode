@@ -18,12 +18,12 @@ install:
 - pip install -r requirements.txt
 - pip install coveralls
 script:
+- pushd docs
+- make html
+- popd
 - pushd rovercode
 - python -m pytest
 - prospector
-- popd
-- pushd docs
-- make html
 - popd
 after_success:
 - coveralls
