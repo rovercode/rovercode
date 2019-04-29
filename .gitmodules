@@ -1,6 +1,3 @@
-[submodule "Adafruit_Python_GPIO"]
-	path = Adafruit_Python_GPIO
-	url = https://github.com/aninternetof/Adafruit_Python_GPIO
 [submodule "GrovePi"]
 	path = GrovePi
 	url = https://github.com/rovercode/GrovePi.git 

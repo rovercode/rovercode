@@ -14,10 +14,8 @@ ROVER_PARAMS = {
         constants.RIGHT_EYE_I2C_PORT: 2,
         constants.LEFT_EYE_I2C_ADDR: 3,
         constants.RIGHT_EYE_I2C_ADDR: 4,
-        constants.LEFT_FORWARD_PIN: 5,
-        constants.LEFT_BACKWARD_PIN: 5,
-        constants.RIGHT_FORWARD_PIN: 6,
-        constants.RIGHT_BACKWARD_PIN: 7
+        constants.LEFT_MOTOR_PORT: 'a',
+        constants.RIGHT_MOTOR_PORT: 'b',
     }
 }
 
@@ -71,10 +69,13 @@ def test_app_on_message(testapp):
     testapp.on_message(ws, json.dumps({
         constants.MESSAGE_TYPE: constants.MOTOR_COMMAND,
         constants.MOTOR_ID_FIELD: constants.LEFT_MOTOR,
-        constants.MOTOR_VALUE_FIELD: 80
+        constants.MOTOR_VALUE_FIELD: 80,
+        constants.MOTOR_DIRECTION_FIELD: constants.MOTOR_DIRECTION_FORWARD
     }))
-    mock_motor_controller.set_speed\
-        .assert_called_with(constants.LEFT_MOTOR, 80)
+    mock_motor_controller.set_speed.assert_called_with(
+        constants.LEFT_MOTOR,
+        80,
+        constants.MOTOR_DIRECTION_FORWARD)
 
 
 def test_app_on_message_invalid_motor(testapp):

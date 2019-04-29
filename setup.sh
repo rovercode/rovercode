@@ -1,17 +1,11 @@
 #! /bin/bash
 
 INI_DIR=rovercode/
-ADAFRUIT_DIR=Adafruit_Python_GPIO
 GROVEPI_DIR=GrovePi
 
 if [ "${EUID}" -ne 0 ]; then
 	echo "Error: This script must be run as root."
 	exit 1
-fi
-
-if [ ! -e ${ADAFRUIT_DIR} ]; then
-	echo "Error: Adafruit directory not found."
-	exit 2
 fi
 
 if [ ! -e ${GROVEPI_DIR} ]; then
@@ -39,10 +33,6 @@ pip install virtualenv && \
 virtualenv --system-site-packages env && \
 . env/bin/activate && \
 pip install -r requirements.txt
-
-pushd ${ADAFRUIT_DIR} > /dev/null
-python setup.py install
-popd > /dev/null
 
 pushd ${GROVEPI_DIR}/Software/Python > /dev/null
 python setup.py install

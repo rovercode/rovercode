@@ -11,19 +11,19 @@ before_install:
   libreadline-dev
 - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev
   wget curl llvm
-- cd Adafruit_Python_GPIO/
+- pushd GrovePi/Software/Python
 - python setup.py install
-- cd ../
+- popd
 install:
 - pip install -r requirements.txt
 - pip install coveralls
 script:
+- pushd docs
+- make html
+- popd
 - pushd rovercode
 - python -m pytest
 - prospector
-- popd
-- pushd docs
-- make html
 - popd
 after_success:
 - coveralls
