@@ -61,7 +61,8 @@ Contents
    api
    build-a-rover
    websocket-protocol
-   
+   example-rover-config
+
 
 Indices and tables
 ==================

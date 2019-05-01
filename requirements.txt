@@ -4,9 +4,9 @@ sphinx_rtd_theme
 pytest-cov
 pytest-env
 mock
-pylint==1.6.5
-prospector==0.12.4
+pylint==2.1.1
+prospector==1.1.6.2
+astroid==2.0.4
 python-dotenv
-CHIP-IO
 websocket-client
 requests-oauthlib

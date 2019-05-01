@@ -11,3 +11,8 @@ class motor_driver:  # nopep8
     def DirectionSet(self, *args, **kwargs):  # nopep8
         """Dummy motor direction setter."""
         return
+
+
+def ultrasonicRead(port):  # nopep8
+    """Dummy ultrasonic read helper function."""
+    pass

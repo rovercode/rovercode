@@ -11,53 +11,13 @@ from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
 import constants
-from binary_sensor import BinarySensor
 from motor_controller import MotorController
-from drivers.dummy_binary_sensor import DummyBinarySensor
-from drivers.grovepi_motors import GrovePiMotors
-from drivers.VCNL4010 import VCNL4010
+from drivers.grove_motors import GroveMotors
+from input_utils import init_inputs
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
-
-
-def init_inputs(rover_params, dummy=False):
-    """Initialize input GPIO."""
-    binary_sensors = []
-
-    def get_env_int(name):
-        try:
-            return int(os.getenv(name, None))
-        except TypeError:  # pragma: no cover
-            LOGGER.warning("Missing env variable {}".format(name))
-            return None
-        except ValueError:  # pragma: no cover
-            LOGGER.warning(
-                "The value for env variable {} was {}, which is not an integer".format(
-                    name, os.getenv(name)))
-            return None
-
-    left_eye_led_current = get_env_int('LEFT_EYE_LED_CURRENT')
-    left_eye_threshold = get_env_int('LEFT_EYE_THRESHOLD')
-    right_eye_led_current = get_env_int('RIGHT_EYE_LED_CURRENT')
-    right_eye_threshold = get_env_int('RIGHT_EYE_THRESHOLD')
-    if not dummy:
-        binary_sensors.append(BinarySensor(
-            "left_ir_sensor",
-            VCNL4010(rover_params[constants.LEFT_EYE_I2C_PORT],
-                     rover_params[constants.LEFT_EYE_I2C_ADDR],
-                     left_eye_led_current, left_eye_threshold)))
-        binary_sensors.append(BinarySensor(
-            "right_ir_sensor",
-            VCNL4010(rover_params[constants.RIGHT_EYE_I2C_PORT],
-                     rover_params[constants.RIGHT_EYE_I2C_ADDR],
-                     right_eye_led_current, right_eye_threshold)))
-    else:
-        binary_sensors.append(BinarySensor("left_dummy_sensor", DummyBinarySensor()))
-        binary_sensors.append(BinarySensor("right_dummy_sensor",DummyBinarySensor()))
-
-    return binary_sensors
 
 
 def send_heartbeat(ws, run_once_only=False):
@@ -130,7 +90,7 @@ def on_open(ws):
         rover_config.get(constants.LEFT_MOTOR_PORT), rover_config.get(constants.RIGHT_MOTOR_PORT)
     if any((left_motor_port is None, right_motor_port is None)):
         raise ValueError('Required motor port configuration not present in Rover config')
-    motor_controller = MotorController(left_motor_port, right_motor_port, GrovePiMotors())
+    motor_controller = MotorController(left_motor_port, right_motor_port, GroveMotors())
 
     # Start heartbeat thread
     t = Thread(target=send_heartbeat, args=(ws,))
@@ -138,7 +98,7 @@ def on_open(ws):
     LOGGER.info("Heartbeat thread started")
 
     # Start inputs thread
-    binary_sensors = init_inputs(rover_config, dummy='rovercode.com' not in rovercode_web_url)
+    binary_sensors = init_inputs(rover_config)
     t = Thread(target=poll_sensors, args=(ws, binary_sensors))
     t.start()
     LOGGER.info("Sensors thread started")

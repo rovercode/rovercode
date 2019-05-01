@@ -10,22 +10,14 @@ ROVER_PARAMS = {
     constants.ROVER_NAME: 'rovy mcroverface',
     constants.ROVER_ID: 42,
     constants.ROVER_CONFIG: {
-        constants.LEFT_EYE_I2C_PORT: 1,
-        constants.RIGHT_EYE_I2C_PORT: 2,
-        constants.LEFT_EYE_I2C_ADDR: 3,
-        constants.RIGHT_EYE_I2C_ADDR: 4,
+        constants.LEFT_ULTRASONIC_PORT: 1,
+        constants.RIGHT_ULTRASONIC_PORT: 2,
+        constants.LEFT_ULTRASONIC_THRESHOLD: 30,
+        constants.RIGHT_ULTRASONIC_THRESHOLD: 40,
         constants.LEFT_MOTOR_PORT: 'a',
         constants.RIGHT_MOTOR_PORT: 'b',
     }
 }
-
-
-def test_app_init_inputs(testapp):
-    """Test the initialization of the sensors."""
-    binary_sensors = testapp.init_inputs(ROVER_PARAMS[constants.ROVER_CONFIG])
-    assert len(binary_sensors) == 2
-    assert binary_sensors[0].sensor.i2c_addr == 3
-    assert binary_sensors[1].sensor.i2c_addr == 4
 
 
 def test_app_send_heartbeat(testapp):
@@ -53,12 +45,6 @@ def test_app_poll_sensors(testapp):
     testapp.poll_sensors(ws, binary_sensors, run_once_only=True)
     ws.send.assert_called()
     assert sensor_message == json.loads(ws.send.call_args[0][0])
-
-
-def test_app_init_dummy_inputs(testapp):
-    """Test the initialization of the sensors in dummy mode."""
-    binary_sensors = testapp.init_inputs(ROVER_PARAMS, dummy=True)
-    assert len(binary_sensors) == 2
 
 
 def test_app_on_message(testapp):
@@ -114,7 +100,7 @@ def test_app_on_open(testapp):
 
 
 def test_app_on_open_missing_config(testapp):
-    """Test that the threads are started on websocket open."""
+    """Test that the an error throws when important config is missing."""
     ws = MagicMock()
     response = MagicMock()
     ROVER_PARAMS[constants.ROVER_CONFIG] = {}
