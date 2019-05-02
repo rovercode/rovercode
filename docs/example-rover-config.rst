@@ -1,46 +1,16 @@
 websocket protocol
 ====================
 
-Heartbeat
-----------
-.. code-block:: json
-
-    {
-       "type": "heartbeat"
-    }
-
-Motor Commands
------------------
+Here is an example of a Rover config that the service might expect to
+get from the server.
 
 .. code-block:: json
 
     {
-       "type": "motor-command",
-       "motor-id": "motor-left",
-       "motor-value": 84,
-       "direction": "forward",
-       "unit": "percent"
-    }
-
-Sensor Readings
-----------------
-
-.. code-block:: json
-
-    {
-       "type": "sensor-reading",
-       "sensor-type": "distance",
-       "sensor-id": "ultrasonic-left",
-       "sensor-value": 42,
-       "unit": "cm"
-    }
-
-.. code-block:: json
-
-    {
-       "type": "sensor-reading",
-       "sensor-type": "binary",
-       "sensor-id": "bumper-front",
-       "sensor-value": false,
-       "unit": "active-high"
+       "left-motor-port": "A",
+       "right-motor-port": "B",
+	   "left-ultrasonic-port": 1
+	   "right-ultrasonic-port": 2
+	   "left-ultrasonic-threshold": 10
+	   "right-ultrasonic-threshold": 10
     }
