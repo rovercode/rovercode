@@ -15,6 +15,6 @@ class DummyBinarySensor:
         """Create the dummy sensor."""
         LOGGER.info("Created dummy binary sensor")
 
-    def is_high(self):
+    def is_high(self):  # noqa
         """Return true or false randomly."""
         return random.choice([True, False])

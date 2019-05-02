@@ -9,7 +9,7 @@ try:
         grove_i2c_motor_driver.grove_i2c_motor_driver \
         import motor_driver
 except ImportError:
-    LOGGER.warn("Grove I2C motor driver lib unavailable. Using dummy.")
+    LOGGER.warning("Grove I2C motor driver lib unavailable. Using dummy.")
     from drivers.dummy_grovepi_interface import motor_driver
 
 

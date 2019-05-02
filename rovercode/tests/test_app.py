@@ -1,7 +1,7 @@
 """Test the app module."""
 import json
-import pytest
 import os
+import pytest
 from mock import MagicMock, patch
 
 import constants
@@ -22,9 +22,9 @@ ROVER_PARAMS = {
 
 def test_app_send_heartbeat(testapp):
     """Test sending the heartbeat."""
-    ws = MagicMock()
-    testapp.send_heartbeat(ws, run_once_only=True)
-    ws.send.assert_called_with(
+    websocket = MagicMock()
+    testapp.send_heartbeat(websocket, run_once_only=True)
+    websocket.send.assert_called_with(
         json.dumps({constants.MESSAGE_TYPE: constants.HEARTBEAT_TYPE}))
 
 
@@ -37,22 +37,22 @@ def test_app_poll_sensors(testapp):
         constants.SENSOR_ID_FIELD: 'left-eye',
         constants.SENSOR_VALUE_FIELD: True
     }
-    ws = MagicMock()
+    websocket = MagicMock()
     sensor = MagicMock()
     sensor.name = 'left-eye'
     sensor.get_change.return_value = True
     binary_sensors = [sensor]
-    testapp.poll_sensors(ws, binary_sensors, run_once_only=True)
-    ws.send.assert_called()
-    assert sensor_message == json.loads(ws.send.call_args[0][0])
+    testapp.poll_sensors(websocket, binary_sensors, run_once_only=True)
+    websocket.send.assert_called()
+    assert sensor_message == json.loads(websocket.send.call_args[0][0])
 
 
 def test_app_on_message(testapp):
     """Test the websocket incoming message handler."""
-    ws = MagicMock()
+    websocket = MagicMock()
     mock_motor_controller = MagicMock()
-    testapp.motor_controller = mock_motor_controller
-    testapp.on_message(ws, json.dumps({
+    testapp.MOTOR_CONTROLLER = mock_motor_controller
+    testapp.on_message(websocket, json.dumps({
         constants.MESSAGE_TYPE: constants.MOTOR_COMMAND,
         constants.MOTOR_ID_FIELD: constants.LEFT_MOTOR,
         constants.MOTOR_VALUE_FIELD: 80,
@@ -66,10 +66,10 @@ def test_app_on_message(testapp):
 
 def test_app_on_message_invalid_motor(testapp):
     """Test the websocket incoming message handler."""
-    ws = MagicMock()
+    websocket = MagicMock()
     mock_motor_controller = MagicMock()
     testapp.motor_controller = mock_motor_controller
-    testapp.on_message(ws, json.dumps({
+    testapp.on_message(websocket, json.dumps({
         constants.MESSAGE_TYPE: constants.MOTOR_COMMAND,
         constants.MOTOR_ID_FIELD: 'not a motor',
         constants.MOTOR_VALUE_FIELD: 80
@@ -79,21 +79,21 @@ def test_app_on_message_invalid_motor(testapp):
 
 def test_app_on_open(testapp):
     """Test that the threads are started on websocket open."""
-    ws = MagicMock()
+    websocket = MagicMock()
     response = MagicMock()
     response.text = json.dumps({'results': [ROVER_PARAMS]})
     mock_session = MagicMock()
     mock_session.get.return_value = response
-    testapp.session = mock_session
-    testapp.rovercode_web_url = 'foo'
-    testapp.client_id = 'bar'
+    testapp.SESSION = mock_session
+    testapp.ROVERCODE_WEB_URL = 'foo'
+    testapp.CLIENT_ID = 'bar'
 
     heartbeat_function = MagicMock()
     polling_function = MagicMock()
     testapp.send_heartbeat = heartbeat_function
     testapp.poll_sensors = polling_function
 
-    testapp.on_open(ws)
+    testapp.on_open(websocket)
     heartbeat_function.assert_called()
     polling_function.assert_called()
     assert testapp.motor_controller is not None
@@ -101,18 +101,18 @@ def test_app_on_open(testapp):
 
 def test_app_on_open_missing_config(testapp):
     """Test that the an error throws when important config is missing."""
-    ws = MagicMock()
+    websocket = MagicMock()
     response = MagicMock()
     ROVER_PARAMS[constants.ROVER_CONFIG] = {}
     response.text = json.dumps({'results': [ROVER_PARAMS]})
     mock_session = MagicMock()
     mock_session.get.return_value = response
-    testapp.session = mock_session
-    testapp.rovercode_web_url = 'foo'
-    testapp.client_id = 'bar'
+    testapp.SESSION = mock_session
+    testapp.ROVERCODE_WEB_URL = 'foo'
+    testapp.CLIENT_ID = 'bar'
 
     with pytest.raises(ValueError):
-        testapp.on_open(ws)
+        testapp.on_open(websocket)
 
 
 def test_app_main(testapp):

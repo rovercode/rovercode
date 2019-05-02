@@ -11,7 +11,7 @@ LOGGER.setLevel(logging.getLevelName('INFO'))
 try:
     from GrovePi.Software.Python.grovepi import ultrasonicRead
 except ImportError:
-    LOGGER.warn("GrovePi lib unavailable. Using dummy.")
+    LOGGER.warning("GrovePi lib unavailable. Using dummy.")
     from drivers.dummy_grovepi_interface import ultrasonicRead
 
 
@@ -22,8 +22,7 @@ class GrovePiUltrasonicRangerBinary:
         """Create a GrovePi Ultrasonic Ranger (Binary) driver module."""
         self.port = int(port)
         self.binary_threshold = binary_threshold
-        print("Setting up GrovePi Ultrasonic Ranger (Binary) on port"
-              .format(port))
+        print(f"Setting up GrovePi Ultrasonic Ranger (Binary) on port {port}")
 
     def is_high(self):
         """HIGH, meaning "not seeing something"."""
