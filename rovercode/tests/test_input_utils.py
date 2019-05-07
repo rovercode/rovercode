@@ -2,7 +2,7 @@
 import pytest
 
 import constants
-from input_utils import init_inputs
+from input_utils import init_inputs, DEFAULT_THRESHOLD
 
 CONFIG = {
     constants.LEFT_ULTRASONIC_PORT: 1,
@@ -29,8 +29,8 @@ def test_app_init_inputs_threshold_defaults():
     minimal_config.pop(constants.LEFT_ULTRASONIC_THRESHOLD)
     binary_sensors = init_inputs(minimal_config)
     assert len(binary_sensors) == 2
-    assert binary_sensors[0].sensor.binary_threshold == 10
-    assert binary_sensors[1].sensor.binary_threshold == 10
+    assert binary_sensors[0].sensor.binary_threshold == DEFAULT_THRESHOLD
+    assert binary_sensors[1].sensor.binary_threshold == DEFAULT_THRESHOLD
 
 
 def test_app_init_bad_ports():
@@ -47,8 +47,8 @@ def test_app_init_bad_thresholds():
     bad_config[constants.RIGHT_ULTRASONIC_THRESHOLD] = "not an int"
     binary_sensors = init_inputs(bad_config)
     assert len(binary_sensors) == 2
-    assert binary_sensors[0].sensor.binary_threshold == 10
-    assert binary_sensors[1].sensor.binary_threshold == 10
+    assert binary_sensors[0].sensor.binary_threshold == DEFAULT_THRESHOLD
+    assert binary_sensors[1].sensor.binary_threshold == DEFAULT_THRESHOLD
 
 
 def test_app_init_inputs_missing_ports():

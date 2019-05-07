@@ -12,6 +12,8 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
 
+DEFAULT_THRESHOLD = 10
+
 
 def init_inputs(rover_params):
     """Initialize input GPIO."""
@@ -26,10 +28,10 @@ def init_inputs(rover_params):
     try:
         left_port = int(left_port)
         right_port = int(right_port)
-    except ValueError as error:
+    except ValueError:
         LOGGER.error("Unusable values %s and %s for ultrasonic ports",
                      left_port, right_port)
-        raise error  # TODO: Set RGB LED to red
+        raise  # TODO: Set RGB LED to red
 
     left_threshold, right_threshold = \
         rover_params.get(constants.LEFT_ULTRASONIC_THRESHOLD), \
@@ -37,7 +39,7 @@ def init_inputs(rover_params):
     if any((left_threshold is None, right_threshold is None)):
         LOGGER.info("No ultrasonic sensor thresholds found in"
                     "Rover config. Using defaults.")
-        left_threshold, right_threshold = 10, 10
+        left_threshold, right_threshold = DEFAULT_THRESHOLD, DEFAULT_THRESHOLD
     else:
         try:
             left_threshold = int(left_threshold)
@@ -46,7 +48,8 @@ def init_inputs(rover_params):
             LOGGER.error("Unusable values %s and %s "
                          "for ultrasonic thresholds. Using defaults.",
                          left_threshold, right_threshold)
-            left_threshold, right_threshold = 10, 10
+            left_threshold, right_threshold =\
+                DEFAULT_THRESHOLD, DEFAULT_THRESHOLD
 
     binary_sensors.append(
         BinarySensor(
