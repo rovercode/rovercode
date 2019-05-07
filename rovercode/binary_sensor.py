@@ -1,5 +1,6 @@
 """A class to represent binary sensors."""
 
+
 class BinarySensor:
     """
     The binary sensor object contains information for each binary sensor.
@@ -11,11 +12,10 @@ class BinarySensor:
     """
 
     def __init__(self, name, sensor):
-        """Constructor for BinarySensor object."""
+        """Construct a BinarySensor object."""
         self.name = name
         self.sensor = sensor
         self.old_val = False
-
 
     def get_change(self):
         """Return the current value if it differs from the previous one."""

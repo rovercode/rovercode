@@ -1,9 +1,9 @@
 """Class for managing the motor state."""
 
+import logging
 from constants import \
     LEFT_MOTOR, RIGHT_MOTOR,\
     MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_BACKWARD
-import logging
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
@@ -25,9 +25,12 @@ class MotorController:
             return
 
         if speed < 0:
-            LOGGER.warning("Inverting direction %s because of negative motor speed %s", direction, speed)
+            LOGGER.warning("Inverting direction %s because "
+                           "of negative motor speed %s",
+                           direction, speed)
             speed = abs(speed)
-            direction = MOTOR_DIRECTION_BACKWARD if direction == MOTOR_DIRECTION_FORWARD \
+            direction = MOTOR_DIRECTION_BACKWARD \
+                if direction == MOTOR_DIRECTION_FORWARD \
                 else MOTOR_DIRECTION_FORWARD
 
         if direction == MOTOR_DIRECTION_FORWARD:
@@ -38,5 +41,6 @@ class MotorController:
             LOGGER.error("Invalid direction %s", direction)
             return
 
-        LOGGER.info("Setting %s to %s with direction %s", motor, speed, direction)
+        LOGGER.info("Setting %s to %s with direction %s",
+                    motor, speed, direction)
         self.driver.set_speed(self.ports[motor], speed, driver_direction)

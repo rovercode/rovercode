@@ -2,6 +2,15 @@ strictness: veryhigh
 doc-warnings: true
 test-warnings: true
 
+pylint:
+  disable:
+    # Redefining name from outer scope confuses test fixtures
+    - W0621
+    # Too few public methods
+    - R0903
+    # Using the global statement
+    - global-statement
+
 pep8:
   full: true
 
@@ -10,3 +19,5 @@ pep257:
   disable:
     # 1 blank line required before class docstring
     - D203
+    # Multi-line doc should start at the first line: https://github.com/PyCQA/pydocstyle/issues/242
+    - D212

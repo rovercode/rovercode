@@ -26,10 +26,10 @@ SENSOR_VALUE_FIELD = 'sensor-value'
 # Config constants
 LEFT_MOTOR_PORT = 'left-motor-port'
 RIGHT_MOTOR_PORT = 'right-motor-port'
-LEFT_EYE_I2C_PORT = 'left_eye_i2c_port'
-LEFT_EYE_I2C_ADDR = 'left_eye_i2c_addr'
-RIGHT_EYE_I2C_PORT = 'right_eye_i2c_port'
-RIGHT_EYE_I2C_ADDR = 'right_eye_i2c_addr'
+LEFT_ULTRASONIC_PORT = 'left-ultrasonic-port'
+LEFT_ULTRASONIC_THRESHOLD = 'left-ultrasonic-threshold'
+RIGHT_ULTRASONIC_PORT = 'right-ultrasonic-port'
+RIGHT_ULTRASONIC_THRESHOLD = 'right-ultrasonic-threshold'
 
 # API constants
 ROVER_NAME = 'name'
