@@ -16,3 +16,19 @@ class motor_driver:  # noqa
 def ultrasonicRead(port):  # noqa
     """Read from the dummy ultrasonic sensor."""
     pass
+
+
+def chainableRgbLed_pattern(pin, type, led):  # noqa
+    pass
+
+
+def storeColor(r, g, b):  # noqa
+    pass
+
+
+def chainableRgbLed_init(port, count):  # noqa
+    pass
+
+
+def pinMode(port, mode):  # noqa
+    pass
