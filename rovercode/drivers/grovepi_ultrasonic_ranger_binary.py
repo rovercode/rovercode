@@ -25,8 +25,7 @@ class GrovePiUltrasonicRangerBinary:
         print(f"Setting up GrovePi Ultrasonic Ranger (Binary) on port {port}")
 
     def is_high(self):
-        """HIGH, meaning "not seeing something"."""
-        # to match the old GPIO sensors, we'll make this sensor active low
-        # False output means object detected
-        # True output means no object detected
-        return ultrasonicRead(self.port) > self.binary_threshold
+        """HIGH, meaning "seeing something"."""
+        # False output means no object detected
+        # True output means object detected
+        return ultrasonicRead(self.port) < self.binary_threshold
