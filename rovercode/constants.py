@@ -22,6 +22,8 @@ SENSOR_TYPE_FIELD = 'sensor-type'
 SENSOR_TYPE_BINARY = 'binary'
 SENSOR_UNIT_ACTIVE_HIGH = 'active-high'
 SENSOR_VALUE_FIELD = 'sensor-value'
+SENSOR_NAME_LEFT = 'ultrasonic-left'
+SENSOR_NAME_RIGHT = 'ultrasonic-right'
 
 # Config constants
 LEFT_MOTOR_PORT = 'left-motor-port'

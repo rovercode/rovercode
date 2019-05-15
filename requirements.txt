@@ -10,3 +10,5 @@ astroid==2.0.4
 python-dotenv
 websocket-client
 requests-oauthlib
+RPi.GPIO
+smbus2

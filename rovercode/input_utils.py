@@ -53,11 +53,11 @@ def init_inputs(rover_params):
 
     binary_sensors.append(
         BinarySensor(
-            "left_ultra_sensor",
+            constants.SENSOR_NAME_LEFT,
             GrovePiUltrasonicRangerBinary(left_port, left_threshold)))
     binary_sensors.append(
         BinarySensor(
-            "right_ultra_sensor",
+            constants.SENSOR_NAME_RIGHT,
             GrovePiUltrasonicRangerBinary(right_port, right_threshold)))
 
     return binary_sensors
