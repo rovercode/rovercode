@@ -1,15 +1,16 @@
 [Unit]
-Description=rovercode Daemon Service
-After=network.target syslog.target
+Description=Rovercode Daemon Service
+After=network.target syslog.target docker.service
+Requires=docker.service
 
 [Service]
-Type=simple
+TimeoutStartSec=0
 Restart=always
-RestartSec=1
 User=root
 Group=root
-WorkingDirectory=/opt/rovercode/
-ExecStart=/bin/bash /opt/rovercode/start.sh
+ExecStartPre=-/usr/bin/docker stop rovercode
+ExecStartPre=-/usr/bin/docker rm rovercode
+ExecStart=-/usr/bin/docker run --name rovercode --privileged -v /dev:/dev -v /opt/rovercode:/var/rovercode rovercode
 StandardOutput=syslog
 StandardError=syslog
 
