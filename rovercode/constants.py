@@ -12,8 +12,8 @@ MOTOR_VALUE_FIELD = 'motor-value'
 MOTOR_DIRECTION_FIELD = 'direction'
 MOTOR_DIRECTION_FORWARD = 'forward'
 MOTOR_DIRECTION_BACKWARD = 'backward'
-LEFT_MOTOR = 'left-motor'
-RIGHT_MOTOR = 'right-motor'
+LEFT_MOTOR = 'motor-left'
+RIGHT_MOTOR = 'motor-right'
 MOTOR_IDS = (LEFT_MOTOR, RIGHT_MOTOR)
 
 SENSOR_READING_TYPE = 'sensor-reading'
