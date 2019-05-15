@@ -25,6 +25,7 @@ class GroveMotors:
     def __init__(self):
         """Create an instance of motor interface."""
         self.interface = MiniMotorDriver(self.LEFT_DRIVER_ADDRESS, self.RIGHT_DRIVER_ADDRESS)
+        self.interface.stopMotors()
 
     def set_left_speed(self, speed, direction):
         """Set the speed of the left motors."""
@@ -43,6 +44,12 @@ class GroveMotors:
         if speed < 0:
             LOGGER.warning("Applying floor to set speed %s to 0", speed)
         if motor == 'left':
-            self.interface.setLeftMotor(direction, speed)
+            if speed == 0:
+                self.interface.stopLeftMotor()
+            else:
+                self.interface.setLeftMotor(direction, speed)
         else:
-            self.interface.setRightMotor(direction, speed)
+            if speed == 0:
+                self.interface.stopRightMotor()
+            else:
+                self.interface.setRightMotor(direction, speed)
