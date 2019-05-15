@@ -23,6 +23,10 @@ class MotorController:
             LOGGER.error("Unknown motor %s", motor)
             return
 
+        try:
+            speed = int(speed)
+        except ValueError:
+            LOGGER.error('Speed %s cannot be parsed as an integer', speed)
         if speed < 0:
             LOGGER.warning("Inverting direction %s because "
                            "of negative motor speed %s",
