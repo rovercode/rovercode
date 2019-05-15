@@ -26,8 +26,6 @@ SENSOR_NAME_LEFT = 'ultrasonic-left'
 SENSOR_NAME_RIGHT = 'ultrasonic-right'
 
 # Config constants
-LEFT_MOTOR_PORT = 'left-motor-port'
-RIGHT_MOTOR_PORT = 'right-motor-port'
 LEFT_ULTRASONIC_PORT = 'left-ultrasonic-port'
 LEFT_ULTRASONIC_THRESHOLD = 'left-ultrasonic-threshold'
 RIGHT_ULTRASONIC_PORT = 'right-ultrasonic-port'
