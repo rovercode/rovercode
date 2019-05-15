@@ -8,10 +8,9 @@ try:
     import sys
     sys.path.append('../GrovePi/Software/Python')
     from grove_mini_motor_driver.grove_mini_motor_driver import MiniMotorDriver
-    from grove_mini_motor_driver.grove_mini_motor_driver import left_channel, right_channel
 except ImportError:
     LOGGER.warning("Grove I2C mini motor driver lib unavailable. Using dummy.")
-    from drivers.dummy_grovepi_interface import MiniMotorDriver, left_channel, right_channel
+    from drivers.dummy_grovepi_interface import MiniMotorDriver
 
 
 class GroveMotors:
@@ -19,11 +18,13 @@ class GroveMotors:
 
     DIRECTION_FORWARD = 'FORWARD'
     DIRECTION_BACKWARD = 'REVERSE'
+    LEFT_DRIVER_ADDRESS = 0x60
+    RIGHT_DRIVER_ADDRESS = 0x65
     DIRECTIONS = (DIRECTION_FORWARD, DIRECTION_BACKWARD)
 
     def __init__(self):
         """Create an instance of motor interface."""
-        self.interface = MiniMotorDriver(left_channel, right_channel)
+        self.interface = MiniMotorDriver(self.LEFT_DRIVER_ADDRESS, self.RIGHT_DRIVER_ADDRESS)
 
     def set_left_speed(self, speed, direction):
         """Set the speed of the left motors."""
