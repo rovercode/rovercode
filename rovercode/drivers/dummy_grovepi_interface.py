@@ -1,15 +1,31 @@
 """Dummy class to use when not running with real GrovePi hardware."""
 
 
-class motor_driver:  # noqa
+class MiniMotorDriver:  # noqa
     """A dummy motor interface class."""
 
-    def MotorSpeedSetAB(self, *args, **kwargs):  # noqa
-        """Set the dummy motor speed."""
+    def __init__(self, *args, **kwargs):
+        """Initialize the dummy driver."""
         return
 
-    def DirectionSet(self, *args, **kwargs):  # noqa
-        """Set the dummy motor direction."""
+    def stopMotors(self, *args, **kwargs):  # noqa
+        """Stop the dummy motors."""
+        return
+
+    def stopLeftMotor(self, *args, **kwargs):  # noqa
+        """Stop the left dummy motor."""
+        return
+
+    def stopRightMotor(self, *args, **kwargs):  # noqa
+        """Stop the right dummy motor."""
+        return
+
+    def setLeftMotor(self, *args, **kwargs):  # noqa
+        """Stop the left dummy motor."""
+        return
+
+    def setRightMotor(self, *args, **kwargs):  # noqa
+        """Stop the right dummy motor."""
         return
 
 

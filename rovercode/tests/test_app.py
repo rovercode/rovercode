@@ -2,9 +2,10 @@
 import json
 import os
 import pytest
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import constants
+import app
 
 ROVER_PARAMS = {
     constants.ROVER_NAME: 'rovy mcroverface',
@@ -14,8 +15,6 @@ ROVER_PARAMS = {
         constants.RIGHT_ULTRASONIC_PORT: 2,
         constants.LEFT_ULTRASONIC_THRESHOLD: 30,
         constants.RIGHT_ULTRASONIC_THRESHOLD: 40,
-        constants.LEFT_MOTOR_PORT: 'a',
-        constants.RIGHT_MOTOR_PORT: 'b',
     }
 }
 
@@ -77,8 +76,10 @@ def test_app_on_message_invalid_motor(testapp):
     mock_motor_controller.set_speed.assert_not_called()
 
 
-def test_app_on_open(testapp):
+@patch('app.MotorController')
+def test_app_on_open_success(mock_motor_controller):
     """Test that the threads are started on websocket open."""
+    testapp = app
     websocket = MagicMock()
     response = MagicMock()
     response.text = json.dumps({'results': [ROVER_PARAMS]})
@@ -96,7 +97,7 @@ def test_app_on_open(testapp):
     testapp.on_open(websocket)
     heartbeat_function.assert_called()
     polling_function.assert_called()
-    assert testapp.motor_controller is not None
+    mock_motor_controller.__init__.assert_called()
 
 
 def test_app_on_open_missing_config(testapp):
@@ -112,7 +113,8 @@ def test_app_on_open_missing_config(testapp):
     testapp.CLIENT_ID = 'bar'
 
     with pytest.raises(ValueError):
-        testapp.on_open(websocket)
+        with patch('motor_controller.MotorController') as _:
+            testapp.on_open(websocket)
 
 
 def test_app_main(testapp):
