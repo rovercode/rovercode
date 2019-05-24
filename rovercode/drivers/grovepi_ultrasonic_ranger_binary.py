@@ -4,15 +4,16 @@ Class for communicating with the GrovePi ultrasonic ranger.
 Here we treat it as a binary sensor.
 """
 
+import os
 import logging
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
-try:
-    from grovepi import ultrasonicRead
-except (ImportError, RuntimeError):
-    LOGGER.warning("GrovePi lib unavailable. Using dummy.")
+if os.getenv('DEVELOPMENT', 'false').lower() == 'true':
+    LOGGER.warning("Running in DEVELOPMENT mode. Using dummy.")
     from drivers.dummy_grovepi_interface import ultrasonicRead
+else:
+    from grovepi import ultrasonicRead
 
 
 class GrovePiUltrasonicRangerBinary:

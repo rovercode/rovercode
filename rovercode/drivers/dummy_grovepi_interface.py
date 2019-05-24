@@ -31,4 +31,4 @@ class MiniMotorDriver:  # noqa
 
 def ultrasonicRead(port):  # noqa
     """Read from the dummy ultrasonic sensor."""
-    pass
+    return 0

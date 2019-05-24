@@ -1,16 +1,17 @@
 """Class for communicating with the GrovePi motor controller."""
 
+import os
 import logging
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
-try:
+if os.getenv('DEVELOPMENT', 'false').lower() == 'true':
+    LOGGER.warning("In development mode. Using dummy.")
+    from drivers.dummy_grovepi_interface import MiniMotorDriver
+else:
     import sys
     sys.path.append('../GrovePi/Software/Python')
     from grove_mini_motor_driver.grove_mini_motor_driver import MiniMotorDriver
-except (ImportError, RuntimeError):
-    LOGGER.warning("Grove I2C mini motor driver lib unavailable. Using dummy.")
-    from drivers.dummy_grovepi_interface import MiniMotorDriver
 
 
 class GroveMotors:

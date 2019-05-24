@@ -38,7 +38,7 @@ $ # create your .env, as described in the section below
 $ sudo apt install git docker.io
 $ git clone https://github.com/rovercode/rovercode.git && cd rovercode
 $ sudo docker build -t rovercode .
-$ sudo docker run --name rovercode -v $PWD:/var/rovercode rovercode
+$ sudo docker run --env DEVELOPMENT=true --name rovercode -v $PWD:/var/rovercode rovercode
 
 ```
 Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
@@ -47,7 +47,7 @@ Then, still on your development PC, head to rovercode.com and connect to your "r
 Run the tests like this:
 Make sure the container is running (the `sudo docker run ...` command above), then in another terminal, do:
 ```bash
-$ sudo docker exec -it rovercode bash -c "python -m pytest"
+$ sudo docker exec -it rovercode bash -c "DEVELOPMENT=true python -m pytest"
 $ sudo docker exec -it rovercode bash -c prospector
 
 ```
