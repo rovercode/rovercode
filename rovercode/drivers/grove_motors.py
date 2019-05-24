@@ -24,7 +24,13 @@ class GroveMotors:
 
     def __init__(self):
         """Create an instance of motor interface."""
-        self.interface = MiniMotorDriver(self.LEFT_DRIVER_ADDRESS, self.RIGHT_DRIVER_ADDRESS)
+        try:
+            self.interface = MiniMotorDriver(self.LEFT_DRIVER_ADDRESS, self.RIGHT_DRIVER_ADDRESS)
+        except RuntimeError:
+            # MiniMotorDriver can fail based on hardware platform on init
+            LOGGER.warning("Grove I2C mini motor driver lib unavailable. Using dummy.")
+            from drivers.dummy_grovepi_interface import MiniMotorDriver as DummyMiniMotorDriver
+            self.interface = DummyMiniMotorDriver(self.LEFT_DRIVER_ADDRESS, self.RIGHT_DRIVER_ADDRESS)
         self.interface.stopMotors()
 
     def set_left_speed(self, speed, direction):
