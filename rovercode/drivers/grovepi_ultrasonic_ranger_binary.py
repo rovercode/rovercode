@@ -10,7 +10,7 @@ LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
 try:
     from grovepi import ultrasonicRead
-except ImportError:
+except (ImportError, RuntimeError):
     LOGGER.warning("GrovePi lib unavailable. Using dummy.")
     from drivers.dummy_grovepi_interface import ultrasonicRead
 

@@ -8,7 +8,7 @@ try:
     import sys
     sys.path.append('../GrovePi/Software/Python')
     from grove_mini_motor_driver.grove_mini_motor_driver import MiniMotorDriver
-except ImportError:
+except (ImportError, RuntimeError):
     LOGGER.warning("Grove I2C mini motor driver lib unavailable. Using dummy.")
     from drivers.dummy_grovepi_interface import MiniMotorDriver
 
