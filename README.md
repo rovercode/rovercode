@@ -57,7 +57,7 @@ Read the complete docs [here](https://contributor-docs.rovercode.com).
 
 ## Contact
 
-We'd love to chat with you! Join the [our chat!](https://rovercode.zulipchat.com).
+We'd love to say hi! Join [our chat!](https://rovercode.zulipchat.com).
 
 ## License
 [GNU GPLv3](license) © Rovercode LLC and Rovercode contributors
