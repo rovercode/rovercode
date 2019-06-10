@@ -4,7 +4,7 @@
 class MiniMotorDriver:  # noqa
     """A dummy motor interface class."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # noqa
         """Initialize the dummy driver."""
         return
 

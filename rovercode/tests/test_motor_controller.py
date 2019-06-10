@@ -51,3 +51,11 @@ def test_motor_controller_bad_direction(driver_mock):
     motor_controller = MotorController(driver_mock)
     motor_controller.set_speed(LEFT_MOTOR, 50, 'not a good direction')
     driver_mock.set_speed.assert_not_called()
+
+
+def test_motor_controller_bad_value(driver_mock):
+    """Test bad direction value."""
+    motor_controller = MotorController(driver_mock)
+    motor_controller.set_speed(LEFT_MOTOR, 'not an int',
+                               MOTOR_DIRECTION_FORWARD)
+    driver_mock.set_speed.assert_not_called()

@@ -13,7 +13,7 @@ if os.getenv('DEVELOPMENT', 'false').lower() == 'true':
     LOGGER.warning("Running in DEVELOPMENT mode. Using dummy.")
     from drivers.dummy_grovepi_interface import ultrasonicRead
 else:
-    from grovepi import ultrasonicRead
+    from grovepi import ultrasonicRead  # noqa
 
 
 class GrovePiUltrasonicRangerBinary:
@@ -23,7 +23,8 @@ class GrovePiUltrasonicRangerBinary:
         """Create a GrovePi Ultrasonic Ranger (Binary) driver module."""
         self.port = int(port)
         self.binary_threshold = binary_threshold
-        print(f"Setting up GrovePi Ultrasonic Ranger (Binary) on port {port}")
+        LOGGER.info("Setting up GrovePi Ultrasonic Binary Ranger on port %s",
+                    port)
 
     def is_high(self):
         """HIGH, meaning "seeing something"."""

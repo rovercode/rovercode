@@ -27,6 +27,7 @@ class MotorController:
             speed = int(speed)
         except ValueError:
             LOGGER.error('Speed %s cannot be parsed as an integer', speed)
+            return
         if speed < 0:
             LOGGER.warning("Inverting direction %s because "
                            "of negative motor speed %s",
@@ -50,4 +51,3 @@ class MotorController:
             self.driver.set_left_speed(speed, driver_direction)
         else:
             self.driver.set_right_speed(speed, driver_direction)
-

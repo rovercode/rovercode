@@ -48,7 +48,7 @@ Run the tests like this:
 Make sure the container is running (the `sudo docker run ...` command above), then in another terminal, do:
 ```bash
 $ sudo docker exec -it rovercode bash -c "DEVELOPMENT=true python -m pytest"
-$ sudo docker exec -it rovercode bash -c prospector
+$ sudo docker -e "DEVELOPMENT=true" exec -it rovercode bash -c prospector
 
 ```
 
