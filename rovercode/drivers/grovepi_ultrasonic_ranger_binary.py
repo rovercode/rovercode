@@ -10,7 +10,7 @@ logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
 if os.getenv('DEVELOPMENT', 'false').lower() == 'true':
-    LOGGER.warning("Running in DEVELOPMENT mode. Using dummy.")
+    LOGGER.warning("In DEVELOPMENT mode. Using dummy.")
     from drivers.dummy_grovepi_interface import ultrasonicRead
 else:
     from grovepi import ultrasonicRead  # noqa

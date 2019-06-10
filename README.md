@@ -1,4 +1,6 @@
-![screenshot](https://i.imgur.com/BSzTTkF.png)
+![actionshot](https://media.giphy.com/media/JRaXUIxBXgXU2ap3LI/giphy.gif)
+
+![screenshot](https://i.imgur.com/oaX89pOg.png)
 
 # Rovercode
 
@@ -15,40 +17,36 @@ Rovercode runs on a [Raspberry Pi 3](https://www.raspberrypi.org/products/raspbe
 ## Setup
 
 ### Creating Your .env
-First, create a rovercode.com account [here](https://rovercode.com/accounts/signup/). Then, navigate to the "My Rovers" section and
+First, create a rovercode.com account [here](https://app.rovercode.com/accounts/login). Then, navigate to the "My Rovers" section and
 create a new rover. Once it is created, click the "Download Credentials" button at the bottom of the rover's detail page. The file
 will download as something like `rovercode_yourrovername.env`. Rename the file as only `.env` (nothing before the dot) and save it in the same directory as this README.
 
 ### Rover Setup
-First, on your Rover (Raspberry Pi):
+First, on your Raspberry Pi:
 ```bash
-$ # create your .env, as described in the section below
-$ sudo apt install git
+$ sudo apt install git docker.io
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
-$ sudo bash setup.sh #run this only once -- it will take some time
-$ sudo bash start.sh #run this each time you boot the rover (or automatically start if chosen in setup)
+$ cp ~/rovercode_yourrovername.env .env # copy in the .env created in the section above
+$ sudo docker build -t rovercode .
+$ sudo docker run --name rovercode -v $PWD:/var/rovercode rovercode
 ```
-Then, on any PC or tablet, head to rovercode.com to connect to your rover.
+Then, on any PC or tablet, head to app.rovercode.com to connect to your rover.
 
 ### Development PC Setup
-When developing Rovercode, you may want to run Rovercode on your PC instead of a Raspberry Pi. Below are instructions for how to install and run rovercode on your PC. Everything should work fine: rovercode will automatically detect that it is not running on target hardware and will stub out the calls to the motors and sensors.
+When developing Rovercode, you may want to run Rovercode on your PC instead of a Raspberry Pi. Below are instructions for how to install and run Rovercode on your PC. To do this, use the same steps described above, except replace the last command with this one:
 
 ```bash
-$ # create your .env, as described in the section below
-$ sudo apt install git docker.io
-$ git clone https://github.com/rovercode/rovercode.git && cd rovercode
-$ sudo docker build -t rovercode .
 $ sudo docker run --env DEVELOPMENT=true --name rovercode -v $PWD:/var/rovercode rovercode
-
 ```
+Note the `--env DEVELOPMENT=true` flag.
 Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
 
 ## Testing
 Run the tests like this:
 Make sure the container is running (the `sudo docker run ...` command above), then in another terminal, do:
 ```bash
-$ sudo docker exec -it rovercode bash -c "DEVELOPMENT=true python -m pytest"
-$ sudo docker -e "DEVELOPMENT=true" exec -it rovercode bash -c prospector
+$ sudo docker exec -it rovercode bash -c "python -m pytest"
+$ sudo docker exec -it rovercode bash -c "prospector"
 
 ```
 
