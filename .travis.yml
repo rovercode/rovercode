@@ -24,7 +24,6 @@ script:
 - pushd rovercode
 - python -m pytest
 - prospector
-- popd
 after_success:
 - coveralls
 language: python
