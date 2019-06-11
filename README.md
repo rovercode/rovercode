@@ -38,7 +38,7 @@ $ # create your .env, as described in the section below
 $ sudo apt install git docker.io
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
 $ sudo docker build -t rovercode .
-$ sudo docker run --name rovercode -v $PWD:/var/www/rovercode -p 80:80 -d rovercode
+$ sudo docker run --name rovercode -v $PWD:/var/rovercode -p 80:80 -d rovercode
 
 ```
 Then, still on your development PC, head to rovercode.com and connect to your "rover" (your PC running the service).
