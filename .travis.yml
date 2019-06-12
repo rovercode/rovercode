@@ -26,6 +26,7 @@ script:
 - prospector
 after_success:
 - coveralls
+- popd
 language: python
 python:
 - '3.6'
