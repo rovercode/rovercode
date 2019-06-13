@@ -22,6 +22,9 @@ class GroveMotors:
     LEFT_DRIVER_ADDRESS = 0x60
     RIGHT_DRIVER_ADDRESS = 0x65
     DIRECTIONS = (DIRECTION_FORWARD, DIRECTION_BACKWARD)
+    _MOTOR_LEFT = 'left'
+    _MOTOR_RIGHT = 'right'
+    _MOTORS = (_MOTOR_LEFT, _MOTOR_RIGHT)
 
     def __init__(self):
         """Create an instance of motor interface."""
@@ -40,21 +43,23 @@ class GroveMotors:
 
     def set_left_speed(self, speed, direction):
         """Set the speed of the left motors."""
-        self._set_speed('left', speed, direction)
+        self._set_speed(self._MOTOR_LEFT, speed, direction)
 
     def set_right_speed(self, speed, direction):
         """Set the speed of the right motor."""
-        self._set_speed('right', speed, direction)
+        self._set_speed(self._MOTOR_RIGHT, speed, direction)
 
     def _set_speed(self, motor, speed, direction):
-        if direction not in self.DIRECTIONS:
+        if direction not in self.DIRECTIONS or motor not in self._MOTORS:
             LOGGER.error("Invalid direction %s", direction)
             return
         if speed > 100:
             LOGGER.warning("Capping speed %s to 100", speed)
+            speed = 100
         if speed < 0:
             LOGGER.warning("Applying floor to set speed %s to 0", speed)
-        if motor == 'left':
+            speed = 0
+        if motor == self._MOTOR_LEFT:
             if speed == 0:
                 self.interface.stopLeftMotor()
             else:
