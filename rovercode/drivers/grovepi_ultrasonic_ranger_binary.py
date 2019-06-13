@@ -4,15 +4,16 @@ Class for communicating with the GrovePi ultrasonic ranger.
 Here we treat it as a binary sensor.
 """
 
+import os
 import logging
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
-try:
-    from GrovePi.Software.Python.grovepi import ultrasonicRead
-except ImportError:
-    LOGGER.warning("GrovePi lib unavailable. Using dummy.")
+if os.getenv('DEVELOPMENT', 'false').lower() == 'true':
+    LOGGER.warning("In DEVELOPMENT mode. Using dummy.")
     from drivers.dummy_grovepi_interface import ultrasonicRead
+else:
+    from grovepi import ultrasonicRead  # noqa
 
 
 class GrovePiUltrasonicRangerBinary:
@@ -22,11 +23,11 @@ class GrovePiUltrasonicRangerBinary:
         """Create a GrovePi Ultrasonic Ranger (Binary) driver module."""
         self.port = int(port)
         self.binary_threshold = binary_threshold
-        print(f"Setting up GrovePi Ultrasonic Ranger (Binary) on port {port}")
+        LOGGER.info("Setting up GrovePi Ultrasonic Binary Ranger on port %s",
+                    port)
 
     def is_high(self):
-        """HIGH, meaning "not seeing something"."""
-        # to match the old GPIO sensors, we'll make this sensor active low
-        # False output means object detected
-        # True output means no object detected
-        return ultrasonicRead(self.port) > self.binary_threshold
+        """HIGH, meaning "seeing something"."""
+        # False output means no object detected
+        # True output means object detected
+        return ultrasonicRead(self.port) < self.binary_threshold

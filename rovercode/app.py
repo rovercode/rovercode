@@ -95,16 +95,7 @@ def on_open(ws_connection):
     rover_config = info[constants.ROVER_CONFIG]
 
     # Create motor manager
-    left_motor_port, right_motor_port =\
-        rover_config.get(constants.LEFT_MOTOR_PORT),\
-        rover_config.get(constants.RIGHT_MOTOR_PORT)
-    if any((left_motor_port is None, right_motor_port is None)):
-        raise ValueError('Required motor port configuration'
-                         'not present in Rover config')
-    MOTOR_CONTROLLER = MotorController(
-        left_motor_port,
-        right_motor_port,
-        GroveMotors())
+    MOTOR_CONTROLLER = MotorController(GroveMotors())
 
     # Start heartbeat thread
     thread = Thread(target=send_heartbeat, args=(ws_connection,))
