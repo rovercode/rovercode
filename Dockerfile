@@ -5,7 +5,6 @@ MAINTAINER Clifton Barnes <clifton.barnes@rovercode.com>
 RUN apt-get update
 RUN apt-get install -y build-essential python3-dev libi2c-dev python3-smbus
 
-ADD .env /var/rovercode/.env
 ADD pytest.ini /var/rovercode/pytest.ini
 ADD requirements.txt /var/rovercode/requirements.txt
 ADD GrovePi /var/rovercode/GrovePi

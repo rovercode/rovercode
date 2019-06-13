@@ -118,7 +118,7 @@ def run_service(run_forever=True, use_dotenv=True):
     LOGGER.info("Starting the Rovercode service!")
     if use_dotenv:  # pragma: no cover
         load_dotenv('../.env')
-    rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "rovercode.com")
+    rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "app.rovercode.com")
 
     rovercode_web_host_secure = \
         os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'

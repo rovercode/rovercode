@@ -15,9 +15,9 @@ script:
 - pushd rovercode
 - python -m pytest
 - prospector
-- popd
 after_success:
 - coveralls
+- popd
 language: python
 python:
 - '3.6'
