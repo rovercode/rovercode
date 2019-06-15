@@ -2,9 +2,9 @@ FROM python:3.6-slim-stretch
 
 MAINTAINER Clifton Barnes <clifton.barnes@rovercode.com>
 
-ADD pytest.ini requirements.txt /var/rovercode/
-ADD GrovePi /var/rovercode/GrovePi
-ADD rovercode /var/rovercode/rovercode
+COPY pytest.ini requirements.txt /var/rovercode/
+COPY GrovePi /var/rovercode/GrovePi
+COPY rovercode /var/rovercode/rovercode
 
 WORKDIR /var/rovercode
 RUN apt-get update && apt-get install -y \
