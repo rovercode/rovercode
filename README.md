@@ -28,7 +28,9 @@ $ sudo apt install git docker.io
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
 $ cp ~/rovercode_yourrovername.env .env # copy in the .env created in the section above
 $ sudo docker build -t rovercode .
-$ sudo docker run --name rovercode -v $PWD:/var/rovercode rovercode
+# Alternatively, you can use the latest pre-built image:
+$ sudo docker pull rovercode/rovercode
+$ sudo docker run --rm --name rovercode -v $PWD:/var/rovercode -d rovercode
 ```
 Then, on any PC or tablet, head to app.rovercode.com to connect to your rover.
 
@@ -45,8 +47,8 @@ Then, still on your development PC, head to rovercode.com and connect to your "r
 Run the tests like this:
 Make sure the container is running (the `sudo docker run ...` command above), then in another terminal, do:
 ```bash
-$ sudo docker exec -it rovercode bash -c "python -m pytest"
-$ sudo docker exec -it rovercode bash -c "prospector"
+$ sudo docker exec rovercode python -m pytest
+$ sudo docker exec rovercode prospector
 
 ```
 
