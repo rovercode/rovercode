@@ -15,6 +15,7 @@ MOTOR_DIRECTION_BACKWARD = 'backward'
 LEFT_MOTOR = 'motor-left'
 RIGHT_MOTOR = 'motor-right'
 MOTOR_IDS = (LEFT_MOTOR, RIGHT_MOTOR)
+CHAINABLE_RGB_LED_COMMAND = 'chainable-rgb-led-command'
 
 SENSOR_READING_TYPE = 'sensor-reading'
 SENSOR_ID_FIELD = 'sensor-id'

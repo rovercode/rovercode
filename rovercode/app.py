@@ -12,6 +12,7 @@ from requests_oauthlib import OAuth2Session
 
 import constants
 from motor_controller import MotorController
+from chainable_rgb_leds_manager import ChainableRgbLedsManager
 from drivers.grove_motors import GroveMotors
 from input_utils import init_inputs
 
@@ -69,6 +70,8 @@ def on_message(_, raw_message):
         MOTOR_CONTROLLER.set_speed(message[constants.MOTOR_ID_FIELD],
                                    message[constants.MOTOR_VALUE_FIELD],
                                    message[constants.MOTOR_DIRECTION_FIELD])
+    elif message_type == constants.CHAINABLE_RGB_LED_COMMAND:
+        LOGGER.info("DUDE. Got an LED command.")
 
 
 def on_error(_, error):  # pragma: no cover

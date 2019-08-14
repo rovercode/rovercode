@@ -9,24 +9,16 @@ LOGGER.setLevel(logging.getLevelName('INFO'))
 class ChainableRgbLedsManager:
     """Object to manage RGB LEDs."""
 
-    def __init__(self, port, user_led_count, driver):
+    def __init__(self, port, count, driver):
         """Construct a RgbLedManager."""
         self.port = port
-        self.count = 1 + user_led_count
+        self.count = count
         self.driver = driver
         self.driver.setup(port, self.count)
         LOGGER.info("RGB LED manager initialized")
 
-    def set_status_led_color(self, red, green, blue):
-        """Set status LED color."""
-        self.set_led_color(0, red, green, blue)
-
-    def set_user_led_color(self, user_led, red, green, blue):
-        """Set user LED color."""
-        self.set_led_color(user_led + 1, red, green, blue)
-
     def set_led_color(self, led, red, green, blue):
-        """Set the speed of a motor pin."""
+        """Set LED color."""
         if led > self.count - 1:
             LOGGER.error("Unknown led %s", led)
             return
