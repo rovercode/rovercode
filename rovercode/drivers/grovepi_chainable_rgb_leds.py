@@ -31,18 +31,19 @@ class GrovePiChainableRgbLeds:
         pinMode(port, "OUTPUT")
         time.sleep(1)
         chainableRgbLed_init(self.port, count)
-        LOGGER.info("Setting up %s GrovePi Chainable RGB LEDs on port %s", count, port)
+        LOGGER.info("Setting up %s GrovePi Chainable RGB LEDs on port %s",
+                    count, port)
 
-    def set_color(self, led, r, g, b):
-        """Set color in RGB, each ranged 0-255"""
+    def set_color(self, led, red, green, blue):
+        """Set color in RGB, each ranged 0-255."""
         if self.port is None:
             raise RuntimeError("Must call setup before setting color.")
 
-        for component in (r, g, b):
+        for component in (red, green, blue):
             if not 0 <= component <= 255:
                 LOGGER.error("RGB color value %s not in range 0-255.")
                 return
-        storeColor(r, g, b)
+        storeColor(red, green, blue)
         time.sleep(.1)
         chainableRgbLed_pattern(self.port, self.MODE_THIS_LED_ONLY, led)
         time.sleep(.1)
