@@ -1,20 +1,26 @@
 """Test the app module."""
 import json
 import os
+import pytest
 from unittest.mock import MagicMock, patch
 
 import constants
 
-ROVER_PARAMS = {
-    constants.ROVER_NAME: 'rovy mcroverface',
-    constants.ROVER_ID: 42,
-    constants.ROVER_CONFIG: {
-        constants.LEFT_ULTRASONIC_PORT: 1,
-        constants.RIGHT_ULTRASONIC_PORT: 2,
-        constants.LEFT_ULTRASONIC_THRESHOLD: 30,
-        constants.RIGHT_ULTRASONIC_THRESHOLD: 40,
+@pytest.fixture()
+def rover_params():
+    params = {
+        constants.ROVER_NAME: 'rovy mcroverface',
+        constants.ROVER_ID: 42,
+        constants.ROVER_CONFIG: {
+            constants.LEFT_ULTRASONIC_PORT: 1,
+            constants.RIGHT_ULTRASONIC_PORT: 2,
+            constants.LEFT_ULTRASONIC_THRESHOLD: 30,
+            constants.RIGHT_ULTRASONIC_THRESHOLD: 40,
+            constants.NUM_CHAINABLE_RGB_LEDS: 2,
+            constants.CHAINABLE_RGB_LED_PORT: 3
+        }
     }
-}
+    yield params
 
 
 def test_app_send_heartbeat(testapp):
@@ -44,8 +50,56 @@ def test_app_poll_sensors(testapp):
     assert sensor_message == json.loads(websocket.send.call_args[0][0])
 
 
-def test_app_on_message(testapp):
-    """Test the websocket incoming message handler."""
+def test_app_on_chainable_led_message(testapp):
+    """Test an incoming chainable RGB LED message."""
+    websocket = MagicMock()
+    mock_rgb_manager = MagicMock()
+    mock_rgb_manager.count = 10
+    testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
+    testapp.on_message(websocket, json.dumps({
+        constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
+        constants.CHAINABLE_RGB_LED_ID_FIELD: 0,
+        constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD: 50,
+        constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
+        constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
+    }))
+    mock_rgb_manager.set_color.assert_called_with(0, 50, 255, 80)
+
+
+def test_app_on_chainable_led_message_bad_id(testapp):
+    """Test an incoming chainable RGB LED message."""
+    websocket = MagicMock()
+    mock_rgb_manager = MagicMock()
+    mock_rgb_manager.count = 1
+    testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
+    testapp.on_message(websocket, json.dumps({
+        constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
+        constants.CHAINABLE_RGB_LED_ID_FIELD: 10,
+        constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD: 50,
+        constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
+        constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
+    }))
+    mock_rgb_manager.set_color.assert_not_called()
+
+
+def test_app_on_chainable_led_message_missing_color(testapp):
+    """Test an incoming chainable RGB LED message."""
+    websocket = MagicMock()
+    mock_rgb_manager = MagicMock()
+    mock_rgb_manager.count = 10
+    testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
+    testapp.on_message(websocket, json.dumps({
+        constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
+        constants.CHAINABLE_RGB_LED_ID_FIELD: 0,
+        constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD: None,
+        constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
+        constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
+    }))
+    mock_rgb_manager.set_color.assert_not_called()
+
+
+def test_app_on_motor_message(testapp):
+    """Test an incoming motor message."""
     websocket = MagicMock()
     mock_motor_controller = MagicMock()
     testapp.MOTOR_CONTROLLER = mock_motor_controller
@@ -62,7 +116,7 @@ def test_app_on_message(testapp):
 
 
 def test_app_on_message_invalid_motor(testapp):
-    """Test the websocket incoming message handler."""
+    """Test an incoming motor message with an invalid motor."""
     websocket = MagicMock()
     mock_motor_controller = MagicMock()
     testapp.motor_controller = mock_motor_controller
@@ -74,10 +128,10 @@ def test_app_on_message_invalid_motor(testapp):
     mock_motor_controller.set_speed.assert_not_called()
 
 
-def test_app_on_open_success(testapp):
+def test_app_on_open_success(testapp, rover_params):
     """Test that the threads are started on websocket open."""
     websocket = MagicMock()
-    testapp.ROVER_CONFIG = ROVER_PARAMS[constants.ROVER_CONFIG]
+    testapp.ROVER_CONFIG = rover_params[constants.ROVER_CONFIG]
     testapp.CHAINABLE_RGB_MANAGER = MagicMock()
 
     heartbeat_function = MagicMock()
@@ -90,13 +144,13 @@ def test_app_on_open_success(testapp):
     polling_function.assert_called()
 
 
-def test_app_main(testapp):
+def test_app_main(testapp, rover_params):
     """Smoke test of the main function."""
     env_values = {'CLIENT_ID': 'foo',
                   'CLIENT_SECRET': 'bar',
                   'ROVERCODE_WEB_HOST': 'qux'}
     response = MagicMock()
-    response.text = json.dumps({'results': [ROVER_PARAMS]})
+    response.text = json.dumps({'results': [rover_params]})
     session = MagicMock()
     session.fetch_token.return_value = 'baz'
     session.get.return_value = response
@@ -105,3 +159,79 @@ def test_app_main(testapp):
     with patch.dict(os.environ, env_values):
         with patch.object(testapp, 'OAuth2Session', session_wrapper):
             testapp.run_service(run_forever=False, use_dotenv=False)
+
+
+def test_app_main_missing_led_count(testapp, rover_params):
+    """Smoke test that the main function returns with no LED count."""
+    env_values = {'CLIENT_ID': 'foo',
+                  'CLIENT_SECRET': 'bar',
+                  'ROVERCODE_WEB_HOST': 'qux'}
+    rover_params[constants.ROVER_CONFIG][constants.NUM_CHAINABLE_RGB_LEDS] = None
+    response = MagicMock()
+    response.text = json.dumps({'results': [rover_params]})
+    session = MagicMock()
+    session.fetch_token.return_value = 'baz'
+    session.get.return_value = response
+    session_wrapper = MagicMock()
+    session_wrapper.return_value = session
+    with patch.dict(os.environ, env_values):
+        with patch.object(testapp, 'OAuth2Session', session_wrapper):
+            testapp.run_service(run_forever=False, use_dotenv=False)
+
+def test_app_main_missing_led_port(testapp, rover_params):
+    """Smoke test that the main function returns with no LED port."""
+    env_values = {'CLIENT_ID': 'foo',
+                  'CLIENT_SECRET': 'bar',
+                  'ROVERCODE_WEB_HOST': 'qux'}
+    rover_params[constants.ROVER_CONFIG][constants.CHAINABLE_RGB_LED_PORT] = None
+    response = MagicMock()
+    response.text = json.dumps({'results': [rover_params]})
+    session = MagicMock()
+    session.fetch_token.return_value = 'baz'
+    session.get.return_value = response
+    session_wrapper = MagicMock()
+    session_wrapper.return_value = session
+    with patch.dict(os.environ, env_values):
+        with patch.object(testapp, 'OAuth2Session', session_wrapper):
+            testapp.run_service(run_forever=False, use_dotenv=False)
+
+
+def test_app_main_motor_exception(testapp, rover_params):
+    """Smoke test that the main function returns with no LED port."""
+    env_values = {'CLIENT_ID': 'foo',
+                  'CLIENT_SECRET': 'bar',
+                  'ROVERCODE_WEB_HOST': 'qux'}
+    response = MagicMock()
+    response.text = json.dumps({'results': [rover_params]})
+    session = MagicMock()
+    session.fetch_token.return_value = 'baz'
+    session.get.return_value = response
+    session_wrapper = MagicMock()
+    session_wrapper.return_value = session
+    bad_motor_controller = MagicMock()
+    bad_motor_controller.side_effect = Exception('Motors broke')
+    with patch.dict(os.environ, env_values):
+        with patch.object(testapp, 'OAuth2Session', session_wrapper):
+            with patch.object(testapp, 'MotorController', bad_motor_controller):
+                testapp.run_service(run_forever=False, use_dotenv=False)
+
+
+def test_app_main_websocket_exception(testapp, rover_params):
+    """Smoke test that the main function returns with no LED port."""
+    env_values = {'CLIENT_ID': 'foo',
+                  'CLIENT_SECRET': 'bar',
+                  'ROVERCODE_WEB_HOST': 'qux'}
+    response = MagicMock()
+    response.text = json.dumps({'results': [rover_params]})
+    session = MagicMock()
+    session.fetch_token.return_value = 'baz'
+    session.get.return_value = response
+    session_wrapper = MagicMock()
+    session_wrapper.return_value = session
+    bad_websocket = MagicMock()
+    bad_websocket.side_effect = Exception('LEDs broke')
+    with patch.dict(os.environ, env_values):
+        with patch.object(testapp, 'OAuth2Session', session_wrapper):
+            with patch.object(testapp, 'WebSocketApp', bad_websocket):
+                testapp.run_service(run_forever=False, use_dotenv=False)
+

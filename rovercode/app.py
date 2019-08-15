@@ -6,7 +6,7 @@ import json
 import os
 
 from dotenv import load_dotenv
-import websocket
+from websocket import WebSocketApp
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
@@ -82,6 +82,10 @@ def on_message(_, raw_message):
             message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD)
         if led_id > CHAINABLE_RGB_MANAGER.count - 1:
             LOGGER.warning(f'Invalid led {led_id}')
+            return
+        if None in (red_value, green_value, blue_value):
+            LOGGER.warning('Missing color value')
+            return
         CHAINABLE_RGB_MANAGER.set_color(led_id, red_value,
                                         green_value, blue_value)
 
@@ -196,7 +200,7 @@ def run_service(run_forever=True, use_dotenv=True):
         ws_url = "{}://{}/ws/realtime/{}/".format(
             "wss" if web_host_secure else "ws", host, CLIENT_ID)
         auth_string = "Authorization: Bearer {}".format(SESSION.access_token)
-        ws_connection = websocket.WebSocketApp(
+        ws_connection = WebSocketApp(
             ws_url,
             on_message=on_message,
             on_error=on_error,
