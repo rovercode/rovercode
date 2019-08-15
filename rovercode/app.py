@@ -83,8 +83,6 @@ def on_message(_, raw_message):
         if led_id > CHAINABLE_RGB_MANAGER.count - 1:
             LOGGER.warning(f'Invalid led {led_id}')
         CHAINABLE_RGB_MANAGER.set_color(led_id, red_value, green_value, blue_value)
-    else:
-        LOGGER.warning(f'Received unknown message type {message_type}')
 
 
 def on_error(_, error):  # pragma: no cover
@@ -171,8 +169,10 @@ def run_service(run_forever=True, use_dotenv=True):
         ROVER_CONFIG.get(constants.CHAINABLE_RGB_LED_PORT)
     if chainable_rgb_led_count is None:
         LOGGER.error(f'{constants.NUM_CHAINABLE_RGB_LEDS} missing from config')
+        return
     if chainable_rgb_led_port is None:
         LOGGER.error(f'{constants.CHAINABLE_RGB_LED_PORT} missing from config')
+        return
     CHAINABLE_RGB_MANAGER = ChainableRgbLedsManager(chainable_rgb_led_port,
                                                     chainable_rgb_led_count,
                                                     GrovePiChainableRgbLeds())

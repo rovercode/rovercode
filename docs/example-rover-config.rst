@@ -7,8 +7,6 @@ get from the server.
 .. code-block:: json
 
     {
-        "left-motor-port": "A",
-        "right-motor-port": "B",
         "left-ultrasonic-port": 1,
         "right-ultrasonic-port": 2,
         "left-ultrasonic-threshold": 10,

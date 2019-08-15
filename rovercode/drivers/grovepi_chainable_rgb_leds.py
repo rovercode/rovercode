@@ -4,18 +4,19 @@ Class for communicating with the GrovePi ultrasonic ranger.
 Here we treat it as a binary sensor.
 """
 
+import os
 import logging
 import time
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
-try:
-    from GrovePi.Software.Python.grovepi import chainableRgbLed_pattern,\
+if os.getenv('DEVELOPMENT', 'false').lower() == 'true':
+    LOGGER.warning("In DEVELOPMENT mode. Using dummy.")
+    from drivers.dummy_grovepi_interface import chainableRgbLed_pattern, \
         storeColor, chainableRgbLed_init, pinMode
-except ImportError:
-    LOGGER.warning("GrovePi lib unavailable. Using dummy.")
-    from drivers.dummy_grovepi_interface import chainableRgbLed_pattern,\
+else:
+    from grovepi import chainableRgbLed_pattern, \
         storeColor, chainableRgbLed_init, pinMode
 
 

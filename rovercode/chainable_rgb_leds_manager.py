@@ -18,6 +18,7 @@ class ChainableRgbLedsManager:
         LOGGER.info("RGB LED manager initialized")
 
     def set_all_led_colors(self, red, green, blue):
+        """Set all LEDs to the same color."""
         for led in range(self.count):
             self.set_led_color(led, red, green, blue)
 
@@ -34,4 +35,4 @@ class ChainableRgbLedsManager:
 
         LOGGER.info("Setting LED %s to %s, %s, %s.",
                     led, red, green, blue)
-        self.driver.set_rgb(led, red, green, blue)
+        self.driver.set_color(led, red, green, blue)
