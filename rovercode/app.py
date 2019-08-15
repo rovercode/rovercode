@@ -82,7 +82,8 @@ def on_message(_, raw_message):
             message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD)
         if led_id > CHAINABLE_RGB_MANAGER.count - 1:
             LOGGER.warning(f'Invalid led {led_id}')
-        CHAINABLE_RGB_MANAGER.set_color(led_id, red_value, green_value, blue_value)
+        CHAINABLE_RGB_MANAGER.set_color(led_id, red_value,
+                                        green_value, blue_value)
 
 
 def on_error(_, error):  # pragma: no cover
@@ -115,6 +116,25 @@ def on_open(ws_connection):
     CHAINABLE_RGB_MANAGER.set_all_led_colors(*constants.RGB_BLUE)
 
 
+def _get_web_url():
+    web_host = os.getenv("ROVERCODE_WEB_HOST", "app.rovercode.com")
+    web_host_secure = \
+        os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
+    if web_host[-1:] == '/':  # pragma: no cover
+        web_host = web_host[:-1]
+    url = "{}://{}".format("https" if web_host_secure else "http", web_host)
+    return url, web_host_secure, web_host
+
+
+def _get_oauth_client_credentials():
+    client_id = os.getenv('CLIENT_ID', '')
+    if client_id == '':  # pragma: no cover
+        raise NameError("Please add CLIENT_ID to your .env")
+    client_secret = os.getenv('CLIENT_SECRET', '')
+    if client_secret == '':  # pragma: no cover
+        raise NameError("Please add CLIENT_SECRET to your .env")
+    return client_id, client_secret
+
 
 def run_service(run_forever=True, use_dotenv=True):
     """Kick off the service."""
@@ -125,29 +145,17 @@ def run_service(run_forever=True, use_dotenv=True):
     global ROVER_CONFIG
     global CLIENT_ID
     LOGGER.info("Starting the Rovercode service!")
+
     if use_dotenv:  # pragma: no cover
         load_dotenv('../.env')
-    rovercode_web_host = os.getenv("ROVERCODE_WEB_HOST", "app.rovercode.com")
 
-    rovercode_web_host_secure = \
-        os.getenv("ROVERCODE_WEB_HOST_SECURE", 'True').lower() == 'true'
-    if rovercode_web_host[-1:] == '/':  # pragma: no cover
-        rovercode_web_host = rovercode_web_host[:-1]
-    ROVERCODE_WEB_URL = "{}://{}".format(
-        "https" if rovercode_web_host_secure else "http",
-        rovercode_web_host)
-
-    CLIENT_ID = os.getenv('CLIENT_ID', '')
-    if CLIENT_ID == '':  # pragma: no cover
-        raise NameError("Please add CLIENT_ID to your .env")
-    client_secret = os.getenv('CLIENT_SECRET', '')
-    if client_secret == '':  # pragma: no cover
-        raise NameError("Please add CLIENT_SECRET to your .env")
+    ROVERCODE_WEB_URL, web_host_secure, host = _get_web_url()
+    CLIENT_ID, client_secret = _get_oauth_client_credentials()
 
     LOGGER.info("Targeting host %s. My client id is %s",
                 ROVERCODE_WEB_URL, CLIENT_ID)
 
-    if not rovercode_web_host_secure:  # pragma: no cover
+    if not web_host_secure:  # pragma: no cover
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
     client = BackendApplicationClient(client_id=CLIENT_ID)
     global SESSION
@@ -180,15 +188,13 @@ def run_service(run_forever=True, use_dotenv=True):
     # Create motor manager
     try:
         MOTOR_CONTROLLER = MotorController(GroveMotors())
-    except:
+    except:  # pylint: disable=bare-except
         CHAINABLE_RGB_MANAGER.set_all_led_colors(*constants.RGB_RED)
 
     # Create websocket connection
     try:
         ws_url = "{}://{}/ws/realtime/{}/".format(
-            "wss" if rovercode_web_host_secure else "ws",
-            rovercode_web_host,
-            CLIENT_ID)
+            "wss" if web_host_secure else "ws", host, CLIENT_ID)
         auth_string = "Authorization: Bearer {}".format(SESSION.access_token)
         ws_connection = websocket.WebSocketApp(
             ws_url,
@@ -199,7 +205,7 @@ def run_service(run_forever=True, use_dotenv=True):
         ws_connection.on_open = on_open
         if run_forever:  # pragma: no cover
             ws_connection.run_forever()
-    except:
+    except:  # pylint: disable=bare-except
         CHAINABLE_RGB_MANAGER.set_all_led_colors(*constants.RGB_YELLOW)
 
 
