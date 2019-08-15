@@ -13,6 +13,6 @@ get from the server.
         "right-ultrasonic-port": 2,
         "left-ultrasonic-threshold": 10,
         "right-ultrasonic-threshold": 10,
-		"status-rgb-led-port": 7,
-		"num-user-rgb-leds": 2
+        "chainable-rgb-led-port": 7,
+        "num-chainable-rgb-leds": 2
     }

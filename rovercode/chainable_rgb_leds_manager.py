@@ -17,6 +17,10 @@ class ChainableRgbLedsManager:
         self.driver.setup(port, self.count)
         LOGGER.info("RGB LED manager initialized")
 
+    def set_all_led_colors(self, red, green, blue):
+        for led in range(self.count):
+            self.set_led_color(led, red, green, blue)
+
     def set_led_color(self, led, red, green, blue):
         """Set LED color."""
         if led > self.count - 1:
