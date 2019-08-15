@@ -1,13 +1,15 @@
 """Test the app module."""
 import json
 import os
-import pytest
 from unittest.mock import MagicMock, patch
+import pytest
 
 import constants
 
+
 @pytest.fixture()
 def rover_params():
+    """Rover parameters."""
     params = {
         constants.ROVER_NAME: 'rovy mcroverface',
         constants.ROVER_ID: 42,
@@ -166,7 +168,7 @@ def test_app_main_missing_led_count(testapp, rover_params):
     env_values = {'CLIENT_ID': 'foo',
                   'CLIENT_SECRET': 'bar',
                   'ROVERCODE_WEB_HOST': 'qux'}
-    rover_params[constants.ROVER_CONFIG][constants.NUM_CHAINABLE_RGB_LEDS] = None
+    rover_params[constants.ROVER_CONFIG].pop(constants.NUM_CHAINABLE_RGB_LEDS)
     response = MagicMock()
     response.text = json.dumps({'results': [rover_params]})
     session = MagicMock()
@@ -178,12 +180,13 @@ def test_app_main_missing_led_count(testapp, rover_params):
         with patch.object(testapp, 'OAuth2Session', session_wrapper):
             testapp.run_service(run_forever=False, use_dotenv=False)
 
+
 def test_app_main_missing_led_port(testapp, rover_params):
     """Smoke test that the main function returns with no LED port."""
     env_values = {'CLIENT_ID': 'foo',
                   'CLIENT_SECRET': 'bar',
                   'ROVERCODE_WEB_HOST': 'qux'}
-    rover_params[constants.ROVER_CONFIG][constants.CHAINABLE_RGB_LED_PORT] = None
+    rover_params[constants.ROVER_CONFIG].pop(constants.CHAINABLE_RGB_LED_PORT)
     response = MagicMock()
     response.text = json.dumps({'results': [rover_params]})
     session = MagicMock()
@@ -208,11 +211,11 @@ def test_app_main_motor_exception(testapp, rover_params):
     session.get.return_value = response
     session_wrapper = MagicMock()
     session_wrapper.return_value = session
-    bad_motor_controller = MagicMock()
-    bad_motor_controller.side_effect = Exception('Motors broke')
+    bad_controller = MagicMock()
+    bad_controller.side_effect = Exception('Motors broke')
     with patch.dict(os.environ, env_values):
         with patch.object(testapp, 'OAuth2Session', session_wrapper):
-            with patch.object(testapp, 'MotorController', bad_motor_controller):
+            with patch.object(testapp, 'MotorController', bad_controller):
                 testapp.run_service(run_forever=False, use_dotenv=False)
 
 
@@ -234,4 +237,3 @@ def test_app_main_websocket_exception(testapp, rover_params):
         with patch.object(testapp, 'OAuth2Session', session_wrapper):
             with patch.object(testapp, 'WebSocketApp', bad_websocket):
                 testapp.run_service(run_forever=False, use_dotenv=False)
-
