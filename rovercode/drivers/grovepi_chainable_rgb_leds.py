@@ -20,7 +20,7 @@ class GrovePiChainableRgbLeds:
     """A module to set the GrovePi Chainable RGB LEDs."""
 
     MODE_THIS_LED_ONLY = 0
-    COMPONENT_RANGE = 0, 256
+    COMPONENT_RANGE = range(0, 256)
 
     port = None
 

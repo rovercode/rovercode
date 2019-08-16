@@ -75,19 +75,11 @@ def on_message(_, raw_message):
                                    message[constants.MOTOR_VALUE_FIELD],
                                    message[constants.MOTOR_DIRECTION_FIELD])
     elif message_type == constants.CHAINABLE_RGB_LED_COMMAND:
-        led_id, red_value, green_value, blue_value = \
-            message.get(constants.CHAINABLE_RGB_LED_ID_FIELD), \
-            message.get(constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD), \
-            message.get(constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD), \
-            message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD)
-        if led_id > CHAINABLE_RGB_MANAGER.count - 1:
-            LOGGER.warning(f'Invalid led {led_id}')
-            return
-        if None in (red_value, green_value, blue_value):
-            LOGGER.warning('Missing color value')
-            return
-        CHAINABLE_RGB_MANAGER.set_color(led_id, red_value,
-                                        green_value, blue_value)
+        CHAINABLE_RGB_MANAGER.set_color(
+            message.get(constants.CHAINABLE_RGB_LED_ID_FIELD),
+            message.get(constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD),
+            message.get(constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD),
+            message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD))
 
 
 def on_error(_, error):  # pragma: no cover

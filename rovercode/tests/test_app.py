@@ -68,38 +68,6 @@ def test_app_on_chainable_led_message(testapp):
     mock_rgb_manager.set_color.assert_called_with(0, 50, 255, 80)
 
 
-def test_app_on_chainable_led_message_bad_id(testapp):
-    """Test an incoming chainable RGB LED message with a bad id."""
-    websocket = MagicMock()
-    mock_rgb_manager = MagicMock()
-    mock_rgb_manager.count = 1
-    testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
-    testapp.on_message(websocket, json.dumps({
-        constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
-        constants.CHAINABLE_RGB_LED_ID_FIELD: 10,
-        constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD: 50,
-        constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
-        constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
-    }))
-    mock_rgb_manager.set_color.assert_not_called()
-
-
-def test_app_on_chainable_led_message_missing_color(testapp):
-    """Test an incoming chainable RGB LED message with a missing color."""
-    websocket = MagicMock()
-    mock_rgb_manager = MagicMock()
-    mock_rgb_manager.count = 10
-    testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
-    testapp.on_message(websocket, json.dumps({
-        constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
-        constants.CHAINABLE_RGB_LED_ID_FIELD: 0,
-        constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD: None,
-        constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
-        constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
-    }))
-    mock_rgb_manager.set_color.assert_not_called()
-
-
 def test_app_on_motor_message(testapp):
     """Test an incoming motor message."""
     websocket = MagicMock()
