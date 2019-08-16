@@ -8,8 +8,9 @@ from chainable_rgb_leds_manager import ChainableRgbLedsManager
 
 @pytest.fixture
 def driver_mock():
-    """Set up mock of the motor driver."""
+    """Set up mock of the LED driver."""
     driver = MagicMock()
+    driver.COMPONENT_RANGE = range(0, 256)
     return driver
 
 

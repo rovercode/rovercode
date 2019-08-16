@@ -1,8 +1,4 @@
-"""
-Class for communicating with the GrovePi ultrasonic ranger.
-
-Here we treat it as a binary sensor.
-"""
+"""Class for communicating with a GrovePi chainable RGB LED."""
 
 import os
 import logging
@@ -24,6 +20,8 @@ class GrovePiChainableRgbLeds:
     """A module to set the GrovePi Chainable RGB LEDs."""
 
     MODE_THIS_LED_ONLY = 0
+    COMPONENT_RANGE = 0, 256
+
     port = None
 
     def setup(self, port, count):
@@ -36,13 +34,15 @@ class GrovePiChainableRgbLeds:
                     count, port)
 
     def set_color(self, led, red, green, blue):
-        """Set color in RGB, each ranged 0-255."""
+        """Set color in RGB"""
         if self.port is None:
             raise RuntimeError("Must call setup before setting color.")
 
         for component in (red, green, blue):
-            if not 0 <= component <= 255:
-                LOGGER.error("RGB color value %s not in range 0-255.")
+            if component not in self.COMPONENT_RANGE:
+                LOGGER.error(f'RGB color value %s not in range '
+                             f'{self.COMPONENT_RANGE[0]}-'
+                             f'{self.COMPONENT_RANGE[1]-1}.')
                 return
         storeColor(red, green, blue)
         time.sleep(.1)

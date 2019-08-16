@@ -69,7 +69,7 @@ def test_app_on_chainable_led_message(testapp):
 
 
 def test_app_on_chainable_led_message_bad_id(testapp):
-    """Test an incoming chainable RGB LED message."""
+    """Test an incoming chainable RGB LED message with a bad id."""
     websocket = MagicMock()
     mock_rgb_manager = MagicMock()
     mock_rgb_manager.count = 1
@@ -85,7 +85,7 @@ def test_app_on_chainable_led_message_bad_id(testapp):
 
 
 def test_app_on_chainable_led_message_missing_color(testapp):
-    """Test an incoming chainable RGB LED message."""
+    """Test an incoming chainable RGB LED message with a missing color."""
     websocket = MagicMock()
     mock_rgb_manager = MagicMock()
     mock_rgb_manager.count = 10

@@ -1,4 +1,4 @@
-"""Class for managing the motor state."""
+"""Class for managing the chainable RGB LEDs."""
 
 import logging
 logging.basicConfig()
@@ -24,13 +24,15 @@ class ChainableRgbLedsManager:
 
     def set_led_color(self, led, red, green, blue):
         """Set LED color."""
-        if led > self.count - 1:
+        if led not in range(self.count):
             LOGGER.error("Unknown led %s", led)
             return
 
+        component_range = self.driver.COMPONENT_RANGE
         for component in (red, green, blue):
-            if not 0 <= component <= 255:
-                LOGGER.error("RGB color value %s not in range 0-255.")
+            if component not in component_range:
+                LOGGER.error(f'RGB value {component} not in range '
+                             f'{component_range[0]}-{component_range[1]-1}.')
                 return
 
         LOGGER.info("Setting LED %s to %s, %s, %s.",
