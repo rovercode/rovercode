@@ -25,15 +25,14 @@ class ChainableRgbLedsManager:
     def set_led_color(self, led, red, green, blue):
         """Set LED color."""
         if led not in range(self.count):
-            LOGGER.error("Unknown led %s", led)
-            return
+            raise ValueError(f'Unknown led {led}')
 
         component_range = self.driver.COMPONENT_RANGE
         for component in (red, green, blue):
             if component not in component_range:
-                LOGGER.error(f'RGB value {component} not in range '
-                             f'{component_range[0]}-{component_range[1]-1}.')
-                return
+                raise ValueError(f'RGB value {component} not in range '
+                                 f'{component_range[0]}-'
+                                 f'{component_range[1]-1}')
 
         LOGGER.info("Setting LED %s to %s, %s, %s.",
                     led, red, green, blue)

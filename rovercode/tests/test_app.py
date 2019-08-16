@@ -65,7 +65,23 @@ def test_app_on_chainable_led_message(testapp):
         constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
         constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
     }))
-    mock_rgb_manager.set_color.assert_called_with(0, 50, 255, 80)
+    mock_rgb_manager.set_led_color.assert_called_with(0, 50, 255, 80)
+
+
+def test_app_on_chainable_led_message_error_setting_color(testapp):
+    """Test an incoming chainable RGB LED message with a bad id."""
+    websocket = MagicMock()
+    mock_rgb_manager = MagicMock()
+    mock_rgb_manager.set_led_color.side_effect = ValueError("wrong value")
+    testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
+    testapp.on_message(websocket, json.dumps({
+        constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
+        constants.CHAINABLE_RGB_LED_ID_FIELD: 1,
+        constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD: 50,
+        constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
+        constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
+    }))
+    # Check only that exception is handled.
 
 
 def test_app_on_motor_message(testapp):

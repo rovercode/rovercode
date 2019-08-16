@@ -75,11 +75,15 @@ def on_message(_, raw_message):
                                    message[constants.MOTOR_VALUE_FIELD],
                                    message[constants.MOTOR_DIRECTION_FIELD])
     elif message_type == constants.CHAINABLE_RGB_LED_COMMAND:
-        CHAINABLE_RGB_MANAGER.set_color(
-            message.get(constants.CHAINABLE_RGB_LED_ID_FIELD),
-            message.get(constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD),
-            message.get(constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD),
-            message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD))
+        try:
+            CHAINABLE_RGB_MANAGER.set_led_color(
+                message.get(constants.CHAINABLE_RGB_LED_ID_FIELD),
+                message.get(constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD),
+                message.get(constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD),
+                message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD))
+        except ValueError as exception:
+            LOGGER.error(f'Unable to set LED color: {exception}')
+            return
 
 
 def on_error(_, error):  # pragma: no cover

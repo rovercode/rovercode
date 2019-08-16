@@ -25,15 +25,15 @@ def test_chainable_rgb_set_color_bad_led(driver_mock):
     """Test setting a color with an invalid LED id."""
     num_leds = 1
     motor_controller = ChainableRgbLedsManager(3, num_leds, driver_mock)
-    motor_controller.set_led_color(num_leds, 1, 2, 3)
-    driver_mock.set_color.assert_not_called()
+    with pytest.raises(ValueError):
+        motor_controller.set_led_color(num_leds, 1, 2, 3)
 
 
 def test_chainable_rgb_set_color_bad_color(driver_mock):
     """Test setting a color with an invalid color value."""
     motor_controller = ChainableRgbLedsManager(3, 1, driver_mock)
-    motor_controller.set_led_color(0, 256, 2, 3)
-    driver_mock.set_color.assert_not_called()
+    with pytest.raises(ValueError):
+        motor_controller.set_led_color(0, 256, 2, 3)
 
 
 def test_chainable_rgb_set_color_all_leds(driver_mock):
