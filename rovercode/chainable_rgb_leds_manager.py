@@ -31,8 +31,7 @@ class ChainableRgbLedsManager:
         for component in (red, green, blue):
             if component not in component_range:
                 raise ValueError(f'RGB value {component} not in range '
-                                 f'{component_range[0]}-'
-                                 f'{component_range[1]-1}')
+                                 f'{component_range[0]}-{component_range[-1]}')
 
         LOGGER.info("Setting LED %s to %s, %s, %s.",
                     led, red, green, blue)

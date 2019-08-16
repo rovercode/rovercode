@@ -42,7 +42,7 @@ class GrovePiChainableRgbLeds:
             if component not in self.COMPONENT_RANGE:
                 raise ValueError(f'RGB color value %s not in range '
                                  f'{self.COMPONENT_RANGE[0]}-'
-                                 f'{self.COMPONENT_RANGE[1]-1}.')
+                                 f'{self.COMPONENT_RANGE[-1]}.')
         storeColor(red, green, blue)
         time.sleep(.1)
         chainableRgbLed_pattern(self.port, self.MODE_THIS_LED_ONLY, led)
