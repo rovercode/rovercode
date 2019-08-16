@@ -34,7 +34,7 @@ class GrovePiChainableRgbLeds:
                     count, port)
 
     def set_color(self, led, red, green, blue):
-        """Set color in RGB"""
+        """Set color in RGB."""
         if self.port is None:
             raise RuntimeError("Must call setup before setting color.")
 
