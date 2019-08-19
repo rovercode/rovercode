@@ -10,9 +10,14 @@ pylint:
     - R0903
     # Using the global statement
     - global-statement
+    # I like fstrings
+    - logging-fstring-interpolation
 
 pep8:
   full: true
+  disable:
+    # bare except already covered in pylint
+    - E722
 
 pep257:
   run: true

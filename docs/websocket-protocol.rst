@@ -22,6 +22,20 @@ Motor Commands
        "unit": "percent"
     }
 
+LED Commands
+-----------------
+
+.. code-block:: json
+
+    {
+       "type": "chainable-rgb-led-command",
+       "led-id": 0,
+       "red-value": 84,
+       "green-value": 255,
+       "blue-value": 0,
+    }
+
+
 Sensor Readings
 ----------------
 
