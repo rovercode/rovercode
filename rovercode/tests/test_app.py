@@ -2,6 +2,7 @@
 import json
 import os
 from unittest.mock import MagicMock, patch
+import functools
 import pytest
 
 import constants
@@ -47,7 +48,7 @@ def test_app_poll_sensors(testapp):
     sensor.name = 'left-eye'
     sensor.get_change.return_value = True
     binary_sensors = [sensor]
-    testapp.poll_sensors(websocket, binary_sensors, run_once_only=True)
+    testapp.grovepi_thread_loop(websocket, binary_sensors, run_once_only=True)
     websocket.send.assert_called()
     assert sensor_message == json.loads(websocket.send.call_args[0][0])
 
@@ -55,9 +56,12 @@ def test_app_poll_sensors(testapp):
 def test_app_on_chainable_led_message(testapp):
     """Test an incoming chainable RGB LED message."""
     websocket = MagicMock()
+    testapp.GROVEPI_QUEUE = []
     mock_rgb_manager = MagicMock()
     mock_rgb_manager.count = 10
     testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
+    mock_set_led_color = MagicMock()
+    testapp.CHAINABLE_RGB_MANAGER.set_led_color = mock_set_led_color
     testapp.on_message(websocket, json.dumps({
         constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
         constants.CHAINABLE_RGB_LED_ID_FIELD: 0,
@@ -65,23 +69,26 @@ def test_app_on_chainable_led_message(testapp):
         constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
         constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
     }))
-    mock_rgb_manager.set_led_color.assert_called_with(0, 50, 255, 80)
+    assert len(testapp.GROVEPI_QUEUE) == 1
+    expected = functools.partial(mock_set_led_color, 0, 50, 255, 80)
+    assert_partials_equal(expected, testapp.GROVEPI_QUEUE[0])
 
 
-def test_app_on_chainable_led_message_error_setting_color(testapp):
-    """Test an incoming chainable RGB LED message with a bad id."""
+def test_app_grovepi_thread_action(testapp):
+    """Test an finding an action on the GrovePi thread loop."""
     websocket = MagicMock()
-    mock_rgb_manager = MagicMock()
-    mock_rgb_manager.set_led_color.side_effect = ValueError("wrong value")
-    testapp.CHAINABLE_RGB_MANAGER = mock_rgb_manager
-    testapp.on_message(websocket, json.dumps({
-        constants.MESSAGE_TYPE: constants.CHAINABLE_RGB_LED_COMMAND,
-        constants.CHAINABLE_RGB_LED_ID_FIELD: 1,
-        constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD: 50,
-        constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD: 255,
-        constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD: 80
-    }))
-    # Check only that exception is handled.
+    action = MagicMock()
+    testapp.GROVEPI_QUEUE = [functools.partial(action, "foobar_arg")]
+    testapp.grovepi_thread_loop(websocket, [], run_once_only=True)
+    action.assert_called_with("foobar_arg")
+    assert not testapp.GROVEPI_QUEUE
+
+
+def assert_partials_equal(expected, actual):
+    """Assert that two wrapped partial functions are equal."""
+    assert expected.func == actual.func
+    assert expected.args == actual.args
+    assert expected.keywords == actual.keywords
 
 
 def test_app_on_motor_message(testapp):
@@ -121,13 +128,13 @@ def test_app_on_open_success(testapp, rover_params):
     testapp.CHAINABLE_RGB_MANAGER = MagicMock()
 
     heartbeat_function = MagicMock()
-    polling_function = MagicMock()
+    grovepi_thread_loop = MagicMock()
     testapp.send_heartbeat = heartbeat_function
-    testapp.poll_sensors = polling_function
+    testapp.grovepi_thread_loop = grovepi_thread_loop
 
     testapp.on_open(websocket)
     heartbeat_function.assert_called()
-    polling_function.assert_called()
+    grovepi_thread_loop.assert_called()
 
 
 def test_app_main(testapp, rover_params):
