@@ -5,6 +5,7 @@ import time
 import json
 import os
 import functools
+from multiprocessing import SimpleQueue
 
 from dotenv import load_dotenv
 from websocket import WebSocketApp
@@ -29,7 +30,7 @@ MOTOR_CONTROLLER = None
 CHAINABLE_RGB_MANAGER = None
 CLIENT_ID = None
 SESSION = None
-GROVEPI_QUEUE = []
+GROVEPI_QUEUE = SimpleQueue()
 
 
 def send_heartbeat(ws_connection, run_once_only=False):
@@ -48,10 +49,13 @@ def grovepi_thread_loop(ws_connection, binary_sensors, run_once_only=False):
 
     while True:
         # Handle queued actions
-        if GROVEPI_QUEUE:
+        if not GROVEPI_QUEUE.empty():
             # Perform one action per loop
-            action = GROVEPI_QUEUE.pop(0)
-            action()
+            action = GROVEPI_QUEUE.get()
+            try:
+                action()
+            except ValueError as exception:
+                LOGGER.error(f'Unable to perform GrovePi action: {exception}')
 
         # Read sensors
         sensor_message = {
@@ -89,7 +93,7 @@ def on_message(_, raw_message):
     elif message_type == constants.CHAINABLE_RGB_LED_COMMAND:
         led_id = message.get(constants.CHAINABLE_RGB_LED_ID_FIELD)
         LOGGER.info(f'Queueing RGB LED command to LED {led_id}')
-        GROVEPI_QUEUE.append(
+        GROVEPI_QUEUE.put(
             functools.partial(
                 CHAINABLE_RGB_MANAGER.set_led_color, led_id,
                 message.get(constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD),
@@ -128,7 +132,7 @@ def on_open(ws_connection):
     LOGGER.info("GrovePi thread started")
 
     # Set LEDs to "OK" blue
-    GROVEPI_QUEUE.append(
+    GROVEPI_QUEUE.put(
         functools.partial(
             CHAINABLE_RGB_MANAGER.set_all_led_colors, *constants.RGB_BLUE
         )
