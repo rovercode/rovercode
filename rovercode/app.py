@@ -64,7 +64,7 @@ def grovepi_thread_loop(ws_connection, binary_sensors, run_once_only=False):
             constants.UNIT_FIELD: constants.SENSOR_UNIT_ACTIVE_HIGH
         }
         for sensor in binary_sensors:
-            time.sleep(0.2)
+            time.sleep(0.05)
             sensor_message[constants.SENSOR_ID_FIELD] = sensor.name
             changed_value = sensor.get_change()
             if changed_value is not None:
@@ -72,7 +72,6 @@ def grovepi_thread_loop(ws_connection, binary_sensors, run_once_only=False):
                 ws_connection.send(json.dumps(sensor_message))
         if run_once_only:
             break
-        time.sleep(0.2)  # pragma: no cover
 
 
 def on_message(_, raw_message):
