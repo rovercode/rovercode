@@ -4,6 +4,8 @@ import logging
 import time
 import json
 import os
+import functools
+from multiprocessing import SimpleQueue
 
 from dotenv import load_dotenv
 from websocket import WebSocketApp
@@ -28,6 +30,7 @@ MOTOR_CONTROLLER = None
 CHAINABLE_RGB_MANAGER = None
 CLIENT_ID = None
 SESSION = None
+GROVEPI_QUEUE = SimpleQueue()
 
 
 def send_heartbeat(ws_connection, run_once_only=False):
@@ -40,16 +43,28 @@ def send_heartbeat(ws_connection, run_once_only=False):
         time.sleep(3)  # pragma: no cover
 
 
-def poll_sensors(ws_connection, binary_sensors, run_once_only=False):
+def grovepi_thread_loop(ws_connection, binary_sensors, run_once_only=False):
     """Scan each binary sensor and send events based on changes."""
+    global GROVEPI_QUEUE
+
     while True:
+        # Handle queued actions
+        if not GROVEPI_QUEUE.empty():
+            # Perform one action per loop
+            action = GROVEPI_QUEUE.get()
+            try:
+                action()
+            except ValueError as exception:
+                LOGGER.error(f'Unable to perform GrovePi action: {exception}')
+
+        # Read sensors
         sensor_message = {
             constants.MESSAGE_TYPE: constants.SENSOR_READING_TYPE,
             constants.SENSOR_TYPE_FIELD: constants.SENSOR_TYPE_BINARY,
             constants.UNIT_FIELD: constants.SENSOR_UNIT_ACTIVE_HIGH
         }
         for sensor in binary_sensors:
-            time.sleep(0.2)
+            time.sleep(0.05)
             sensor_message[constants.SENSOR_ID_FIELD] = sensor.name
             changed_value = sensor.get_change()
             if changed_value is not None:
@@ -57,13 +72,13 @@ def poll_sensors(ws_connection, binary_sensors, run_once_only=False):
                 ws_connection.send(json.dumps(sensor_message))
         if run_once_only:
             break
-        time.sleep(0.2)  # pragma: no cover
 
 
 def on_message(_, raw_message):
     """Handle incoming websocket message."""
     global MOTOR_CONTROLLER
     global CHAINABLE_RGB_MANAGER
+    global GROVEPI_QUEUE
     message = json.loads(raw_message)
     message_type = message[constants.MESSAGE_TYPE]
     if message_type == constants.MOTOR_COMMAND:
@@ -75,15 +90,16 @@ def on_message(_, raw_message):
                                    message[constants.MOTOR_VALUE_FIELD],
                                    message[constants.MOTOR_DIRECTION_FIELD])
     elif message_type == constants.CHAINABLE_RGB_LED_COMMAND:
-        try:
-            CHAINABLE_RGB_MANAGER.set_led_color(
-                message.get(constants.CHAINABLE_RGB_LED_ID_FIELD),
+        led_id = message.get(constants.CHAINABLE_RGB_LED_ID_FIELD)
+        LOGGER.info(f'Queueing RGB LED command to LED {led_id}')
+        GROVEPI_QUEUE.put(
+            functools.partial(
+                CHAINABLE_RGB_MANAGER.set_led_color, led_id,
                 message.get(constants.CHAINABLE_RGB_LED_RED_VALUE_FIELD),
                 message.get(constants.CHAINABLE_RGB_LED_GREEN_VALUE_FIELD),
-                message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD))
-        except ValueError as exception:
-            LOGGER.error(f'Unable to set LED color: {exception}')
-            return
+                message.get(constants.CHAINABLE_RGB_LED_BLUE_VALUE_FIELD)
+            )
+        )
 
 
 def on_error(_, error):  # pragma: no cover
@@ -100,6 +116,7 @@ def on_open(ws_connection):
     """Start up threads upon opening websocket connections."""
     global CHAINABLE_RGB_MANAGER
     global ROVER_CONFIG
+    global GROVEPI_QUEUE
 
     # Start heartbeat thread
     thread = Thread(target=send_heartbeat, args=(ws_connection,))
@@ -108,12 +125,17 @@ def on_open(ws_connection):
 
     # Start inputs thread
     binary_sensors = init_inputs(ROVER_CONFIG)
-    thread = Thread(target=poll_sensors, args=(ws_connection, binary_sensors))
+    thread = Thread(target=grovepi_thread_loop,
+                    args=(ws_connection, binary_sensors))
     thread.start()
-    LOGGER.info("Sensors thread started")
+    LOGGER.info("GrovePi thread started")
 
     # Set LEDs to "OK" blue
-    CHAINABLE_RGB_MANAGER.set_all_led_colors(*constants.RGB_BLUE)
+    GROVEPI_QUEUE.put(
+        functools.partial(
+            CHAINABLE_RGB_MANAGER.set_all_led_colors, *constants.RGB_BLUE
+        )
+    )
 
 
 def _get_web_url():

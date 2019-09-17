@@ -44,6 +44,5 @@ class GrovePiChainableRgbLeds:
                                  f'{self.COMPONENT_RANGE[0]}-'
                                  f'{self.COMPONENT_RANGE[-1]}.')
         storeColor(red, green, blue)
-        time.sleep(.1)
+        time.sleep(.05)
         chainableRgbLed_pattern(self.port, self.MODE_THIS_LED_ONLY, led)
-        time.sleep(.1)
