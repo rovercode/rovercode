@@ -1,6 +1,6 @@
 [Unit]
 Description=Rovercode Daemon Service
-After=network.target syslog.target docker.service comissioning.service
+After=network.target syslog.target docker.service commissioning.service
 Requires=docker.service
 
 [Service]

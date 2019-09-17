@@ -1,0 +1,18 @@
+[Unit]
+Description=Rovercode Commissioning Service
+After=syslog.target docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+User=root
+Group=root
+ExecStartPre=-/usr/bin/docker stop rovercode
+ExecStart=-/usr/bin/docker run --name rovercode-commissioning -v /opt/rovercode/scripts/commission.py:/var/rovercode/scripts/commission.py --entrypoint=/bin/bash rovercode -c 'python /var/rovercode/scripts/commission.py'
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+Alias=rovercode-commissioning.service
