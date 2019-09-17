@@ -1,0 +1,20 @@
+[Unit]
+Description=Rovercode Daemon Service
+After=network.target syslog.target docker.service comissioning.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+User=root
+Group=root
+ExecStartPre=-/usr/bin/docker stop rovercode
+ExecStartPre=-/usr/bin/docker rm rovercode
+ExecStartPre=-/usr/bin/docker pull rovercode/rovercode:latest
+ExecStart=-/usr/bin/docker run --name rovercode --privileged -v /dev:/dev -v /opt/rovercode/.env:/var/rovercode/.env rovercode
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+Alias=rovercode.service
