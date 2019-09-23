@@ -53,10 +53,10 @@ Then, still on your development PC, head to app.rovercode.com and connect to you
 
 ## Testing
 Run the tests like this:
-Make sure the container is running (the `sudo docker run ...` command above), then in another terminal, do:
+Make sure the container is running (the `docker run ...` command above), then in another terminal, do:
 ```bash
-$ docker exec rovercode python -m pytest
-$ docker exec rovercode prospector
+$ docker run --name rovercode-tests -v $PWD:/var/rovercode --entrypoint=/bin/bash rovercode -c 'python -m pytest'
+$ docker run --name rovercode-tests -v $PWD:/var/rovercode --entrypoint=/bin/bash rovercode -c 'prospector'
 
 ```
 
