@@ -3,7 +3,7 @@
 This is a small service that runs on boot to grab config and Wifi credentials from a thumbdrive.
 
 ## Usage
-See how the the `../services/commissioning.service` file uses it.
+See how the `../services/commissioning.service` file uses it.
 
 ## Testing and Linting
 To run the tests:
