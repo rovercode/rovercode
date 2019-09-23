@@ -9,7 +9,7 @@ Restart=always
 User=root
 Group=root
 ExecStartPre=-/usr/bin/docker stop rovercode
-ExecStart=-/usr/bin/docker run --name rovercode-commissioning -v /opt/rovercode/scripts/commission.py:/var/rovercode/scripts/commission.py --entrypoint=/bin/bash rovercode -c 'python /var/rovercode/scripts/commission.py'
+ExecStart=-/usr/bin/docker run --name rovercode-commissioning -w='/var/rovercode/commissioning' --entrypoint=/bin/bash rovercode -c 'python app.py'
 StandardOutput=syslog
 StandardError=syslog
 

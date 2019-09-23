@@ -26,16 +26,14 @@ Save this file to a flash drive.
 ### Rover Setup
 First, on your Raspberry Pi:
 ```bash
-# Install Docker and other helpers
-$ sudo apt install git docker.io
+$ sudo wget install git docker.io
+$ docker pull rovercode/rovercode
 $ mkdir -p /lib/systemd/system/rovercode /opt/rovercode/
-# Put the service definitions in the systemd folder
-$ git clone https://github.com/rovercode/rovercode.git && cd rovercode
-$ cp services/* /lib/systemd/system/rovercode/
-$ cp scripts/* /opt/rovercode/
+$ wget https://raw.githubusercontent.com/rovercode/services/commissioning.service /lib/systemd/system/rovercode/
+$ wget https://raw.githubusercontent.com/rovercode/services/rovercode.service /lib/systemd/system/rovercode/
 # Turn off your Raspberry Pi, insert your thumbdrive with the `rovercode_yourrovername.env` file, and turn the Raspberry Pi back on.
 ```
-Once the Raspberry Pi restarts, the comissioning service should run, followed by the rovercode service.
+Once the Raspberry Pi restarts, the commissioning service should run, followed by the rovercode service.
 Run `sudo systemctl status rovercode.service` to confirm that it is running.
 Then, on any PC or tablet, head to app.rovercode.com to connect to your rover.
 
@@ -45,7 +43,7 @@ Below are instructions for how to install and run Rovercode on your PC.
 
 ```bash
 $ git clone --recursive https://github.com/rovercode/rovercode.git && cd rovercode
-$ sudo docker build -t rovercode .
+$ docker build -t rovercode .
 # Copy in the `rovercode_yourrovername.env` file as `.env` (nothing before the dot)
 $ cp ~/Downloads/rovercode_yourrovername.env .env
 $ docker run --env DEVELOPMENT=true --name rovercode -v $PWD:/var/rovercode rovercode
