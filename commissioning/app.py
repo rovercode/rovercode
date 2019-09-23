@@ -1,8 +1,8 @@
 """Takes configuration information from a file and sets up the Rover."""
+import argparse
 import glob
 import logging
 import os
-import sys
 from dotenv import dotenv_values
 
 logging.basicConfig()
@@ -37,19 +37,18 @@ def update_env_file(env_source_directory, env_dest_directory):
     LOGGER.info("Done updating .env file.")
 
 
-def main(args):
+def main():
     """Kick off all the commissioning work."""
-    if len(args) != 3:
-        LOGGER.error('Usage: python app.py ENV_SOURCE_DIR ENV_DEST_DIR')
-        return
-    env_source_directory = args[1]
-    env_dest_directory = args[2]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("source", help="source file directory")
+    parser.add_argument("destination", help="destination file directory")
+    args = parser.parse_args()
 
     LOGGER.info("Beginning commissioning.")
-    update_env_file(env_source_directory, env_dest_directory)
+    update_env_file(args.source, args.destination)
     # TODO: update wfa_supplicant.conf
     LOGGER.info("Finished commissioning.")
 
 
 if __name__ == '__main__':
-    main(sys.argv)  # pragma: no cover
+    main()  # pragma: no cover

@@ -1,4 +1,5 @@
 """Test the app module."""
+import argparse
 from unittest.mock import patch, mock_open, call
 
 import app
@@ -59,15 +60,10 @@ def test_updating_env_file_no_dest_path(mock_glob, mock_path, mock_dotenv,
         any_order=True)
 
 
+@patch('argparse.ArgumentParser.parse_args',
+       return_value=argparse.Namespace(source='src/', destination='dest/'))
 @patch('app.update_env_file')
-def test_main(mock_app):
+def test_main(mock_app, _):
     """Test main function."""
-    app.main(['app.py', 'src/', 'dest/'])
+    app.main()
     mock_app.assert_called_with('src/', 'dest/')
-
-
-@patch('app.update_env_file')
-def test_main_missing_args(mock_app):
-    """Test main with not enough arguments."""
-    app.main(['app.py'])
-    mock_app.assert_not_called()
