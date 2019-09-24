@@ -9,6 +9,7 @@ Restart=always
 User=root
 Group=root
 ExecStartPre=-/usr/bin/docker stop rovercode
+ExecStartPre=-/usr/bin/docker system prune
 ExecStartPre=-/usr/bin/docker rm rovercode
 ExecStartPre=-/usr/bin/docker pull rovercode/rovercode:latest
 ExecStart=-/usr/bin/docker run --name rovercode --privileged -v /dev:/dev -v /opt/rovercode/.env:/var/rovercode/.env rovercode
