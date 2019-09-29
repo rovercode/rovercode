@@ -24,13 +24,15 @@ The file will download as something like `rovercode_yourrovername.env`.
 Save this file to a flash drive.
 
 ### Rover Setup
+This setup is tested on Raspbian Stretch. There may be issues on Raspbian Buster.
+
 First, on your Raspberry Pi:
+
 ```bash
-$ sudo wget install git docker.io
-$ docker pull rovercode/rovercode
-$ mkdir -p /lib/systemd/system/rovercode /opt/rovercode/
-$ wget https://raw.githubusercontent.com/rovercode/services/commissioning.service /lib/systemd/system/rovercode/
-$ wget https://raw.githubusercontent.com/rovercode/services/rovercode.service /lib/systemd/system/rovercode/
+$ sudo apt-get install docker.io git
+$ docker pull rovercode/rovercode-arm
+$ sudo wget https://raw.githubusercontent.com/rovercode/services/rovercode-commissioning.service /etc/systemd/system/
+$ sudo wget https://raw.githubusercontent.com/rovercode/services/rovercode.service /etc/systemd/system/
 # Turn off your Raspberry Pi, insert your thumbdrive with the `rovercode_yourrovername.env` file, and turn the Raspberry Pi back on.
 ```
 Once the Raspberry Pi restarts, the commissioning service should run, followed by the rovercode service.
