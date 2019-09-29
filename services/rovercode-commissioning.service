@@ -15,6 +15,7 @@ ExecStartPre=-/bin/mkdir -p /mnt/usb-stick
 ExecStartPre=-/bin/mount /dev/sda1 /mnt/usb-stick
 ExecStartPre=-/bin/mkdir -p /opt/rovercode
 ExecStart=-/usr/bin/docker run --name rovercode-commissioning --privileged -v /mnt:/mnt -v /opt/rovercode:/opt/rovercode -w='/var/rovercode/commissioning' --entrypoint=/bin/bash rovercode/rovercode-arm -c 'python app.py /mnt/usb-stick/ /opt/rovercode/'
+ExecStartPost=/bin/bash /opt/rovercode/wpa-cli-commands.sh
 StandardOutput=syslog
 StandardError=syslog
 

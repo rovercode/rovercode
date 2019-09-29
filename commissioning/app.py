@@ -39,29 +39,23 @@ def update_env_file(source_values, env_dest_directory):
     LOGGER.info("Done updating .env file.")
 
 
-def configure_wpa_supplicant(ssid, psk):
+def configure_wpa_supplicant(ssid, psk, script_dest_dir):
     """Configure wpa_supplicant."""
-    LOGGER.info('Configuring WiFi.')
-    result = subprocess.run(['wpa_cli add_network'], capture_output=True)
-    network_id = result.stdout[-1]
+    LOGGER.info(f'Configuring WiFi for SSID {ssid}.')
+    script_dest_path = script_dest_dir + 'wpa-cli-commands.sh'
     commands = [
-        [f'wpa_cli set_network {network_id} ssid \'"{ssid}"\''],
-        [f'wpa_cli set_network {network_id} psk \'"{psk}"\''],
-        [f'wpa_cli enable_network {network_id}'],
-        ['wpa_cli save_config'],
-        ['wpa_cli -i wlan0 reconfigure'],
+        'result=$( wpa_cli add_network )\n',
+        'network_id="${result: -1}"\n',
+        f'wpa_cli set_network $network_id ssid \'"{ssid}"\'\n',
+        f'wpa_cli set_network $network_id psk \'"{psk}"\'\n',
+        f'wpa_cli enable_network $network_id\n',
+        'wpa_cli save_config\n',
+        'wpa_cli -i wlan0 reconfigure\n',
     ]
-    for command in commands:
-        sleep(0.2)
-        subprocess.run(command)
-    timeout = 0
-    while(not connected_to_internet() and timeout < 10):
-        timeout += 1
-        sleep(0.5)
-    if timeout == 10:
-        LOGGER.error('WiFi never came up.')
-        return
-    LOGGER.info('Done configuring WiFi.')
+    with open(script_dest_path, 'w') as dest_file:
+        for command in commands:
+            dest_file.write(command)
+    LOGGER.info('Done configuring WiFi init script.')
 
 
 def main():
@@ -87,8 +81,8 @@ def main():
         ssid = source_values.pop('AP_NAME')
         psk = source_values.pop('AP_PASSWORD')
         update_env_file(source_values, args.destination)
-        if ssid and psk and not connected_to_internet():
-            configure_wpa_supplicant(ssid, psk)
+        if ssid and psk:
+            configure_wpa_supplicant(ssid, psk, args.destination)
     LOGGER.info("Finished commissioning.")
 
 
