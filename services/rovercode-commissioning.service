@@ -13,7 +13,7 @@ ExecStartPre=-/usr/bin/docker stop rovercode-commissioning
 ExecStartPre=-/usr/bin/docker rm -f rovercode-commissioning
 ExecStartPre=-/bin/mkdir -p /mnt/usb-stick
 ExecStartPre=-/bin/mount /dev/sda1 /mnt/usb-stick
-ExecStartPre=-mkdir -p /opt/rovercode
+ExecStartPre=-/bin/mkdir -p /opt/rovercode
 ExecStart=-/usr/bin/docker run --name rovercode-commissioning --privileged -v /mnt:/mnt -v /opt/rovercode:/opt/rovercode -w='/var/rovercode/commissioning' --entrypoint=/bin/bash rovercode/rovercode-arm -c 'python app.py /mnt/usb-stick/ /opt/rovercode/'
 StandardOutput=syslog
 StandardError=syslog
