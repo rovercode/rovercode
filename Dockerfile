@@ -5,6 +5,7 @@ MAINTAINER Clifton Barnes <clifton.barnes@rovercode.com>
 COPY pytest.ini requirements.txt /var/rovercode/
 COPY GrovePi /var/rovercode/GrovePi
 COPY rovercode /var/rovercode/rovercode
+COPY commissioning /var/rovercode/commissioning
 
 WORKDIR /var/rovercode
 RUN apt-get update && apt-get install -y \

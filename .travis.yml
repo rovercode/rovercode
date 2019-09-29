@@ -15,6 +15,10 @@ script:
 - pushd rovercode
 - python -m pytest
 - prospector
+- popd
+- pushd commissioning
+- python -m pytest
+- prospector
 after_success:
 - coveralls
 - popd
