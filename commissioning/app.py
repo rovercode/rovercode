@@ -3,24 +3,11 @@ import argparse
 import glob
 import logging
 import os
-import subprocess
-import urllib.request
-import urllib.error
-from time import sleep
 from dotenv import dotenv_values
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.getLevelName('INFO'))
-
-
-def connected_to_internet():
-    """Check if we haven an Internet connection."""
-    try:
-        urllib.request.urlopen('https://google.com')
-        return True
-    except urllib.error.URLError:
-        return False
 
 
 def update_env_file(source_values, env_dest_directory):
@@ -68,7 +55,6 @@ def main():
     source_files = list(filter(
         os.path.isfile,
         glob.glob(args.source + "*.env")))
-    print(source_files)
     if not source_files:
         LOGGER.warning(f'No .env files found at {args.source}')
         return
