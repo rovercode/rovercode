@@ -29,10 +29,14 @@ This setup is tested on Raspbian Stretch. There may be issues on Raspbian Buster
 First, on your Raspberry Pi:
 
 ```bash
-$ sudo apt-get install docker.io git
+$ sudo apt-get update
+$ curl -sSL https://get.docker.com | sh
+$ sudo raspi-config # choose "5 Interfacing Options", then choose P5 I2C and enable it.
 $ docker pull rovercode/rovercode-arm
-$ sudo wget https://raw.githubusercontent.com/rovercode/services/rovercode-commissioning.service /etc/systemd/system/
-$ sudo wget https://raw.githubusercontent.com/rovercode/services/rovercode.service /etc/systemd/system/
+$ sudo wget https://raw.githubusercontent.com/rovercode/rovercode/development/services/rovercode-commissioning.service /etc/systemd/system/
+$ sudo wget https://raw.githubusercontent.com/rovercode/rovercode/development/services/rovercode.service /etc/systemd/system/
+$ sudo systemctl enable rovercode-commissioning.service  # An error about the file already existing is ok.
+$ sudo systemctl enable rovercode.service  # An error about the file already existing is ok.
 # Turn off your Raspberry Pi, insert your thumbdrive with the `rovercode_yourrovername.env` file, and turn the Raspberry Pi back on.
 ```
 Once the Raspberry Pi restarts, the commissioning service should run, followed by the rovercode service.

@@ -6,7 +6,8 @@ Requires=docker.service
 
 [Service]
 Type=oneshot
-TimeoutStartSec=0
+Restart=no
+RemainAfterExit=true
 User=root
 Group=root
 ExecStartPre=-/bin/rm -f /opt/rovercode/wpa-cli-commands.sh
@@ -18,6 +19,7 @@ ExecStartPre=-/bin/mount /dev/sda1 /mnt/usb-stick
 ExecStartPre=-/bin/mkdir -p /opt/rovercode
 ExecStart=-/usr/bin/docker run --name rovercode-commissioning --privileged -v /mnt:/mnt -v /opt/rovercode:/opt/rovercode -w='/var/rovercode/commissioning' --entrypoint=/bin/bash rovercode/rovercode-arm -c 'python app.py /mnt/usb-stick/ /opt/rovercode/'
 ExecStartPost=/bin/bash /opt/rovercode/wpa-cli-commands.sh
+ExecStartPost=-/bin/rm -f /opt/rovercode/wpa-cli-commands.sh
 StandardOutput=syslog
 StandardError=syslog
 
