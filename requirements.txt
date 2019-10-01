@@ -1,0 +1,14 @@
+docutils<0.13.1
+Sphinx==1.4.8
+sphinx_rtd_theme
+pytest-cov
+pytest-env
+mock
+pylint==2.1.1
+prospector==1.1.6.2
+astroid==2.0.4
+python-dotenv
+websocket-client
+requests-oauthlib
+RPi.GPIO
+smbus2

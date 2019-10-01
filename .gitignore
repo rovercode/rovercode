@@ -11,5 +11,7 @@ setuptools*
 .pytest_cache/
 env/
 htmlcov/
-www/docs/generated/
+docs/generated/
 .coverage
+.DS_Store
+*/.DS_Store

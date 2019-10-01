@@ -5,7 +5,7 @@ We're so glad you're interested in helping make rovercode even better! Whether y
 
 You can get in touch with the folks at rovercode in lots of ways:
 
-- Pop into `our chatroom <http://chat.rovercode.com>`_.
+- Pop into `our chatroom <https://rovercode.zulipchat.com>`_.
 
 - Add a comment to the ticket you're working on.
 
@@ -20,7 +20,7 @@ Read more at `rovercode.com <https://rovercode.com>`_.
 
 How to Get Started
 =====================
-- Join `our chat <http://chat.rovercode.com>`_ and say hello in any of the rooms!
+- Join `our chat <https://rovercode.zulipchat.com>`_ and say hello in any of the rooms!
 
 - Find a feature ticket that you'd be exited to work on. There are two pieces of rovercode, and therefore two collections of tickets: `rovercode-web <https://github.com/rovercode/rovercode/issues>`_ (our website with the Blockly web app) and `rovercode <https://github.com/rovercode/rovercode/issues>`_ (the code that runs on the rover hardware to control the motors and whatnot).
 

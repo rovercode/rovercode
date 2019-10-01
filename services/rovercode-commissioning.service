@@ -1,0 +1,26 @@
+[Unit]
+Description=Rovercode Commissioning Service
+Before=rovercode.service
+After=syslog.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+TimeoutStartSec=0
+User=root
+Group=root
+ExecStartPre=-/bin/rm -f /opt/rovercode/wpa-cli-commands.sh
+ExecStartPre=-/bin/touch /opt/rovercode/wpa-cli-commands.sh
+ExecStartPre=-/usr/bin/docker stop rovercode-commissioning
+ExecStartPre=-/usr/bin/docker rm -f rovercode-commissioning
+ExecStartPre=-/bin/mkdir -p /mnt/usb-stick
+ExecStartPre=-/bin/mount /dev/sda1 /mnt/usb-stick
+ExecStartPre=-/bin/mkdir -p /opt/rovercode
+ExecStart=-/usr/bin/docker run --name rovercode-commissioning --privileged -v /mnt:/mnt -v /opt/rovercode:/opt/rovercode -w='/var/rovercode/commissioning' --entrypoint=/bin/bash rovercode/rovercode-arm -c 'python app.py /mnt/usb-stick/ /opt/rovercode/'
+ExecStartPost=/bin/bash /opt/rovercode/wpa-cli-commands.sh
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+Alias=rovercode-commissioning.service

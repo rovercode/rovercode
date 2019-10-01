@@ -1,12 +1,4 @@
-[submodule "blockly"]
-	path = www/blockly
-	url = https://github.com/aninternetof/blockly
-[submodule "closure-library"]
-	path = www/closure-library
-	url = https://github.com/google/closure-library
-[submodule "JS-Interpreter"]
-	path = www/JS-Interpreter
-	url = https://github.com/NeilFraser/JS-Interpreter
-[submodule "Adafruit_Python_GPIO"]
-	path = www/Adafruit_Python_GPIO
-	url = https://github.com/aninternetof/Adafruit_Python_GPIO
+[submodule "GrovePi"]
+	path = GrovePi
+	url = https://github.com/rovercode/GrovePi.git 
+	branch = develop

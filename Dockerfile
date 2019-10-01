@@ -1,19 +1,25 @@
-FROM debian:stable
+FROM python:3.6-slim-stretch
 
-MAINTAINER Clifton Barnes <clifton.a.barnes@gmail.com>
+MAINTAINER Clifton Barnes <clifton.barnes@rovercode.com>
 
-RUN apt-get update
-RUN apt-get install -y python python-dev python-pip python-smbus
+COPY pytest.ini requirements.txt /var/rovercode/
+COPY GrovePi /var/rovercode/GrovePi
+COPY rovercode /var/rovercode/rovercode
+COPY commissioning /var/rovercode/commissioning
 
-EXPOSE 80
+WORKDIR /var/rovercode
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    libi2c-dev \
+    python3-smbus \
+&& pip install -r requirements.txt \
+&& apt-get remove -y --purge --auto-remove build-essential \
+&& rm -rf /var/lib/apt/lists/*
 
-ADD www /var/www/rovercode/www
-
-WORKDIR /var/www/rovercode/www
-RUN pip install -r requirements.txt
-
-WORKDIR /var/www/rovercode/www/Adafruit_Python_GPIO
+WORKDIR /var/rovercode/GrovePi/Software/Python
 RUN python setup.py install
-WORKDIR /var/www/rovercode/www
-RUN echo 'python app.py' > /usr/bin/run.sh
-ENTRYPOINT ["bash", "/usr/bin/run.sh"]
+
+WORKDIR /var/rovercode/rovercode
+
+CMD ["python", "app.py"]
