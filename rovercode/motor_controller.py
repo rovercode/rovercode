@@ -23,6 +23,11 @@ class MotorController:
             LOGGER.error("Unknown motor %s", motor)
             return
 
+        def reverse_direction(direction):
+            return MOTOR_DIRECTION_BACKWARD \
+                if direction == MOTOR_DIRECTION_FORWARD \
+                else MOTOR_DIRECTION_FORWARD
+
         try:
             speed = int(speed)
         except ValueError:
@@ -33,9 +38,12 @@ class MotorController:
                            "of negative motor speed %s",
                            direction, speed)
             speed = abs(speed)
-            direction = MOTOR_DIRECTION_BACKWARD \
-                if direction == MOTOR_DIRECTION_FORWARD \
-                else MOTOR_DIRECTION_FORWARD
+            direction = reverse_direction(direction)
+        if motor == RIGHT_MOTOR:
+            LOGGER.warning("Inverting direction %s because "
+                           "the right motor is attached backwards",
+                           direction)
+            direction = reverse_direction(direction)
 
         if direction == MOTOR_DIRECTION_FORWARD:
             driver_direction = self.driver.DIRECTION_FORWARD
