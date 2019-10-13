@@ -12,5 +12,6 @@ get from the server.
         "left-ultrasonic-threshold": 10,
         "right-ultrasonic-threshold": 10,
         "chainable-rgb-led-port": 7,
-        "num-chainable-rgb-leds": 2
+        "num-chainable-rgb-leds": 2,
+        "motor-reverse-right": true
     }

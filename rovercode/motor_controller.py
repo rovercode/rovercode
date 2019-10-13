@@ -12,9 +12,11 @@ LOGGER.setLevel(logging.getLevelName('INFO'))
 class MotorController:
     """Object to manage the motors."""
 
-    def __init__(self, driver):
+    def __init__(self, driver, reverse_left=False, reverse_right=False):
         """Construct a MotorManager."""
         self.driver = driver
+        self.reverse_left = reverse_left
+        self.reverse_right = reverse_right
         LOGGER.info("Motor manager initialized")
 
     def set_speed(self, motor, speed, direction):
@@ -22,6 +24,11 @@ class MotorController:
         if motor not in (LEFT_MOTOR, RIGHT_MOTOR):
             LOGGER.error("Unknown motor %s", motor)
             return
+
+        def reverse_direction(direction):
+            return MOTOR_DIRECTION_BACKWARD \
+                if direction == MOTOR_DIRECTION_FORWARD \
+                else MOTOR_DIRECTION_FORWARD
 
         try:
             speed = int(speed)
@@ -33,9 +40,12 @@ class MotorController:
                            "of negative motor speed %s",
                            direction, speed)
             speed = abs(speed)
-            direction = MOTOR_DIRECTION_BACKWARD \
-                if direction == MOTOR_DIRECTION_FORWARD \
-                else MOTOR_DIRECTION_FORWARD
+            direction = reverse_direction(direction)
+        if (self.reverse_left and motor == LEFT_MOTOR) or \
+                (self.reverse_right and motor == RIGHT_MOTOR):
+            LOGGER.info("Inverting direction %s of %s per config",
+                        direction, motor)
+            direction = reverse_direction(direction)
 
         if direction == MOTOR_DIRECTION_FORWARD:
             driver_direction = self.driver.DIRECTION_FORWARD
