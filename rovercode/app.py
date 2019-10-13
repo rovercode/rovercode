@@ -209,7 +209,9 @@ def run_service(run_forever=True, use_dotenv=True):
 
     # Create motor manager
     try:
-        MOTOR_CONTROLLER = MotorController(GroveMotors())
+        MOTOR_CONTROLLER = MotorController(GroveMotors(),
+            ROVER_CONFIG.get(constants.MOTOR_REVERSE_LEFT_FIELD),
+            ROVER_CONFIG.get(constants.MOTOR_REVERSE_RIGHT_FIELD))
     except:  # pylint: disable=bare-except
         CHAINABLE_RGB_MANAGER.set_all_led_colors(*constants.RGB_RED)
 
