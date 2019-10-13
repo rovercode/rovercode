@@ -44,7 +44,7 @@ class MotorController:
         if (self.reverse_left and motor == LEFT_MOTOR) or \
                 (self.reverse_right and motor == RIGHT_MOTOR):
             LOGGER.info("Inverting direction %s of %s per config",
-                           direction, motor)
+                        direction, motor)
             direction = reverse_direction(direction)
 
         if direction == MOTOR_DIRECTION_FORWARD:

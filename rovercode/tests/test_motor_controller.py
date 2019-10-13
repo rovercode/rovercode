@@ -38,6 +38,7 @@ def test_motor_controller_negative_value(driver_mock):
     motor_controller.set_speed(RIGHT_MOTOR, -40, MOTOR_DIRECTION_BACKWARD)
     driver_mock.set_right_speed.assert_called_with(40, 'driver_forward')
 
+
 def test_motor_controller_reverse_config(driver_mock):
     """Test inverting the motor according to the config."""
     motor_controller = MotorController(driver_mock, True, True)
@@ -47,6 +48,7 @@ def test_motor_controller_reverse_config(driver_mock):
     driver_mock.set_right_speed.assert_called_with(40, 'driver_forward')
     motor_controller.set_speed(RIGHT_MOTOR, -40, MOTOR_DIRECTION_BACKWARD)
     driver_mock.set_right_speed.assert_called_with(40, 'driver_backward')
+
 
 def test_motor_controller_bad_motor_name(driver_mock):
     """Test bad motor name."""
